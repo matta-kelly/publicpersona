@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+build/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode/
+.idea/
+coverage/
+.pnpm-store/
+next-env.d.ts
+tsconfig.tsbuildinfo

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: publicpersona
+  namespace: publicpersona
+  labels:
+    app.kubernetes.io/name: publicpersona
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: publicpersona
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http

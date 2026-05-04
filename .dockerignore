@@ -1,0 +1,17 @@
+node_modules
+.next
+.git
+.github
+.forgejo
+Dockerfile
+.dockerignore
+.gitignore
+README.md
+AGENTS.md
+lessons.md
+.env
+.env.*
+.vscode
+.idea
+coverage
+.claude

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Runs lint + typecheck on staged TS/TSX changes before commit.
+# Skip with: git commit --no-verify (don't make a habit of it).
+
+set -e
+
+if ! git diff --cached --name-only --diff-filter=ACMR | grep -qE '\.(ts|tsx|js|jsx|mjs|cjs)$'; then
+  exit 0
+fi
+
+echo "→ pnpm lint"
+pnpm -s lint
+
+echo "→ pnpm typecheck"
+pnpm -s typecheck

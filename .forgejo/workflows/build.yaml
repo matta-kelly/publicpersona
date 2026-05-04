@@ -1,0 +1,83 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md']
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: forgejo.monk3y.xyz
+  IMAGE_NAME: mkultra/publicpersona
+
+jobs:
+  # ─── Validate — typecheck, lint, build ───────────────────────────────
+  validate:
+    runs-on: lotus-lake-ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+  # ─── Build — push container image ────────────────────────────────────
+  build:
+    needs: validate
+    runs-on: lotus-lake-ci
+    if: gitea.event_name != 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to Container Registry
+        run: |
+          echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ gitea.actor }} --password-stdin
+
+      - name: Build image
+        run: |
+          SHORT_SHA=$(echo "${{ gitea.sha }}" | cut -c1-7)
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${SHORT_SHA} .
+
+      - name: Push image
+        run: |
+          SHORT_SHA=$(echo "${{ gitea.sha }}" | cut -c1-7)
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${SHORT_SHA}
+
+  # ─── Deploy — bump image tag in deploy/, commit back ─────────────────
+  # Flux watches deploy/ via GitRepository + Kustomization defined in dazoo.
+  deploy:
+    needs: build
+    runs-on: lotus-lake-ci
+    if: gitea.event_name != 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update image tag
+        run: |
+          SHORT_SHA=$(echo "${{ gitea.sha }}" | cut -c1-7)
+          sed -i "s|publicpersona:sha-[a-f0-9]*|publicpersona:sha-${SHORT_SHA}|g" deploy/deployment.yaml
+
+      - name: Commit and push
+        run: |
+          git config user.name "forgejo-actions[bot]"
+          git config user.email "forgejo-actions[bot]@forgejo.monk3y.xyz"
+          git add deploy/
+          git diff --cached --quiet || git commit -m "ci: bump image to sha-$(echo '${{ gitea.sha }}' | cut -c1-7)"
+          git push
