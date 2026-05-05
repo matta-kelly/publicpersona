@@ -7,6 +7,8 @@
   --foreground: #18181b;
   --muted: #71717a;
   --accent: #0f172a;
+  --link: #1d4ed8;
+  --link-hover: #1e3a8a;
 }
 
 .dark {
@@ -14,6 +16,8 @@
   --foreground: #f4f4f5;
   --muted: #a1a1aa;
   --accent: #f4f4f5;
+  --link: #93c5fd;
+  --link-hover: #bfdbfe;
 }
 
 @theme inline {
@@ -21,6 +25,20 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
+}
+
+.link {
+  color: var(--link);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  font-weight: 500;
+  transition: color 150ms;
+}
+.link:hover {
+  color: var(--link-hover);
 }
 
 body {

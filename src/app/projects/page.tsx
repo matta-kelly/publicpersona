@@ -11,6 +11,12 @@ const PROJECTS = [
     name: "Dazoo",
     description: "Self-hosted infrastructure platform.",
   },
+  {
+    slug: "sabermetric-networks",
+    name: "Sabermetric Networks",
+    description:
+      "MLB pitcher-batter matchups as a bipartite network, ranked by competition.",
+  },
 ];
 
 export default function ProjectsPage() {

@@ -24,9 +24,17 @@ export default async function CodePage() {
       <header className="space-y-3 text-muted leading-relaxed">
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">Code</h1>
         <p>
-          None of this is on GitHub. My code lives on my own Forgejo instance,
-          hosted on{" "}
-          <Link href="/projects/dazoo" className="italic underline hover:text-foreground">
+          None of this is on{" "}
+          <a
+            href="https://github.com/matta-kelly"
+            target="_blank"
+            rel="noreferrer"
+            className="link"
+          >
+            GitHub
+          </a>
+          . My code lives on my own Forgejo instance, hosted on{" "}
+          <Link href="/projects/dazoo" className="link">
             dazoo
           </Link>
           : a small self-managed platform spread across a few nodes in San
