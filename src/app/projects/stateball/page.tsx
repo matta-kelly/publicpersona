@@ -324,96 +324,101 @@ export default function StateballPage() {
         </p>
       </Section>
 
-      <Section title="6. Did we beat raw WE?">
+      <Section title="6. Where matchups live">
         <p>
-          The eval samples 494 games across 9 entry-point innings (4446
-          starting states), runs the sim from each, and compares predicted
-          P(home_win) and predicted final scores to actuals.
+          The tradeoff has been implicit since section 1. The WE table is a
+          free lookup that already encodes a century of state-conditioned
+          averages. The sim is matchup-aware compute that only buys
+          something if its prediction is closer to truth than that lookup.
+          The calibration step measures exactly that, per state bucket, on
+          real outcomes. Its output is a per-state map of where the
+          sim&apos;s prediction at each look-ahead beat WE.
         </p>
         <p>
-          Overall accuracy: 84.7% on win/loss prediction. That number
-          alone doesn&apos;t say much. It conflates trivial states
-          (9th-inning blowouts, where the WE table is also right) with
-          hard ones. The breakdown by entry inning is more honest:
+          Mechanically, the calibration step runs across every eval game in
+          a given state bucket and asks, at each candidate look-ahead
+          horizon, whether the sim&apos;s average squared error against
+          actual outcomes is smaller than WE&apos;s error at the entry
+          state. Horizons where the sim is closer to truth survive;
+          horizons where it isn&apos;t get dropped.
         </p>
+        <p>
+          The surviving horizons each give a noisy estimate of the same
+          quantity but from different vantage points in the simulated
+          game. Combining them isn&apos;t just averaging. Their errors are
+          correlated because they share trajectories, so a naive mean
+          would double-count overlapping information. The calibration
+          computes the covariance matrix of those errors, applies
+          Ledoit-Wolf shrinkage to keep it stable in buckets with few
+          games, and inverts it. Plugged into the Markowitz minimum-variance
+          formula <code>w = Σ⁻¹·1 / (1ᵀ·Σ⁻¹·1)</code>, the result gives
+          weights that downweight horizons whose noise is already absorbed
+          by others and upweight horizons that contribute independent
+          signal.
+        </p>
+        <p>
+          The output is a per-state weight vector that, paired with the
+          surviving-horizon list, tells the sim how to combine its
+          checkpoints into one prediction for that kind of state. Saved
+          as an artifact, read by the runtime on every prediction.
+        </p>
+        <p>Read across the 72 calibrated state buckets:</p>
         <Figure
-          src="/posts/stateball/accuracy_by_inning.png"
-          alt="Bar chart: sim accuracy by entry-point inning, climbing from 80% to 94%"
+          src="/posts/stateball/horizon_survival.png"
+          alt="Horizon survival rate, share of state buckets keeping each look-ahead horizon"
           width={1540}
           height={840}
         />
         <p>
-          Accuracy starts around 80% for first-inning starts and climbs to
-          94% by the ninth. That climb is the truncated MC short-circuit
-          at work. As the game progresses, more starting states are
-          decisive enough that the sim defers to the WE table, and on
-          those states the WE table is essentially perfect.
-        </p>
-        <p>Score prediction is where the sim looks worst.</p>
-        <Figure
-          src="/posts/stateball/score_bias.png"
-          alt="Histogram of predicted minus actual final score, home and away, both centered around -3"
-          width={1540}
-          height={840}
-        />
-        <p>
-          The histogram is predicted final score minus actual, for every
-          entry where the sim ran (the 51% that didn&apos;t short-circuit).
-          Mean home bias: -3.4 runs. Mean away bias: -3.3. The sim
-          systematically under-predicts how many runs each side ends up
-          scoring. That&apos;s a real, large gap.
+          In 76% of buckets, the sim&apos;s one-half-inning lookahead beats
+          WE. By four half-innings, only 43%. By eight, almost none.
         </p>
         <p>
-          Most of it is the truncation. When the sim early-stops on a
-          state that has converged in win-probability terms, the score
-          state at the moment of truncation locks in. Late-inning offense
-          that would have happened anyway doesn&apos;t get counted. A
-          close game that the sim correctly calls 60/40 home but ends 8-7
-          instead of 4-3 looks like a perfect win prediction and a bad
-          score prediction at the same time.
+          The hypothesis: matchup signal lives in the next handful of plate
+          appearances and gets averaged into noise after that. The lineup
+          turns over, the bullpen comes in, and the round-bat-round-ball
+          variance of subsequent play diffuses whatever edge a specific
+          batter-pitcher matchup carries. By the time you&apos;re looking
+          eight half-innings out, every comparable matchup that ever played
+          from a similar state has averaged into WE&apos;s lookup, and
+          there&apos;s nothing left for the sim to add.
         </p>
         <p>
-          Whether that bothers you depends on what you&apos;re using the
-          output for. For win probability, the score bias washes out. For
-          anything that consumes the predicted run distribution directly,
-          it doesn&apos;t.
+          The deeper reason the sim has to fight for ground: WE is
+          calibrated by construction. Its predictions <em>are</em> the
+          historical home-win frequencies from each state, so by definition
+          they match observed outcomes in aggregate. The sim has to earn
+          calibration through stochastic sampling, which costs variance
+          from the PA model and from MC noise. Where matchup conditioning
+          genuinely helps, that signal exceeds the variance overhead and
+          the sim&apos;s prediction ends up tighter than WE&apos;s. Where
+          it doesn&apos;t, the sim&apos;s noise budget costs more than the
+          signal it gains. The Brier gate above is exactly this
+          comparison; the buckets that survive are the ones where the
+          matchup edge clears its own variance overhead.
         </p>
         <p>
-          The cleaner sim-vs-WE comparison (calibration or Brier delta on
-          the 51% MC-run subset) isn&apos;t built yet. The eval pairs each
-          entry&apos;s sim P(home_win) with the WE baseline, so the data
-          is in place.
+          That&apos;s the tradeoff the project navigates. Pay sim compute
+          for the short window where matchup detail still moves the
+          probability past what WE already encodes; take WE for free past
+          that. The 49% runtime short-circuit is the same picture from a
+          different angle: half the states the sim sees in production land
+          in buckets where no horizon beat WE, so the runtime returns the
+          table directly.
         </p>
       </Section>
 
-      <Section title="7. What's next">
-        <p>A handful of things on the list, none of them rebuilds.</p>
+      <Section title="7. Closing">
         <p>
-          <strong>Score distribution.</strong> The estimator stops
-          sampling after the bootstrap horizon, so predicted final scores
-          sit ~3 below actual on MC-run entries (section 6). Win-probability
-          is unaffected, but anyone consuming the run distribution
-          downstream would want the sim continued past the WE-bootstrap
-          point at extra compute cost.
-        </p>
-        <p>
-          <strong>Rao-Blackwellization.</strong> Replace some of the Monte
-          Carlo with closed-form expectation where the math is cheap. For
-          late-inning states where the remaining outcome distribution is
-          small enough to enumerate, you can integrate over it analytically
-          and skip the Monte Carlo step entirely. Cleaner output, fewer
-          sims.
-        </p>
-        <p>
-          <strong>Pitcher fatigue beyond what&apos;s currently modeled.</strong>{" "}
-          The pitcher arsenal features capture how a pitcher pitches; they
-          don&apos;t capture how he pitches in his 90th pitch of the night
-          versus his 30th. A real signal, a known gap.
-        </p>
-        <p>
-          None of these are blockers. The sim works, the dashboard works,
-          the numbers in this post are honest. They&apos;re just where
-          I&apos;d push next.
+          You don&apos;t really beat a lookup table that already encodes a
+          century of how baseball plays out. You sit beside it for a
+          stretch of plate appearances where the matchup is sharp enough
+          to nudge the probability past the historical average, then the
+          game absorbs whatever advantage was there and the table picks
+          the rest up. What I came away with wasn&apos;t a verdict on the
+          sim. It was respect for how much of baseball the WE table has
+          already encoded, and how naturally the calibration ended up
+          agreeing with it.
         </p>
       </Section>
     </article>
