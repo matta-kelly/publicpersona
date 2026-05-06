@@ -28,7 +28,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: web
-          image: forgejo.monk3y.xyz/mkultra/publicpersona:sha-a7f3c58  # bumped by CI
+          image: forgejo.monk3y.xyz/mkultra/publicpersona:sha-359b779  # bumped by CI
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
