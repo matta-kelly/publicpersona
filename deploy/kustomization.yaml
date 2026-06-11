@@ -5,8 +5,4 @@ resources:
   - deployment.yaml
   - service.yaml
   - externalsecret.yaml
-  # ingress.yaml temporarily removed during the move staging window:
-  # routing for home.monk3y.xyz flips to monkeysuit's work-dash tunnel so
-  # publicpersona stays up during monkeybusiness transit. Re-added after
-  # monkeybusiness is back online at the new place.
-  # - ingress.yaml
+  - ingress.yaml
