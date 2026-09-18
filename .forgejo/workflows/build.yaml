@@ -52,8 +52,10 @@ jobs:
       - name: Build image
         run: |
           SHORT_SHA=$(echo "${{ gitea.sha }}" | cut -c1-7)
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${SHORT_SHA} \
-                       -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${SHORT_SHA} .
+          # Separate tag step: the runner's docker is podman's compat API, which keeps only the
+          # last of several -t flags on build.
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${SHORT_SHA} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Push image
         run: |
