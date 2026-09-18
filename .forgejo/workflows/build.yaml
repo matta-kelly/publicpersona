@@ -49,19 +49,14 @@ jobs:
         run: |
           echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ gitea.actor }} --password-stdin
 
-      - name: Build image
+      - name: Build and push image
         run: |
           SHORT_SHA=$(echo "${{ gitea.sha }}" | cut -c1-7)
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${SHORT_SHA} .
-          # Separate tag step: the runner's docker is podman's compat API, which keeps only the
-          # last of several -t flags on build.
-          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${SHORT_SHA} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
-      - name: Push image
-        run: |
-          SHORT_SHA=$(echo "${{ gitea.sha }}" | cut -c1-7)
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${SHORT_SHA}
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          # The runner's docker build is buildx with the docker-container driver: the result
+          # stays in the builder, not the local image store, so build and push in one step.
+          docker build --push \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${SHORT_SHA} \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
 
   # Deploy: none here. monkeybusiness runs this image as a Podman quadlet with
   # Image=...:latest + AutoUpdate=registry (dazoo nodes/mutable/monkeybusiness/publicpersona/),
