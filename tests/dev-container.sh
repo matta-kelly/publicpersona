@@ -29,7 +29,8 @@ done
 pass "lint, typecheck and build pass"
 
 for dir in node_modules .next .pnpm-store; do
-  count=$(find "$dir" -type f 2>/dev/null | wc -l)
+  [ -e "$dir" ] || continue
+  count=$(find "$dir" -type f | wc -l)
   [ "$count" -eq 0 ] || fail "$count files under $dir on the host"
 done
 pass "no packages or build output on the host"
