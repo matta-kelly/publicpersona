@@ -2,19 +2,29 @@
 # Checks the spec in _well/spec-dev-container.md. Run from the repo root, on the host.
 set -euo pipefail
 
-cli() { npx --yes @devcontainers/cli "$1" --workspace-folder . --docker-path podman "${@:2}"; }
 fail() { echo "FAIL: $1" >&2; exit 1; }
 pass() { echo "ok: $1"; }
 
+# Every step that waits has a limit, so a hang fails with what it was waiting for.
+# wait_for <seconds> <what> <devcontainer verb> [args...]
+wait_for() {
+  local limit=$1 what=$2 verb=$3 code=0
+  shift 3
+  timeout -k 5 "$limit" npx --yes @devcontainers/cli "$verb" \
+    --workspace-folder . --docker-path podman "$@" >/dev/null || code=$?
+  if [ "$code" -eq 124 ] || [ "$code" -eq 137 ]; then fail "gave up after ${limit}s waiting for: $what"; fi
+  [ "$code" -eq 0 ] || fail "$what"
+}
+
 [ -f .devcontainer/devcontainer.json ] || fail "no .devcontainer/devcontainer.json"
-cli up >/dev/null || fail "container does not start under rootless podman"
+wait_for 300 "the container to start under rootless podman" up
 pass "container starts"
 
-cli exec test -x node_modules/.bin/next || fail "packages were not installed when the container was created"
+wait_for 30 "packages installed when the container was created" exec test -x node_modules/.bin/next
 pass "packages installed on create"
 
 for cmd in lint typecheck build; do
-  cli exec pnpm -s "$cmd" >/dev/null || fail "pnpm $cmd does not pass in the container"
+  wait_for 300 "pnpm $cmd to pass in the container" exec pnpm -s "$cmd"
 done
 pass "lint, typecheck and build pass"
 
