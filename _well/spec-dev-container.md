@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Run publicpersona's toolchain in a dev container, so its packages and build output stay in Podman volumes and out of the repo folder. Reference for what the change must do and how it is checked."
-status: factory
+status: review
 ---
 ## Need
 
