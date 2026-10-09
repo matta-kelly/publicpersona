@@ -1,36 +1,57 @@
 # publicpersona
 
-Personal site. Lives at `home.monk3y.xyz`.
+My personal site: who I am, what I have built, and how I think. Live at [home.monk3y.xyz](https://home.monk3y.xyz).
 
-See [`AGENTS.md`](./AGENTS.md) for working with this repo and the
-[`public-persona`](../../../thought-garden/public-persona.md) pod in
-thought-garden for goals, scope, and architecture.
+- `/` bio
+- `/projects` write-ups of things I have built
+- `/code` my repositories, read live from the git host's API
+- `/photos` a gallery, read live from a shared Immich album
 
-## Quick start
+Built with Next.js 16, React 19, TypeScript and Tailwind 4.
+
+## Run it
+
+Needs Node 22 and pnpm.
 
 ```sh
 pnpm install
-cp .env.example .env.local   # then fill values from Vaultwarden
-pnpm dev                     # http://localhost:3000
+cp .env.example .env.local
+pnpm dev
 ```
 
-The required env vars and the Vaultwarden items they come from are
-documented in `.env.example`.
+The site is then at http://localhost:3000.
 
-`pnpm install` also wires the pre-commit hook (`.githooks/pre-commit`,
-runs lint + typecheck on staged TS changes).
+`.env.local` holds two values, both described in `.env.example`. Without them the site still runs; `/photos` and `/code` have nothing to show.
 
-## Scripts
+`pnpm install` also turns on the pre-commit hook in `.githooks/`, which runs the lint and the typecheck on staged TypeScript.
 
-| Command | Purpose |
+## Check it
+
+```sh
+pnpm lint
+pnpm typecheck
+pnpm build
+```
+
+`pnpm format` applies Prettier to the whole repo.
+
+## Ship it
+
+Merging to `main` is the deploy.
+
+1. CI runs the lint and the build.
+2. CI builds a container image and pushes it twice: tagged with the commit, and as `latest`.
+3. The host runs `latest` and pulls a new image by itself.
+
+To roll back, pin the host to the tag of an earlier commit.
+
+## Layout
+
+| Path | Holds |
 |---|---|
-| `pnpm dev` | Local dev server with hot reload |
-| `pnpm build` | Production build (catches type errors too) |
-| `pnpm lint` | ESLint |
-| `pnpm typecheck` | `tsc --noEmit`, faster than `build` for type-only checks |
-| `pnpm format` | Prettier across the repo |
-
-## Deploy
-
-Push to `main` on Forgejo → CI builds + pushes image, bumps `deploy/deployment.yaml`,
-Flux reconciles on the home cluster. Live at `home.monk3y.xyz`.
+| `src/app/` | pages and routes (Next.js App Router) |
+| `src/components/` | shared interface pieces |
+| `src/lib/` | clients for the two outside services |
+| `public/` | images and other static files |
+| `Dockerfile` | the image: a multi-stage build ending in Next's standalone server |
+| `.forgejo/workflows/build.yaml` | the CI pipeline |
