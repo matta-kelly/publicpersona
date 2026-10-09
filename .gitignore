@@ -13,3 +13,6 @@ coverage/
 .pnpm-store/
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# vault note: private, belongs to the knowledge vault, not the site
+publicpersona.md
