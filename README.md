@@ -11,21 +11,25 @@ Built with Next.js 16, React 19, TypeScript and Tailwind 4.
 
 ## Run it
 
-Needs Node 22 and pnpm.
+Every command runs in the dev container, which holds Node 22 and pnpm. The packages and the build cache stay in Podman volumes, out of the repo folder. Needs Podman and Node on the host.
 
 ```sh
-pnpm install
+npx @devcontainers/cli up --workspace-folder . --docker-path podman
 cp .env.example .env.local
-pnpm dev
+npx @devcontainers/cli exec --workspace-folder . --docker-path podman pnpm dev
 ```
+
+Creating the container installs the packages. In VS Code, **Reopen in Container** does the same, and its terminal is then inside the container.
 
 The site is then at http://localhost:3000.
 
 `.env.local` holds two values, both described in `.env.example`. Without them the site still runs; `/photos` and `/code` have nothing to show.
 
-`pnpm install` also turns on the pre-commit hook in `.githooks/`, which runs the lint and the typecheck on staged TypeScript.
+The install also turns on the pre-commit hook in `.githooks/`, which runs the lint and the typecheck on staged TypeScript. A commit made on the host skips them, since the packages are only in the container.
 
 ## Check it
+
+In the container:
 
 ```sh
 pnpm lint
@@ -34,6 +38,8 @@ pnpm build
 ```
 
 `pnpm format` applies Prettier to the whole repo.
+
+`./tests/dev-container.sh`, run on the host, checks the container itself.
 
 ## Ship it
 
