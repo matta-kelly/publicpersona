@@ -41,5 +41,5 @@ timeout 60 gh api "repos/$repo/rules/branches/main" \
   | grep -qx checks || fail "the ruleset on main does not require the run"
 pass "main refuses a pull request whose run is failing or missing"
 
-git diff --quiet github/main -- .forgejo || fail ".forgejo/ differs from main"
+git diff --quiet origin/main -- .forgejo || fail ".forgejo/ differs from main"
 pass "the existing pipeline file is unchanged"
