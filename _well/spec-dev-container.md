@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Run publicpersona's toolchain in a dev container, so its packages and build output stay in Podman volumes and out of the repo folder. Reference for what the change must do and how it is checked."
-status: review
+status: done
 ---
 ## Need
 
@@ -47,6 +47,6 @@ status: review
 
 ## Tests
 
-- `tests/dev-container.sh`, run from the repo root on the host
+- `tests/e2e/dev-container.sh`, run from the repo root on the host
 	- one block per acceptance criterion, in the same order
 	- fails today at the first block: there is no `.devcontainer/devcontainer.json`

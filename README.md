@@ -39,7 +39,7 @@ pnpm build
 
 `pnpm format` applies Prettier to the whole repo.
 
-`./tests/dev-container.sh`, run on the host, checks the container itself.
+`./tests/e2e/dev-container.sh`, run on the host, checks the container itself.
 
 ## Ship it
 
