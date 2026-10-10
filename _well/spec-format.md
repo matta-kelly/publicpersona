@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Bring every file in publicpersona in line with the formatter, and add a way to check it. Reference for what the change must do and how it is checked."
-status: design
+status: factory
 ---
 ## Need
 
