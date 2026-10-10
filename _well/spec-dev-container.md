@@ -47,6 +47,6 @@ status: review
 
 ## Tests
 
-- `tests/dev-container.sh`, run from the repo root on the host
+- `tests/e2e/dev-container.sh`, run from the repo root on the host
 	- one block per acceptance criterion, in the same order
 	- fails today at the first block: there is no `.devcontainer/devcontainer.json`
