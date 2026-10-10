@@ -8,6 +8,12 @@ if ! git diff --cached --name-only --diff-filter=ACMR | grep -qE '\.(ts|tsx|js|j
   exit 0
 fi
 
+# The packages live in a volume only the dev container mounts, so on the host there is nothing to run.
+if [ ! -x node_modules/.bin/eslint ]; then
+  echo "pre-commit: skipped on the host; lint and typecheck run in the dev container"
+  exit 0
+fi
+
 echo "→ pnpm lint"
 pnpm -s lint
 
