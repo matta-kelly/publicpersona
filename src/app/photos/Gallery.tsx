@@ -18,10 +18,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
     [photos.length],
   );
   const prev = useCallback(
-    () =>
-      setOpenIndex((i) =>
-        i === null ? null : (i - 1 + photos.length) % photos.length,
-      ),
+    () => setOpenIndex((i) => (i === null ? null : (i - 1 + photos.length) % photos.length)),
     [photos.length],
   );
 
@@ -87,9 +84,15 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
               prev();
             }}
             aria-label="Previous photo"
-            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 sm:left-4"
+            className="absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 sm:left-4"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-6 w-6"
+            >
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
@@ -101,9 +104,15 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
               next();
             }}
             aria-label="Next photo"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 sm:right-4"
+            className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 sm:right-4"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-6 w-6"
+            >
               <path d="M9 6l6 6-6 6" />
             </svg>
           </button>
@@ -115,9 +124,15 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
               close();
             }}
             aria-label="Close"
-            className="absolute right-2 top-2 rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 sm:right-4 sm:top-4"
+            className="absolute top-2 right-2 rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 sm:top-4 sm:right-4"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-5 w-5"
+            >
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
           </button>

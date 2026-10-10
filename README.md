@@ -53,11 +53,11 @@ To roll back, pin the host to the tag of an earlier commit.
 
 ## Layout
 
-| Path | Holds |
-|---|---|
-| `src/app/` | pages and routes (Next.js App Router) |
-| `src/components/` | shared interface pieces |
-| `src/lib/` | clients for the two outside services |
-| `public/` | images and other static files |
-| `Dockerfile` | the image: a multi-stage build ending in Next's standalone server |
-| `.forgejo/workflows/build.yaml` | the CI pipeline |
+| Path                            | Holds                                                             |
+| ------------------------------- | ----------------------------------------------------------------- |
+| `src/app/`                      | pages and routes (Next.js App Router)                             |
+| `src/components/`               | shared interface pieces                                           |
+| `src/lib/`                      | clients for the two outside services                              |
+| `public/`                       | images and other static files                                     |
+| `Dockerfile`                    | the image: a multi-stage build ending in Next's standalone server |
+| `.forgejo/workflows/build.yaml` | the CI pipeline                                                   |

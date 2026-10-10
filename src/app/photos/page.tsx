@@ -18,7 +18,7 @@ export default async function PhotosPage() {
     <article>
       <header className="prose prose-neutral dark:prose-invert">
         <h1 className="text-3xl font-semibold tracking-tight">{share.albumName}</h1>
-        <p className="mt-2 text-muted">{photos.length} photos</p>
+        <p className="text-muted mt-2">{photos.length} photos</p>
       </header>
       <Gallery photos={photos} />
     </article>

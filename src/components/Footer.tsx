@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
-    <footer className="border-t border-black/5 dark:border-white/10 mt-12">
-      <div className="mx-auto max-w-3xl px-6 py-6 flex items-center justify-between text-sm text-muted">
+    <footer className="mt-12 border-t border-black/5 dark:border-white/10">
+      <div className="text-muted mx-auto flex max-w-3xl items-center justify-between px-6 py-6 text-sm">
         <span>© Matthew Kelly</span>
         <ul className="flex gap-4">
           <li>
