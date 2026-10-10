@@ -4,10 +4,7 @@ import { ThumbnailSize, upstreamThumbnailUrl } from "@/lib/immich";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ALLOWED_SIZES: ThumbnailSize[] = ["preview", "thumbnail"];
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!UUID_RE.test(id)) {
     return new Response("Bad asset id", { status: 400 });

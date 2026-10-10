@@ -26,7 +26,7 @@ export default function Nav() {
         <Link href="/" className="font-medium">
           Matthew Kelly
         </Link>
-        <ul className="order-3 flex w-full gap-4 text-muted sm:order-none sm:ml-auto sm:w-auto sm:gap-6">
+        <ul className="text-muted order-3 flex w-full gap-4 sm:order-none sm:ml-auto sm:w-auto sm:gap-6">
           {links.map((l) => {
             const active = isActive(pathname, l.href);
             return (

@@ -14,8 +14,7 @@ const PROJECTS = [
   {
     slug: "sabermetric-networks",
     name: "Sabermetric Networks",
-    description:
-      "MLB pitcher-batter matchups as a bipartite network, ranked by competition.",
+    description: "MLB pitcher-batter matchups as a bipartite network, ranked by competition.",
   },
 ];
 
@@ -31,7 +30,7 @@ export default function ProjectsPage() {
               className="block rounded-md border border-black/5 p-5 transition-colors hover:border-black/20 dark:border-white/10 dark:hover:border-white/30"
             >
               <h2 className="text-lg font-semibold tracking-tight">{p.name}</h2>
-              <p className="mt-2 text-sm text-muted">{p.description}</p>
+              <p className="text-muted mt-2 text-sm">{p.description}</p>
             </Link>
           </li>
         ))}

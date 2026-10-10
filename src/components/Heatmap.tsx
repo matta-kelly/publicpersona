@@ -16,20 +16,7 @@ const TIER_BG = [
   "bg-blue-700 dark:bg-blue-300",
 ];
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export default function Heatmap({ days, total }: { days: HeatmapDay[]; total: number }) {
   // Forgejo returns sparse list (only days with contributions). Fill in gaps.
@@ -82,7 +69,7 @@ export default function Heatmap({ days, total }: { days: HeatmapDay[]; total: nu
         <div className="inline-block">
           {/* month labels row */}
           <div
-            className="grid gap-[3px] text-xs text-muted mb-1"
+            className="text-muted mb-1 grid gap-[3px] text-xs"
             style={{ gridTemplateColumns: `repeat(${weeks.length}, minmax(0, 1fr))` }}
           >
             {weeks.map((_, col) => {
@@ -121,7 +108,7 @@ export default function Heatmap({ days, total }: { days: HeatmapDay[]; total: nu
         </div>
       </div>
 
-      <figcaption className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs text-muted">
+      <figcaption className="text-muted mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs">
         <span>{total.toLocaleString()} contributions in the last 12 months</span>
         <span className="flex items-center gap-1">
           <span>Less</span>

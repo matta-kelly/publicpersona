@@ -27,7 +27,7 @@ function formatDate(iso: string): string {
 
 export default function RepoCard({ repo }: { repo: RepoSummary }) {
   return (
-    <li className="rounded-md border border-black/5 dark:border-white/10 p-5">
+    <li className="rounded-md border border-black/5 p-5 dark:border-white/10">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-lg font-semibold tracking-tight">
           <a
@@ -39,14 +39,14 @@ export default function RepoCard({ repo }: { repo: RepoSummary }) {
             {repo.name}
           </a>
         </h3>
-        <span className="text-sm text-muted whitespace-nowrap">
+        <span className="text-muted text-sm whitespace-nowrap">
           {repo.commitsLast12mo.toLocaleString()} commits
         </span>
       </div>
 
-      {repo.description && <p className="mt-2 text-sm text-muted">{repo.description}</p>}
+      {repo.description && <p className="text-muted mt-2 text-sm">{repo.description}</p>}
 
-      <p className="mt-3 text-xs text-muted">Created {formatDate(repo.createdAt)}</p>
+      <p className="text-muted mt-3 text-xs">Created {formatDate(repo.createdAt)}</p>
 
       {repo.languages.length > 0 && (
         <div className="mt-4 space-y-2">
@@ -54,12 +54,15 @@ export default function RepoCard({ repo }: { repo: RepoSummary }) {
             {repo.languages.map((l) => (
               <div
                 key={l.name}
-                style={{ width: `${(l.pct * 100).toFixed(2)}%`, backgroundColor: langColor(l.name) }}
+                style={{
+                  width: `${(l.pct * 100).toFixed(2)}%`,
+                  backgroundColor: langColor(l.name),
+                }}
                 title={`${l.name} ${(l.pct * 100).toFixed(1)}%`}
               />
             ))}
           </div>
-          <ul className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
+          <ul className="text-muted flex flex-wrap gap-x-3 gap-y-1 text-xs">
             {repo.languages.map((l) => (
               <li key={l.name} className="flex items-center gap-1.5">
                 <span
