@@ -15,14 +15,15 @@ status: factory
 
 - `pnpm format:check` passes in the dev container
 - `pnpm lint`, `pnpm typecheck` and `pnpm build` still pass
-- the formatter leaves `pnpm-lock.yaml` and `_well/` alone
+- the formatter leaves `pnpm-lock.yaml`, `_well/` and `.forgejo/` alone
 - running `pnpm format` a second time changes nothing
 
 ### Approach
 
-- add `.prettierignore` with two entries
+- add `.prettierignore` with three entries
 	- `pnpm-lock.yaml`: generated, never edited by hand or by a tool other than pnpm
 	- `_well/`: vault notes, which use tabs for nested lists
+	- `.forgejo/`: the pipeline, which this change must not touch
 - run `pnpm format` in the dev container
 - commit what it writes, and nothing else
 
