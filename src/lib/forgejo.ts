@@ -122,3 +122,5 @@ export async function getActivity(): Promise<ActivitySummary> {
   const totalContributionsLast12mo = heatmap.reduce((sum, d) => sum + d.count, 0);
   return { totalContributionsLast12mo, heatmap, repos };
 }
+
+export const broken: any = 1;
