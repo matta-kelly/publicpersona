@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Run publicpersona's checks on GitHub for every pull request, and make main refuse a change that fails them. Reference for what the change must do and how it is checked."
-status: design
+status: factory
 depends_on:
   - "[[spec-format]]"
 ---
