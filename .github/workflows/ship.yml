@@ -1,0 +1,33 @@
+name: ship
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# One image per commit on main. The default queue holds one waiting run and cancels it
+# when a newer one arrives, and that commit would get no image.
+concurrency:
+  group: ship
+  queue: max
+
+jobs:
+  ship:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/matta-kelly/publicpersona
+    steps:
+      - uses: actions/checkout@v4
+
+      # The run's own short-lived token; no password is stored for the registry.
+      - run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
+
+      - run: docker build -t "$IMAGE:sha-${GITHUB_SHA::7}" -t "$IMAGE:latest" .
+
+      - run: docker push --all-tags "$IMAGE"
