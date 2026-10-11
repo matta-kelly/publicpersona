@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Build publicpersona's image on GitHub on every merge to main and publish it to ghcr.io, check the image build on every pull request, and put the whole check set behind one command. Reference for what the change must do and how it is checked."
-status: design
+status: review
 depends_on:
   - "[[spec-checks]]"
 ---

@@ -29,35 +29,48 @@ The install also turns on the pre-commit hook in `.githooks/`, which runs the li
 
 ## Check it
 
-In the container:
+On the host, from the repo root:
 
 ```sh
-pnpm lint
-pnpm typecheck
-pnpm build
+./check.sh
 ```
 
-`pnpm format` applies Prettier to the whole repo.
+It runs the whole check set and stops at the first failure: the format check, the lint, the typecheck, and the image build. The image build runs `pnpm build` and pushes nothing. Needs Podman and Node on the host; the three `pnpm` checks run in the dev container, which the script starts.
+
+The pipeline runs the same command. Two values from the environment say which tools to use:
+
+| Value    | Says                           | Default                   |
+| -------- | ------------------------------ | ------------------------- |
+| `PNPM`   | how to call pnpm               | through the dev container |
+| `ENGINE` | the tool that builds the image | `podman`                  |
+
+`pnpm format`, in the container, applies Prettier to the whole repo.
 
 `./tests/e2e/dev-container.sh`, run on the host, checks the container itself.
 
 ## Ship it
 
-Merging to `main` is the deploy.
+Merging to `main` builds and publishes the image. Two files under `.github/workflows/` do the work, on GitHub's runners.
 
-1. CI runs the lint and the build.
-2. CI builds a container image and pushes it twice: tagged with the commit, and as `latest`.
-3. The host runs `latest` and pulls a new image by itself.
+1. `checks.yml` runs `./check.sh` on every pull request into `main`. The ruleset on `main` refuses a merge until it passes.
+2. `ship.yml` runs on every push to `main`. It builds the image and pushes it to `ghcr.io/matta-kelly/publicpersona` twice: as `sha-<first 7 characters of the commit>`, and as `latest`.
 
-To roll back, pin the host to the tag of an earlier commit.
+The image is public: anyone can pull it with no login.
+
+The node still pulls `latest` from the other server, `forgejo.monk3y.xyz`, until the node switch. Until then, a merge on GitHub publishes to ghcr.io and the node does not take it; `.forgejo/workflows/build.yaml` builds the image that the node runs.
+
+To roll back, pin the node to the `sha-` tag of an earlier commit.
 
 ## Layout
 
-| Path                            | Holds                                                             |
-| ------------------------------- | ----------------------------------------------------------------- |
-| `src/app/`                      | pages and routes (Next.js App Router)                             |
-| `src/components/`               | shared interface pieces                                           |
-| `src/lib/`                      | clients for the two outside services                              |
-| `public/`                       | images and other static files                                     |
-| `Dockerfile`                    | the image: a multi-stage build ending in Next's standalone server |
-| `.forgejo/workflows/build.yaml` | the CI pipeline                                                   |
+| Path                            | Holds                                                                                        |
+| ------------------------------- | -------------------------------------------------------------------------------------------- |
+| `src/app/`                      | pages and routes (Next.js App Router)                                                        |
+| `src/components/`               | shared interface pieces                                                                      |
+| `src/lib/`                      | clients for the two outside services                                                         |
+| `public/`                       | images and other static files                                                                |
+| `Dockerfile`                    | the image: a multi-stage build ending in Next's standalone server                            |
+| `check.sh`                      | the one command that runs the whole check set                                                |
+| `.github/workflows/checks.yml`  | the pipeline for a pull request: runs `check.sh`                                             |
+| `.github/workflows/ship.yml`    | the pipeline for a merge to `main`: builds the image and pushes it to ghcr.io                |
+| `.forgejo/workflows/build.yaml` | the pipeline on the other server, which builds the image the node runs until the node switch |

@@ -18,6 +18,8 @@ RUN pnpm build
 
 # ─── run ─────────────────────────────────────────────────────────────────
 FROM node:22-alpine@sha256:8ea2348b068a9544dae7317b4f3aafcdc032df1647bb7d768a05a5cad1a7683f AS run
+# Links the package on ghcr.io to the repo it was built from.
+LABEL org.opencontainers.image.source=https://github.com/matta-kelly/publicpersona
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
