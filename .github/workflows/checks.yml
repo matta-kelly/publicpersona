@@ -7,9 +7,15 @@ on:
 permissions:
   contents: read
 
+# A newer push makes the older run's answer useless.
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   checks:
-    runs-on: ubuntu-latest
+    # A named release: ubuntu-latest moves to a new one with no commit here.
+    runs-on: ubuntu-24.04
     # A hung step has to fail the run; the ruleset on main waits on this job.
     timeout-minutes: 10
     steps:
@@ -25,7 +31,9 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm format:check
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm build
+
+      # The runner has pnpm and docker on the PATH; the defaults are for a dev machine.
+      - run: ./check.sh
+        env:
+          PNPM: pnpm
+          ENGINE: docker
