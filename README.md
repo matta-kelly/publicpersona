@@ -55,20 +55,19 @@ Merging to `main` builds and publishes the image. Two files under `.github/workf
 
 The image is public: anyone can pull it with no login.
 
-The node still pulls `latest` from the other server, `forgejo.monk3y.xyz`, until the node switch. Until then, a merge on GitHub publishes to ghcr.io and the node does not take it; `.forgejo/workflows/build.yaml` builds the image that the node runs.
+The node, `monkeybusiness`, runs `latest` from ghcr.io and takes each new image by itself: a merge is the deploy.
 
 To roll back, pin the node to the `sha-` tag of an earlier commit.
 
 ## Layout
 
-| Path                            | Holds                                                                                        |
-| ------------------------------- | -------------------------------------------------------------------------------------------- |
-| `src/app/`                      | pages and routes (Next.js App Router)                                                        |
-| `src/components/`               | shared interface pieces                                                                      |
-| `src/lib/`                      | clients for the two outside services                                                         |
-| `public/`                       | images and other static files                                                                |
-| `Dockerfile`                    | the image: a multi-stage build ending in Next's standalone server                            |
-| `check.sh`                      | the one command that runs the whole check set                                                |
-| `.github/workflows/checks.yml`  | the pipeline for a pull request: runs `check.sh`                                             |
-| `.github/workflows/ship.yml`    | the pipeline for a merge to `main`: builds the image and pushes it to ghcr.io                |
-| `.forgejo/workflows/build.yaml` | the pipeline on the other server, which builds the image the node runs until the node switch |
+| Path                           | Holds                                                                         |
+| ------------------------------ | ----------------------------------------------------------------------------- |
+| `src/app/`                     | pages and routes (Next.js App Router)                                         |
+| `src/components/`              | shared interface pieces                                                       |
+| `src/lib/`                     | clients for the two outside services                                          |
+| `public/`                      | images and other static files                                                 |
+| `Dockerfile`                   | the image: a multi-stage build ending in Next's standalone server             |
+| `check.sh`                     | the one command that runs the whole check set                                 |
+| `.github/workflows/checks.yml` | the pipeline for a pull request: runs `check.sh`                              |
+| `.github/workflows/ship.yml`   | the pipeline for a merge to `main`: builds the image and pushes it to ghcr.io |
