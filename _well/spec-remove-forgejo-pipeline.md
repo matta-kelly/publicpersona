@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Remove the pipeline file under .forgejo, the ignore lines that name that folder, the README text about the other server, and the forgejo git remote, so that publicpersona has one pipeline and one git server. Reference for what the change must remove, which Forgejo references stay and why, and how it is checked."
-status: design
+status: review
 ---
 ## Need
 
