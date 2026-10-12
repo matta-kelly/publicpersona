@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Remove the three shell scripts under tests/e2e, the folder, and the README line that points at one of them, so that no shell script in publicpersona stands as a test. Reference for what the change must remove, what it must leave alone, and how it is checked."
-status: design
+status: review
 ---
 ## Need
 
@@ -39,7 +39,7 @@ Nothing else:
 - the branch changes five paths and no other
 	- check: `git diff --name-status origin/main...HEAD` prints exactly these lines
 		- `M	README.md`
-		- `A	_well/spec-remove-shell-tests.md`
+		- `M	_well/spec-remove-shell-tests.md`
 		- `D	tests/e2e/dev-container.sh`
 		- `D	tests/e2e/pipeline.sh`
 		- `D	tests/e2e/ship.sh`
@@ -61,7 +61,7 @@ Still works:
 	- then one empty line stands between the `pnpm format` line and `## Ship it`, which is what the format check accepts
 - one commit holds both: `chore(tests): remove the shell scripts under tests/e2e`
 - the pull request title: `chore: remove the shell scripts under tests/e2e`
-- no file is added, and no other file is edited
+- no file is added; this spec is edited, for the two lines that name it and for its status; no other file is edited
 
 ### Out of scope
 
