@@ -10,7 +10,7 @@ status: design
 	- `.forgejo/workflows/build.yaml`: builds the same image on another server, Forgejo, and pushes it to that server's registry
 - nothing uses the second one
 	- the node, `monkeybusiness`, runs `ghcr.io/matta-kelly/publicpersona:latest`, and the owner has seen it healthy on that image
-	- the file runs only on a push to the `forgejo` remote, and that remote's `main` is 18 commits behind GitHub's
+	- the file runs only on a push to the `forgejo` remote, and that remote's `main` is 20 commits behind GitHub's
 - the second one breaks the rules in [[ci-cd]]
 	- "one for the checks, one for the ship": it is a third pipeline file
 	- "no stored password for the registry": it logs in with a stored `REGISTRY_TOKEN`
@@ -66,7 +66,7 @@ Nothing else:
 		- `D	.forgejo/workflows/build.yaml`
 		- `M	.prettierignore`
 		- `M	README.md`
-		- `A	_well/spec-remove-forgejo-pipeline.md`
+		- `M	_well/spec-remove-forgejo-pipeline.md`
 
 Still works:
 
@@ -112,11 +112,11 @@ In this order.
 
 - one commit holds the four file changes: `chore(ci): remove the Forgejo pipeline`
 - the pull request title: `chore: remove the Forgejo pipeline`
-- no file is added, and no other file is edited
+- no file is added, and no other file is edited but this spec
 
 ### Forgejo references that stay
 
-Each one stays as it is. This change edits none of them.
+Each one stays as it is. This change edits none of them but this spec.
 
 - `src/lib/forgejo.ts`, `src/app/code/page.tsx`, `src/components/Heatmap.tsx`, `src/components/RepoCard.tsx`, and `FORGEJO_API_TOKEN` in `.env.example`
 	- the `/code` page reads the Forgejo API. That is what the site does, not how it is built
@@ -128,9 +128,6 @@ Each one stays as it is. This change edits none of them.
 	- the whole folder is stale, not only these lines. Its removal is a separate change
 - the specs in `_well/`: `spec-checks.md`, `spec-format.md`, `spec-remove-shell-tests.md`, `spec-ship.md`, and this one
 	- each one defines a change. The four others define changes that are agreed
-- `tests/e2e/pipeline.sh`
-	- the change in `spec-remove-shell-tests.md` removes the file
-	- this change does not touch `tests/`, so the two changes share no path but `README.md`, and no line in it
 - `publicpersona.md`, in the repo folder
 	- not tracked: `.gitignore` keeps it out. It is a note of the vault, and no pull request holds it
 	- it says that the pipeline and the image run from Forgejo. The owner corrects it
@@ -144,7 +141,6 @@ Each one stays as it is. This change edits none of them.
 - the `/code` page and the Forgejo client
 - the `deploy/` folder
 - the lines for `AGENTS.md` and `lessons.md` in `.dockerignore`
-- the two lines in the README's "Check it" section that name `tests/e2e`, and the folder `tests/`: they belong to `spec-remove-shell-tests.md`
 - every other part of `README.md`
 - `check.sh`, `Dockerfile` and the two files under `.github/workflows/`
 - any test runner, runner config, test file or test command
