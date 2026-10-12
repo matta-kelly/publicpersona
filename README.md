@@ -46,8 +46,6 @@ The pipeline runs the same command. Two values from the environment say which to
 
 `pnpm format`, in the container, applies Prettier to the whole repo.
 
-`./tests/e2e/dev-container.sh`, run on the host, checks the container itself.
-
 ## Ship it
 
 Merging to `main` builds and publishes the image. Two files under `.github/workflows/` do the work, on GitHub's runners.
