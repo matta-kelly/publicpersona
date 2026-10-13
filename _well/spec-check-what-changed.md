@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Make ./check.sh run only the steps a change needs: a change to notes ends after format and lint, a change to unit tests ends after the unit step, and every other change runs the whole set. Reference for what the change must do and how it is checked."
-status: review
+status: done
 ---
 ## Need
 
