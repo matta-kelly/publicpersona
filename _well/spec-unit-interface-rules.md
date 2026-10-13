@@ -313,11 +313,11 @@ Nothing here is a choice for the Factory. A question goes back to Design.
 **The nav**
 
 - new file `src/lib/nav.ts`, with the surface given under "The parts", the comment of that block included
-	- the rule moves from `isActive` in `src/components/Nav.tsx`, as it is; only the name changes
+	- the rule is the line for the other links of `isActive` in `src/components/Nav.tsx`, under a new name
+	- Home has no line of its own: with `/` as `href`, the line asks for the path `/`, or a path that starts with `//`, and no page has such a path (Out of scope: two slashes in a row)
 
 ```ts
 export function isActiveLink(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 ```
@@ -599,6 +599,7 @@ Each place is given by the text of a line, as the file is on main `a284687`. Eve
 - the list of the four links, their order and their labels
 - a link of the nav that is below another link of the nav: there is none; with one, the "so" line under N4 is written again
 - a `pathname` with a query, a fragment, or two slashes in a row: `usePathname` gives none
+	- Next.js answers a path with two slashes in a row with a redirect (308) to the path with one, before any page is made
 - a creation date that is not a moment in ISO 8601 form, a number of commits below 0 or not whole, a share outside 0 to 1: none comes from the activity rules
 - the shares of a card that do not add up to 100.0% after rounding
 - two languages of one repo with the same name: none comes from a host

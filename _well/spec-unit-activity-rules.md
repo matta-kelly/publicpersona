@@ -19,7 +19,7 @@ status: review
 	- `_well/spec-unit-heatmap.md` left this out and pointed here
 - no spec says what `/code` must do
 	- the promises below are read from the code at main `07f2a7e`
-	- A2 and the order in A3 are new; every other one says what the code does today
+	- A2 is new; every other one says what the code does today
 	- each one is the owner's to accept or refuse in Design review
 
 ## Done looks like
@@ -123,9 +123,8 @@ The days:
 - **A2** the count of a day is the sum of the counts of the entries of that day; the order of the entries does not matter
 	- **no test for: the order of the entries**
 	- the open question above
-- **A3** the heatmap has one entry for each date that has an entry from the host, and none for any other date; the oldest date is first
-	- **no test for: the oldest date first**
-	- "the oldest first" is new: today the entries stay in the order of the host. The grid takes any order, so the page does not change
+- **A3** the heatmap has one entry for each date that has an entry from the host, and none for any other date
+	- the order of the entries is no promise: the grid takes any order
 
 The total:
 
@@ -149,6 +148,7 @@ The repos:
 	- **no test for: repos with equal commits**
 - **A9** every repo the host gives is in the list, a repo with no commits also; its name, description, link, creation date and number of commits are the ones the host gave
 	- **no test for: a repo with no commits**
+	- **no test for: the fields the host gave**
 
 ### Acceptance criteria: the code around the rules
 
@@ -218,12 +218,12 @@ Nothing here is a choice for the Factory. A question goes back to Design.
 	- `activitySummary` is the only exported function; what it uses inside is not exported
 - the day of an entry: `new Date(entry.timestamp * 1000).toISOString().slice(0, 10)`
 	- `toISOString` is always UTC; no other way of making the date is used
-- the days: the counts are added per date, then the days are put in order of `date`, as text, the smallest first
+- the days: the counts are added per date; the days are not put in order
 - the total: the sum of `count` over `source.contributions`
 - the languages of a repo: the rule moves from `fetchRepoLanguages` in `src/lib/forgejo.ts`, as it is
 	- the sum of the bytes; when it is 0, an empty list
 	- else one entry for each name, `pct` as `bytes / total`, sorted by `b.bytes - a.bytes`
-- the repos: each `RepoSource` becomes a `RepoSummary`: `languageBytes` goes out, `languages` comes in, and the other five fields are copied
+- the repos: each `RepoSource` becomes a `RepoSummary`: `languageBytes` goes out, `languages` comes in, and every other field goes through by a spread
 	- then sorted by `b.commitsLast12mo - a.commitsLast12mo`
 	- the list in `source.repos` is not changed: the sort is on the new list
 - `Array.prototype.sort` keeps the order of equal items, so A6 and A8 need no more code
@@ -356,7 +356,7 @@ Each place is given by the text of a line, as the file is on main `07f2a7e`. Eve
 
 ## Tests
 
-All in `src/lib/activity.test.ts`, beside the code; found by `vitest.config.mts`; run by `pnpm test`. Part: activity rules. Kind: unit. 6 tests.
+All in `src/lib/activity.test.ts`, beside the code; found by `vitest.config.mts`; run by `pnpm test`. Part: activity rules. Kind: unit. 5 tests.
 
 - how the expected results were made
 	- each timestamp is worked out by hand from 2026-10-10T00:00:00Z = 1791590400, and the moment it stands for is a comment in the test
@@ -371,8 +371,7 @@ All in `src/lib/activity.test.ts`, beside the code; found by `vitest.config.mts`
 | the count of a day: keeps two days apart at midnight UTC | A2, A1, A3 |
 | the total: is the sum of every entry | A4 |
 | the languages of a repo: puts the language with the most bytes first | A6, A5 |
-| the repos: puts the repo with the most commits first | A8 |
-| the repos: gives the name, description, link, creation date and commits of a repo as the host gave them | A9 |
+| the repos: puts the repo with the most commits first | A8, A9 |
 | none | A7 |
 
 How each criterion is verified, by the type of what it changes ([[conventions]], "what verifies a change, by its type"):
