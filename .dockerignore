@@ -6,8 +6,6 @@ Dockerfile
 .dockerignore
 .gitignore
 README.md
-AGENTS.md
-lessons.md
 .env
 .env.*
 .vscode

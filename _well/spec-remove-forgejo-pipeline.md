@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Remove the pipeline file under .forgejo, the ignore lines that name that folder, the README text about the other server, and the forgejo git remote, so that publicpersona has one pipeline and one git server. Reference for what the change must remove, which Forgejo references stay and why, and how it is checked."
-status: review
+status: done
 ---
 ## Need
 
@@ -118,7 +118,7 @@ In this order.
 
 Each one stays as it is. This change edits none of them but this spec.
 
-- `src/lib/forgejo.ts`, `src/app/code/page.tsx`, `src/components/Heatmap.tsx`, `src/components/RepoCard.tsx`, and `FORGEJO_API_TOKEN` in `.env.example`
+- `src/lib/forgejo.ts`, `src/app/code/page.tsx`, and `FORGEJO_API_TOKEN` in `.env.example`
 	- the `/code` page reads the Forgejo API. That is what the site does, not how it is built
 	- they go when `/code` reads GitHub, which is a `feat` with its own spec
 - `src/app/projects/dazoo/page.tsx`
@@ -140,7 +140,6 @@ Each one stays as it is. This change edits none of them but this spec.
 - the node: its unit file is in `dazoo`, and it already names ghcr.io
 - the `/code` page and the Forgejo client
 - the `deploy/` folder
-- the lines for `AGENTS.md` and `lessons.md` in `.dockerignore`
 - every other part of `README.md`
 - `check.sh`, `Dockerfile` and the two files under `.github/workflows/`
 - any test runner, runner config, test file or test command

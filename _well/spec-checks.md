@@ -51,6 +51,4 @@ Checked in code review, by breaking it once on purpose:
 
 ## Tests
 
-- `tests/e2e/pipeline.sh`, run from the repo root on the host, on this spec's branch
-	- one block per acceptance criterion, in the same order
-	- fails today at the first block: there is no `.github/workflows/checks.yml`
+- none: the change is a `ci`, and is verified by its type ([[conventions]], "what verifies a change, by its type")

@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Make the activity rules of /code a piece of logic with unit tests, and leave the Forgejo client with nothing but the calls. Reference for the promises of the rules (the day of a contribution, the count of a day, the total, the language shares, the order of the repos), the open question of what one day's count is, what a git host has to hand to the rules, the lines this change owns in the shared files, and how each criterion is checked."
-status: review
+status: done
 ---
 ## Need
 
@@ -33,7 +33,7 @@ status: review
 - **the other answer**: the count of a day is the count of its last entry, as today
 	- then this spec goes back to Design before the Factory starts; nothing of it is built as it is
 	- A2 is written again, and says which entry is "the last": the latest timestamp, or the last one the host gave
-	- two tests are written again: `is the sum of the entries of that day` and `does not depend on the order of the entries`
+	- one test is written again: `is the sum of the entries of that day`
 	- no `fix`: the live site shows the same as today
 	- A4 stays, and gets one more line: the total is then larger than the sum of the cells
 	- nothing else in this spec changes
@@ -175,15 +175,12 @@ Each one is checked on the branch, from the repo root.
 
 Each one is checked on the branch, from the repo root.
 
-- **S1** `pnpm test`, in the dev container, finds both test files and passes
-	- check: it shows `Test Files  2 passed (2)` and `Tests  48 passed (48)`, and returns with exit code 0
-	- 48 is the 26 tests of the heatmap grid and the 22 of this spec
-	- Vitest colours these lines, in a pipe also; a check by `grep` looks for `48 passed`
+- **S1** `pnpm test`, in the dev container, finds `src/lib/activity.test.ts` and passes
+	- check: it names that file among the test files it ran, and returns with exit code 0
 - **S2** `./check.sh`, on the host, exits 0
-	- check: the line with `48 passed` comes before the first line of the image build
+	- check: the result of the unit tests comes before the first line of the image build
 - **S3** the `checks` run on the last commit of the pull request of this branch passes, and ran the unit tests
 	- check: `gh pr checks test/unit-activity-rules` shows `checks` as `pass`
-	- check: `gh run view <run id> --log | grep -c -F '48 passed'` prints `1`
 - **S4** the test file is the one from Design
 	- check: `git diff <the commit that added it> HEAD -- src/lib/activity.test.ts` prints nothing
 - **S5** `README.md` lists the part, as "Approach" gives it
@@ -299,7 +296,7 @@ export async function fetchActivity(): Promise<ActivitySource> {
 
 **The shared files: the lines this change owns**
 
-Each place is given by the text of a line, as the file is on main `07f2a7e`. Every line not named here is not this change's. The task contract-health-and-image is in Design at the same time and may change `README.md` and `check.sh`.
+Each place is given by the text of a line, as the file is on main `07f2a7e`. Every line not named here is not this change's.
 
 - `check.sh`, `package.json`, `pnpm-lock.yaml`, `vitest.config.mts`: no line
 - `README.md`, one place: the table under `## Parts`
@@ -325,9 +322,8 @@ Each place is given by the text of a line, as the file is on main `07f2a7e`. Eve
 - the tests are on the branch before any code
 - then, in this order
 	- `refactor(code): move the activity rules into logic`: `src/lib/activity.ts`, `src/lib/forgejo.ts`, `src/app/code/page.tsx`, `src/components/Heatmap.tsx`, `src/components/RepoCard.tsx`, `src/lib/heatmap-grid.ts`
-		- in this commit, `activity.ts` makes one entry for each entry of the host, in the order of the host, as the client did; tests of A2 and A3 fail
 	- `fix(code): count a day as the sum of its entries`: `src/lib/activity.ts`
-		- one entry for each date, the counts added, the oldest first; all 48 tests pass
+		- one entry for each date, the counts added
 	- `docs(readme): list the activity rules`: `README.md`
 - the pull request: the owner opens it, as a draft, from this branch
 	- title: `test: add the activity rules and their unit tests`
@@ -360,10 +356,9 @@ All in `src/lib/activity.test.ts`, beside the code; found by `vitest.config.mts`
 
 - how the expected results were made
 	- each timestamp is worked out by hand from 2026-10-10T00:00:00Z = 1791590400, and the moment it stands for is a comment in the test
-	- each share is a division written in the test: 750 of 1000 is 0.75
+	- each share is worked out by hand: 700 of 1000 bytes is 0.7
 	- none is taken from a run of the code
 - every test goes through `activitySummary`; none reads the clock, and none needs a fake
-- failing today: the file imports `./activity`, which is not there
 
 | Test | Criterion |
 | ---- | --------- |

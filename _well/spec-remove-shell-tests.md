@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Remove the three shell scripts under tests/e2e, the folder, and the README line that points at one of them, so that no shell script in publicpersona stands as a test. Reference for what the change must remove, what it must leave alone, and how it is checked."
-status: review
+status: done
 ---
 ## Need
 

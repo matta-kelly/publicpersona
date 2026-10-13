@@ -35,5 +35,4 @@ status: done
 
 ## Tests
 
-- `pnpm format:check`: the script is added with this spec, and fails today on 21 files
-- `tests/e2e/dev-container.sh` still passes
+- `pnpm format:check`: the script is added with this spec
