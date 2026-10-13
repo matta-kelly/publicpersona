@@ -1,5 +1,4 @@
-import Image from "next/image";
-import Link from "next/link";
+import { Figure, Section, WriteUp } from "@/components/WriteUp";
 
 export const metadata = {
   title: "Stateball · Matthew Kelly",
@@ -9,30 +8,11 @@ export const metadata = {
 
 export default function StateballPage() {
   return (
-    <article className="space-y-10">
-      <header className="space-y-4">
-        <Link href="/projects" className="text-muted hover:text-foreground text-sm">
-          &larr; Projects
-        </Link>
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Stateball: a matchup-aware Monte Carlo on top of win expectancy
-        </h1>
-        <p className="text-sm">
-          <a
-            href="https://github.com/matta-kelly/stateball"
-            target="_blank"
-            rel="noreferrer"
-            className="link"
-          >
-            github.com/matta-kelly/stateball
-          </a>
-        </p>
-        <p className="text-muted leading-relaxed">
-          A live MLB win-probability engine. The build, end to end: the warehouse, the model, the
-          simulator, the calibration, and what it actually does on real games.
-        </p>
-      </header>
-
+    <WriteUp
+      title="Stateball: a matchup-aware Monte Carlo on top of win expectancy"
+      repo="github.com/matta-kelly/stateball"
+      lede="A live MLB win-probability engine. The build, end to end: the warehouse, the model, the simulator, the calibration, and what it actually does on real games."
+    >
       <Section title="1. The baseline: what raw win expectancy gives you">
         <p>
           Baseball is a discrete game wrapped around a chaotic core. One batter, one pitcher, a
@@ -350,36 +330,6 @@ export default function StateballPage() {
           already encoded, and how naturally the calibration ended up agreeing with it.
         </p>
       </Section>
-    </article>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-4">
-      <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-      <div className="text-muted space-y-4 leading-relaxed">{children}</div>
-    </section>
-  );
-}
-
-function Figure({
-  src,
-  alt,
-  width,
-  height,
-}: {
-  src: string;
-  alt: string;
-  width: number;
-  height: number;
-}) {
-  return (
-    <figure className="space-y-2">
-      <div className="overflow-hidden rounded-md border border-black/5 dark:border-white/10">
-        <Image src={src} alt={alt} width={width} height={height} className="h-auto w-full" />
-      </div>
-      <figcaption className="text-muted text-center text-xs">{alt}</figcaption>
-    </figure>
+    </WriteUp>
   );
 }
