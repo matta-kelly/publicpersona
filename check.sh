@@ -6,6 +6,34 @@ set -euo pipefail
 # The toolchain differs per place, so both come from the environment.
 ENGINE=${ENGINE:-podman}
 
+# The steps this change needs, read from the files it changed since it left main: committed,
+# not yet committed, and not yet tracked.
+# Notes: no step after the lint reads them.
+# Unit tests and the captured answers they replay: the image does not hold them
+# (.dockerignore), so the image build and the end to end tests cannot see them.
+# Any other file, no file, or no answer from git: the whole set.
+notes='_well/|README\.md$'
+unit_tests='src/.*\.test\.tsx?$|src/lib/[^/]+-captured/'
+needs=all
+# A rename counts as the two files it is, so a source file moved into the notes is still seen.
+if base=$(git merge-base origin/main HEAD 2>/dev/null) &&
+  changed=$(git diff --name-only --no-renames "$base" 2>/dev/null &&
+    git ls-files --others --exclude-standard 2>/dev/null) &&
+  [ -n "$changed" ]; then
+  if ! grep -qvE "^($notes)" <<<"$changed"; then
+    needs=notes
+  elif ! grep -qvE "^($notes|$unit_tests)" <<<"$changed"; then
+    needs=unit
+  fi
+fi
+
+# The pipeline asks before it sets up the toolchain: it installs the browser only for a run
+# that drives one.
+if [ "${1:-}" = --plan ]; then
+  echo "$needs"
+  exit 0
+fi
+
 if [ -z "${PNPM:-}" ]; then
   # exec needs a running container, and the first start installs the packages.
   code=0
@@ -31,8 +59,16 @@ fi
 
 $PNPM format:check
 $PNPM lint
+if [ "$needs" = notes ]; then
+  echo "check.sh: every changed file is a note. Left out: the typecheck, the unit and integration tests, the image build, the end to end and contract tests"
+  exit 0
+fi
 $PNPM typecheck
 $PNPM test
+if [ "$needs" = unit ]; then
+  echo "check.sh: every changed file is a note, a unit or integration test, or a captured answer. Left out: the image build, the end to end and contract tests"
+  exit 0
+fi
 
 # Runs pnpm build inside the image, so a broken Dockerfile and a broken build both fail here.
 "$ENGINE" build -t publicpersona:check .
