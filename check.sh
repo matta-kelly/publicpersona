@@ -25,6 +25,7 @@ fi
 $PNPM format:check
 $PNPM lint
 $PNPM typecheck
+$PNPM test
 
 # Runs pnpm build inside the image, so a broken Dockerfile and a broken build both fail here.
 "$ENGINE" build -t publicpersona:check .
