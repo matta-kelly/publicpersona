@@ -18,21 +18,22 @@ export interface RepoCardView {
   languages: RepoCardLanguage[];
 }
 
-const LANGUAGE_COLORS: Record<string, string> = {
-  TypeScript: "#3178c6",
-  JavaScript: "#f1e05a",
-  Python: "#3572A5",
-  Go: "#00ADD8",
-  Rust: "#dea584",
-  YAML: "#cb171e",
-  Shell: "#89e051",
-  SQL: "#e38c00",
-  CSS: "#563d7c",
-  HTML: "#e34c26",
-  Dockerfile: "#384d54",
-  Butane: "#cccccc",
-  Markdown: "#083fa1",
-};
+// A Map has no key of its own making, so a language named like a property of every object gets no colour from it.
+const LANGUAGE_COLORS = new Map([
+  ["TypeScript", "#3178c6"],
+  ["JavaScript", "#f1e05a"],
+  ["Python", "#3572A5"],
+  ["Go", "#00ADD8"],
+  ["Rust", "#dea584"],
+  ["YAML", "#cb171e"],
+  ["Shell", "#89e051"],
+  ["SQL", "#e38c00"],
+  ["CSS", "#563d7c"],
+  ["HTML", "#e34c26"],
+  ["Dockerfile", "#384d54"],
+  ["Butane", "#cccccc"],
+  ["Markdown", "#083fa1"],
+]);
 
 const OTHER_LANGUAGE_COLOR = "#9ca3af";
 
@@ -53,7 +54,7 @@ export function repoCardView(repo: RepoSummary): RepoCardView {
     languages: repo.languages.map((language) => ({
       name: language.name,
       label: `${language.name} ${(language.pct * 100).toFixed(1)}%`,
-      color: LANGUAGE_COLORS[language.name] ?? OTHER_LANGUAGE_COLOR,
+      color: LANGUAGE_COLORS.get(language.name) ?? OTHER_LANGUAGE_COLOR,
       width: `${(language.pct * 100).toFixed(2)}%`,
     })),
   };
