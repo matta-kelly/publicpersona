@@ -5,7 +5,18 @@ import { galleryPhotos } from "@/lib/photos";
 export const dynamic = "force-dynamic";
 
 export default async function PhotosPage() {
-  const share = await getShare();
+  let share;
+  try {
+    share = await getShare();
+  } catch (err) {
+    console.error("immich share fetch failed", err);
+    return (
+      <article>
+        <h1 className="text-3xl font-semibold tracking-tight">Photos</h1>
+        <p className="text-muted mt-4">Photos unavailable right now. Try again later.</p>
+      </article>
+    );
+  }
   const photos = galleryPhotos(share.assets);
 
   return (
