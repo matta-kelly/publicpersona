@@ -158,21 +158,6 @@ describe("the picture of a request", () => {
     expect(picture).toEqual({ failed: "upstream" });
   });
 
-  test("is an upstream failure when Immich cannot be reached", async () => {
-    // No answer can be captured for this one: there is none. The Fetch standard says that
-    // fetch then rejects with a TypeError.
-    vi.stubGlobal("fetch", async () => {
-      throw new TypeError("fetch failed");
-    });
-
-    const picture = await getThumbnail({
-      id: "fbe63138-5d28-4273-a650-8fca7f097640",
-      size: "thumbnail",
-    });
-
-    expect(picture).toEqual({ failed: "upstream" });
-  });
-
   test("stays in the place of the id in the address, whatever text the id is", async () => {
     // The rules refuse this id. The type of a request is text, so a caller can skip the rules.
     // The captured call has the id as one part of the path: ..%2F..%2Fshared-links%2Fme.

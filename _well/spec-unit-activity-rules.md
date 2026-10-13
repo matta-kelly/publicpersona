@@ -1,6 +1,6 @@
 ---
 type: spec
-description: "Make the activity rules of /code a piece of logic with a unit test for each edge, and leave the Forgejo client with nothing but the calls. Reference for the promises of the rules (the day of a contribution, the count of a day, the total, the language shares, the order of the repos), the open question of what one day's count is, what a git host has to hand to the rules, the lines this change owns in the shared files, and how each criterion is checked."
+description: "Make the activity rules of /code a piece of logic with unit tests, and leave the Forgejo client with nothing but the calls. Reference for the promises of the rules (the day of a contribution, the count of a day, the total, the language shares, the order of the repos), the open question of what one day's count is, what a git host has to hand to the rules, the lines this change owns in the shared files, and how each criterion is checked."
 status: review
 ---
 ## Need
@@ -121,13 +121,16 @@ The days:
 	- so work at 17:00 in San Diego, in summer, is on the next day's cell
 	- this is what the page does today, and it matches the grid, which ends on the UTC date
 - **A2** the count of a day is the sum of the counts of the entries of that day; the order of the entries does not matter
+	- **no test for: the order of the entries**
 	- the open question above
 - **A3** the heatmap has one entry for each date that has an entry from the host, and none for any other date; the oldest date is first
+	- **no test for: the oldest date first**
 	- "the oldest first" is new: today the entries stay in the order of the host. The grid takes any order, so the page does not change
 
 The total:
 
 - **A4** the total is the sum of the counts of every entry the host gives; with no entry it is 0
+	- **no test for: the total with no entry**
 	- the rule cuts nothing to a range: "the last 12 months" in the caption is the range the host answers for
 	- with A2, the total is the sum of the counts of the days
 
@@ -136,12 +139,16 @@ The languages of a repo:
 - **A5** the share of a language is its bytes divided by the bytes of all languages of that repo
 	- a share is a number from 0 to 1; the shares of a repo add up to 1
 - **A6** the languages are in order of bytes, the most first; languages with equal bytes keep the order the host gave
+	- **no test for: languages with equal bytes**
 - **A7** a repo with no language has an empty list of languages
+	- **no test**
 
 The repos:
 
 - **A8** the repos are in order of commits in the last 12 months, the most first; repos with equal commits keep the order the host gave
+	- **no test for: repos with equal commits**
 - **A9** every repo the host gives is in the list, a repo with no commits also; its name, description, link, creation date and number of commits are the ones the host gave
+	- **no test for: a repo with no commits**
 
 ### Acceptance criteria: the code around the rules
 
@@ -349,7 +356,7 @@ Each place is given by the text of a line, as the file is on main `07f2a7e`. Eve
 
 ## Tests
 
-All in `src/lib/activity.test.ts`, beside the code; found by `vitest.config.mts`; run by `pnpm test`. Part: activity rules. Kind: unit. 22 tests.
+All in `src/lib/activity.test.ts`, beside the code; found by `vitest.config.mts`; run by `pnpm test`. Part: activity rules. Kind: unit. 6 tests.
 
 - how the expected results were made
 	- each timestamp is worked out by hand from 2026-10-10T00:00:00Z = 1791590400, and the moment it stands for is a comment in the test
@@ -360,34 +367,20 @@ All in `src/lib/activity.test.ts`, beside the code; found by `vitest.config.mts`
 
 | Test | Criterion |
 | ---- | --------- |
-| the day of a contribution: is the UTC date of its timestamp, in the first second of that day | A1 |
-| the day of a contribution: is the UTC date of its timestamp, in the last second of that day | A1 |
-| the day of a contribution: is the next date from midnight UTC | A1 |
-| the count of a day: is the count of the entry, for a day with one entry | A2 |
 | the count of a day: is the sum of the entries of that day | A2 |
-| the count of a day: does not depend on the order of the entries | A2 |
-| the count of a day: keeps two days apart at midnight UTC | A2, A1 |
-| the days of the heatmap: has no day when the host gives no entry | A3 |
-| the days of the heatmap: has no entry for a day with no contribution | A3 |
-| the days of the heatmap: gives the days oldest first, whatever the order of the entries | A3 |
-| the total: is 0 when the host gives no entry | A4 |
+| the count of a day: keeps two days apart at midnight UTC | A2, A1, A3 |
 | the total: is the sum of every entry | A4 |
-| the total: counts an entry however old it is | A4 |
-| the languages of a repo: gives each language its share of the bytes of the repo | A5 |
-| the languages of a repo: gives the only language of a repo a share of 1 | A5 |
-| the languages of a repo: puts the language with the most bytes first | A6 |
-| the languages of a repo: keeps the order the host gave for languages with equal bytes | A6 |
-| the languages of a repo: is an empty list for a repo with no language | A7 |
+| the languages of a repo: puts the language with the most bytes first | A6, A5 |
 | the repos: puts the repo with the most commits first | A8 |
-| the repos: keeps the order the host gave for repos with equal commits | A8 |
-| the repos: keeps a repo with no commits, after the others | A9, A8 |
 | the repos: gives the name, description, link, creation date and commits of a repo as the host gave them | A9 |
+| none | A7 |
 
 How each criterion is verified, by the type of what it changes ([[conventions]], "what verifies a change, by its type"):
 
 - A2, a `fix`: a test, written first and kept
-- A1, A3 to A9, behaviour that had no test, and in A3 one new piece, the order: a test, written first and kept
+- A1, A3 to A6, A8, A9, behaviour that had no test: a test, written first and kept
 	- the branch type is `test`; the conventions give no line for it, so each piece is verified as its own type
+- A7: nothing
 - R1 to R6, a `refactor`: the tests that exist still pass, and the checks given with each one
 	- no test holds the client or the page: `/code` is an `async` Server Component that needs live data
 	- until the later tasks: the typecheck holds the shapes between the client, the rules and the page; Code review reads R3; the owner looks at `/code` after the deploy

@@ -1,6 +1,6 @@
 ---
 type: spec
-description: "Make the three rules of the interface pieces of logic with a unit test for each edge: which link of the nav is active, how a repo card writes its commits, its date and its languages, and what the gallery does on open, close, next, previous and a key. Reference for the promises of the three parts, the questions the owner has to answer (the time zone of the date among them), why the gallery needs no DOM library, the public surface of each part, what the three components look like after, the lines this change owns in the shared files, and how each criterion is checked."
+description: "Make the three rules of the interface pieces of logic with unit tests: which link of the nav is active, how a repo card writes its commits, its date and its languages, and what the gallery does on open, close, next, previous and a key. Reference for the promises of the three parts, the questions the owner has to answer (the time zone of the date among them), why the gallery needs no DOM library, the public surface of each part, what the three components look like after, the lines this change owns in the shared files, and how each criterion is checked."
 status: review
 ---
 ## Need
@@ -169,6 +169,7 @@ Each one is true or false of the functions above. Each one is decided in a logic
 The nav, by `isActiveLink`. The links of the site are Home at `/`, Projects at `/projects`, Code at `/code` and Photos at `/photos`.
 
 - **N1** the Home link is active on the home page, and on no other page
+	- **no test for: the home page**
 - **N2** any other link is active on its own page
 - **N3** any other link is active on every page below its own, however deep (Q4)
 	- its own page written with a slash at the end counts as below it
@@ -176,6 +177,7 @@ The nav, by `isActiveLink`. The links of the site are Home at `/`, Projects at `
 	- a page whose name starts with the same letters: `/codex` is not Code
 	- a page below another link that has its name: `/projects/code` is not Code
 	- its own page in another case: `/Projects` is not Projects
+	- **no test**
 - so, for the four links of the site, none of which is below another
 	- on a page below a link, that link is the only active one
 	- on a page that no link leads to, no link is active
@@ -189,8 +191,10 @@ The repo card, by `repoCardView`.
 - **C4** the date is the UTC date of the moment the repo was made (Q1)
 	- the same whatever offset the host writes the moment with, and wherever the server runs
 - **C5** the card has one language for each language of the repo, in the order of the repo; a repo with no language has none
+	- **no test for: a repo with no language**
 - **C6** the label of a language is its name, a space, and its share as a percentage with one decimal: `TypeScript 75.0%`
 	- rounded to the nearest tenth
+		- **no test**
 - **C7** the width of a language in the bar is its share as a percentage with two decimals: `75.00%`
 - **C8** a language of the table has the colour of the table (Q3)
 
@@ -213,10 +217,12 @@ The repo card, by `repoCardView`.
 - **C9** any other language is grey, `#9ca3af`
 	- the name is compared as the host gave it: `typescript` is not in the table
 	- new: today a language named like a property that every object has (`constructor`) gets no colour at all. No host gives such a name; the promise has no exception for it
+	- **no test for: a name of the table in another case, and a name like `constructor`**
 
 The gallery, by `galleryStep` and `pictureAddress`.
 
 - **G1** opening a photo opens that photo, also when another one is open
+	- **no test for: another photo open**
 - **G2** closing leaves no photo open
 - **G3** next opens the photo after the open one; from the last photo, the first
 - **G4** previous opens the photo before the open one; from the first photo, the last
@@ -224,6 +230,7 @@ The gallery, by `galleryStep` and `pictureAddress`.
 - **G5** three keys do something: Escape closes, the right arrow is next, the left arrow is previous
 - **G6** any other key changes nothing
 - **G7** with no photo open, closing, next, previous and every key change nothing: only opening a photo opens one
+	- **no test**
 - **G8** the picture of a photo in the grid is asked for at `/photos/img/<id>?size=thumbnail`, and the picture of the open photo at `/photos/img/<id>?size=preview`
 
 ### Acceptance criteria: the code around the rules
@@ -612,10 +619,10 @@ Each place is given by the text of a line, as the file is on main `a284687`. Eve
 
 ## Tests
 
-Three files, each beside the code it tests; found by `vitest.config.mts`; run by `pnpm test`. Kind: unit. 42 tests.
+Three files, each beside the code it tests; found by `vitest.config.mts`; run by `pnpm test`. Kind: unit. 18 tests.
 
 - which tests there are
-	- a test is there only where the code of this repo makes the decision, and one for each edge of a decision
+	- a test is there only where the code of this repo makes the decision
 	- none for what the platform does: the names of the months, the leap day, a day of two digits, the comma after the millions
 	- none that holds an edge another test holds: a key has one test, which shows the key means its action; the wrap is held once, under next and under previous
 	- the two "so" lines of the promises, under N4 and under G4, have no test of their own: each follows from the promises above it, and their tests hold it
@@ -640,68 +647,47 @@ Three files, each beside the code it tests; found by `vitest.config.mts`; run by
 		- `is grey for a language with the name of something every object has`: C9
 		- `is the UTC date, in the first second of that day`, `is the UTC date when the host writes the moment with an offset behind UTC`: Q1; in UTC, where the node is, these two pass
 
-`src/lib/nav.test.ts`. Part: nav active rule. 8 tests.
+`src/lib/nav.test.ts`. Part: nav active rule. 3 tests.
 
 | Test | Criterion |
 | ---- | --------- |
-| the Home link: is active on the home page | N1 |
 | the Home link: is not active on the page of another link | N1 |
 | a link other than Home: is active on its own page | N2 |
 | a link other than Home: is active on a page directly below its own | N3 |
-| a link other than Home: is not active on the page of another link | N2, N3 |
-| a link other than Home: is not active on a page whose name only starts with the same letters | N4 |
-| a link other than Home: is not active on a page below another link that has its name | N4 |
-| a link other than Home: is not active on its own page written in another case | N4 |
+| none | N4 |
 
-`src/lib/repo-card.test.ts`. Part: repo card formatting. 17 tests.
+`src/lib/repo-card.test.ts`. Part: repo card formatting. 7 tests.
 
 | Test | Criterion |
 | ---- | --------- |
-| the commits of a repo: are written as 0 commits for a repo with none | C1 |
 | the commits of a repo: are written as 1 commit for a repo with one | C1 |
-| the commits of a repo: are written as 2 commits for a repo with two | C1 |
-| the commits of a repo: have a comma after the thousands | C2 |
-| the creation date of a repo: is written as the word Created, the month in three letters, the day and the year | C3 |
-| the creation date of a repo: is the UTC date, in the first second of that day | C4 |
-| the creation date of a repo: is the UTC date, in the last second of that day | C4 |
-| the creation date of a repo: is the UTC date when the host writes the moment with an offset behind UTC | C4 |
-| the languages of a card: are an empty list for a repo with no language | C5 |
-| the languages of a card: are one for each language of the repo, in the order of the repo | C5 |
+| the commits of a repo: have a comma after the thousands | C2, C1 |
+| the creation date of a repo: is the UTC date when the host writes the moment with an offset behind UTC | C4, C3 |
 | the label of a language: is its name, a space, and its share as a percentage with one decimal | C6 |
-| the label of a language: rounds a third down and two thirds up | C6 |
 | the width of a language in the bar: is its share as a percentage with two decimals | C7 |
-| the colour of a language: is the one the table gives, for each language of the table | C8 |
+| the colour of a language: is the one the table gives, for each language of the table | C8, C5 |
 | the colour of a language: is grey for a language that is not in the table | C9 |
-| the colour of a language: is grey for a language of the table written in another case | C9 |
-| the colour of a language: is grey for a language with the name of something every object has | C9 |
 
-`src/lib/gallery.test.ts`. Part: gallery behaviour. 17 tests.
+`src/lib/gallery.test.ts`. Part: gallery behaviour. 8 tests.
 
 | Test | Criterion |
 | ---- | --------- |
 | opening a photo: opens a photo in the middle when it is chosen | G1 |
-| opening a photo: opens the photo that is chosen when another one is open | G1 |
-| closing: leaves no photo open | G2 |
-| closing: changes nothing when no photo is open | G7 |
-| next: opens the photo after the open one | G3 |
 | next: opens the first photo from the last one | G3 |
-| next: changes nothing when no photo is open | G7 |
-| previous: opens the photo before the open one | G4 |
 | previous: opens the last photo from the first one | G4 |
-| previous: changes nothing when no photo is open | G7 |
-| the Escape key: closes the open photo | G5 |
-| the right arrow key: opens the photo after the open one | G5 |
-| the left arrow key: opens the photo before the open one | G5 |
+| the Escape key: closes the open photo | G5, G2 |
+| the right arrow key: opens the photo after the open one | G5, G3 |
+| the left arrow key: opens the photo before the open one | G5, G4 |
 | any other key: leaves the open photo open | G6 |
-| any other key: opens no photo when none is open | G7 |
-| the address of a picture: asks for the thumbnail of the photo, in the grid | G8 |
-| the address of a picture: asks for the preview of the photo, when the photo is open | G8 |
+| the address of a picture: asks for the thumbnail of the photo in the grid, and for the preview when the photo is open | G8 |
+| none | G7 |
 
 How each criterion is verified, by the type of what it changes ([[conventions]], "what verifies a change, by its type"):
 
 - C1 and C9, each a `fix`: a test, written first and kept
-- N1 to N4, C2 to C8, G1 to G8, behaviour that had no test: a test, written first and kept
+- N1 to N3, C2 to C8, G1 to G6, G8, behaviour that had no test: a test, written first and kept
 	- the branch type is `test`; the conventions give no line for it, so each piece is verified as its own type
+- N4, G7: nothing
 - R1 to R5, a `refactor`: the tests that exist still pass, and the checks given with each one
 	- no test holds the three components; until the later tasks, the typecheck and the lint hold them, Code review reads R5, and the owner looks at the nav, `/code` and `/photos` after the deploy
 - S1 to S5, S7, S8, the chain: the checks accept it (S2, S3), and the real run proves it (S3, on the pull request)
