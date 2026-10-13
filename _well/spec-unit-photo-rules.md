@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Make the photo rules of /photos a piece of logic with unit tests: which asset id a thumbnail request may carry, which sizes it may ask for, and which assets of the album are photos. Reference for the promises of the rules, the questions the owner has to answer, the public surface of the part, what the route, the page and the Immich client look like after, the lines this change owns in the shared files, and how each criterion is checked."
-status: review
+status: done
 ---
 ## Need
 
@@ -161,8 +161,8 @@ Each one is checked on the branch, from the repo root.
 	- a size outside the rules: status 400, with the text `Bad size`
 	- a request within the rules: the same call to Immich, and the same four answers after it (404, 502, and 200 with the same three headers)
 	- check: the file is the one under "Approach"; review of its diff. No test holds the route until a later task
-- **R6** `src/lib/immich.ts` sends the same calls as before; the diff is the one under "Approach" and no more
-	- check: `git diff origin/main...HEAD --numstat -- src/lib/immich.ts` prints `2	2	src/lib/immich.ts`
+- **R6** `src/lib/immich.ts` sends the same calls as before
+	- check: review of its diff
 - **R7** `/photos` shows the same as before
 	- check: the page is the one under "Approach"; `pnpm typecheck` holds the shapes between the client, the rules, the page and the gallery
 
@@ -170,16 +170,12 @@ Each one is checked on the branch, from the repo root.
 
 Each one is checked on the branch, from the repo root.
 
-- **S1** `pnpm test`, in the dev container, finds three test files and passes
-	- check: it shows `Test Files  3 passed (3)` and `Tests  80 passed (80)`, and returns with exit code 0
-	- 80 is the 48 tests on main `cff4c61` and the 32 of this spec
-	- when main has more unit tests by then: the numbers are those of main, plus one file and 32 tests
-	- Vitest colours these lines, in a pipe also; a check by `grep` looks for `80 passed`
+- **S1** `pnpm test`, in the dev container, finds `src/lib/photos.test.ts` and passes
+	- check: it names that file among the test files it ran, and returns with exit code 0
 - **S2** `./check.sh`, on the host, exits 0
-	- check: the line with `80 passed` comes before the first line of the image build
+	- check: the result of the unit tests comes before the first line of the image build
 - **S3** the `checks` run on the last commit of the pull request of this branch passes, and ran the unit tests
 	- check: `gh pr checks test/unit-photo-rules` shows `checks` as `pass`
-	- check: `gh run view <run id> --log | grep -c -F '80 passed'` prints `1`
 - **S4** the test file is the one from Design
 	- check: `git diff <the commit that added it> HEAD -- src/lib/photos.test.ts` prints nothing
 - **S5** `README.md` lists the part, as "Approach" gives it
@@ -198,7 +194,7 @@ Each one is checked on the branch, from the repo root.
 
 Checked in Code review, by breaking it once on purpose:
 
-- **S7** in `src/lib/photos.ts`, `"fullsize"` is put into the list of the sizes allowed; then `./check.sh` exits with a code that is not 0, a test named `is refused when it is fullsize` is shown as failed, and the image build does not start
+- **S7** in `src/lib/photos.ts`, the check of the size against the list of the sizes allowed is turned round, so that a size of the list is refused and any other text is accepted; then `./check.sh` exits with a code that is not 0, a test named `is refused when it is original` is shown as failed, and the image build does not start
 	- the change is thrown away after
 
 ### Approach
@@ -226,11 +222,11 @@ Nothing here is a choice for the Factory. A question goes back to Design.
 
 **The route handler**
 
-`src/app/photos/img/[id]/route.ts`, after the change, from its first line down to the call to Immich. Every line after `redirect: "manual",` stays as it is.
+`src/app/photos/img/[id]/route.ts`, after the change, from its first line down to the call to the Immich client.
 
 ```ts
 import { NextRequest } from "next/server";
-import { upstreamThumbnailUrl } from "@/lib/immich";
+import { getThumbnail } from "@/lib/immich";
 import { thumbnailRequest } from "@/lib/photos";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -241,16 +237,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return new Response(text, { status: 400 });
   }
 
-  const upstream = await fetch(upstreamThumbnailUrl(request.id, request.size), {
-    cache: "no-store",
-    redirect: "manual",
-  });
+  const thumbnail = await getThumbnail(request);
 ```
 
 - `UUID_RE` and `ALLOWED_SIZES` are gone from it
 - what stays in the route handler, and why it is not a photo rule
 	- the two texts and the status 400: how the site says a refusal over HTTP
-	- the `fetch` and what follows it: the task integration-immich moves them into the client, which then takes the `ThumbnailRequest`
+	- the call to the client, which takes the `ThumbnailRequest`, and what follows it: `_well/spec-integration-immich.md`
 
 **The page**
 
@@ -271,16 +264,15 @@ export default async function PhotosPage() {
 
 **The client**
 
-`src/lib/immich.ts`: two lines go in, two come out, and no other line changes.
+`src/lib/immich.ts` declares no size of its own.
 
-- its first two lines become: `import type { ThumbnailSize } from "./photos";`, then an empty line
-- the line `export type ThumbnailSize = "preview" | "thumbnail";` and the empty line after it are gone
-- `AssetType`, `ImmichAsset`, `Share`, `getShare` and `upstreamThumbnailUrl`: no change
-	- an `ImmichAsset` has every field of an `AlbumAsset`, so `galleryPhotos(share.assets)` needs no conversion
+- `ThumbnailSize` is declared in `src/lib/photos.ts`, and in no other file
+- the client takes the types of a request and of an asset from `./photos`
+	- `Share` gives its assets as `AlbumAsset[]`, so `galleryPhotos(share.assets)` needs no conversion
 
 **The shared files: the lines this change owns**
 
-Each place is given by the text of a line, as the file is on main `cff4c61`. Every line not named here is not this change's. The task contract-health-and-image is in the loop at the same time and may change `README.md` and `check.sh`.
+Each place is given by the text of a line, as the file is on main `cff4c61`. Every line not named here is not this change's.
 
 - `check.sh`, `package.json`, `pnpm-lock.yaml`, `vitest.config.mts`: no line
 - `README.md`, one place: the table under `## Parts`
@@ -306,7 +298,6 @@ Each place is given by the text of a line, as the file is on main `cff4c61`. Eve
 - the tests are on the branch before any code
 - then, in this order
 	- `refactor(photos): move the photo rules into logic`: `src/lib/photos.ts`, `src/lib/immich.ts`, `src/app/photos/img/[id]/route.ts`, `src/app/photos/page.tsx`
-		- all 80 tests pass after this commit
 	- `docs(readme): list the photo rules`: `README.md`
 - the pull request: the owner opens it, as a draft, from this branch
 	- title: `test: add the photo rules and their unit tests`
@@ -314,17 +305,16 @@ Each place is given by the text of a line, as the file is on main `cff4c61`. Eve
 
 ### Out of scope
 
-- the thumbnail fetch, `upstreamThumbnailUrl`, the share key, and what the route answers after the call to Immich (404, 502, the headers): the task integration-immich
+- the thumbnail fetch, the share key, and what the route answers after the call to Immich (404, 502, the headers): the task integration-immich
 - a rule that the asset of a request is an image, or is in the album (Q5)
 - a rule on the kind of content Immich answers with: the route hands on the `content-type` Immich gives
 - an asset with no width or no height
-	- Immich's API description says both can be `null`; `ImmichAsset` in the client says both are a number
-	- the shape of Immich's answer is the client's: integration-immich captures a real one, and decides
-	- `AlbumAsset` and `Photo` say `number`, as the client does today
+	- Immich's API description says both can be `null`; `AlbumAsset` and `Photo` say both are a number
+	- the shape of Immich's answer is the client's: `_well/spec-integration-immich.md`, "Seen, and not decided here"
 - an image whose id is not in the form of I1: none comes from Immich
 - `src/app/photos/Gallery.tsx`
 	- which size the grid asks for and which the open photo asks for, and the address it builds: the task unit-interface-rules
-	- its own `Photo` interface stays; it has the same four fields, and the typecheck holds the two together
+	- it takes `Photo` from `src/lib/photos.ts`
 - the text `{n} photos` on the page, also for one photo
 - what `/photos` shows with no key: the task photos-without-key
 - a test of the route handler or of `/photos`: wiring, held end to end, and with real data by a smoke check; both are later tasks
@@ -347,9 +337,6 @@ All in `src/lib/photos.test.ts`, beside the code; found by `vitest.config.mts`; 
 	- the sizes and the types are the words of Immich's API description: `original`, `fullsize`, `preview`, `thumbnail`; `IMAGE`, `VIDEO`, `AUDIO`, `OTHER`
 	- none is taken from a run of the code
 - every test goes through `thumbnailRequest` or `galleryPhotos`; none reads the clock, and none needs a fake
-- failing today: the file imports `./photos`, which is not there
-- each of the 32 was also seen to fail alone, against a build of the rules made for the run, broken in one place, and thrown away
-	- with that build unbroken, all 32 pass and `pnpm typecheck` passes
 
 | Test | Criterion |
 | ---- | --------- |

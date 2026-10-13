@@ -47,6 +47,4 @@ status: done
 
 ## Tests
 
-- `tests/e2e/dev-container.sh`, run from the repo root on the host
-	- one block per acceptance criterion, in the same order
-	- fails today at the first block: there is no `.devcontainer/devcontainer.json`
+- none: the change is a `chore`, and is verified by its type ([[conventions]], "what verifies a change, by its type")

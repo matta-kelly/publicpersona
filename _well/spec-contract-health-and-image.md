@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Hold the two borders of publicpersona that the node depends on, the health route and the image, with a contract test under Playwright against the built image, which check.sh now starts the way the node's unit file starts it. Reference for the four promises and the line of the dependent system each one comes from, how each is checked, what a browser cannot see and is left out, the lines this change owns in the shared files, and how it is verified."
-status: review
+status: done
 ---
 ## Need
 
@@ -62,8 +62,8 @@ How each one is checked: by one contract test, under Playwright, against the ima
 
 Each one is checked on the branch, from the repo root.
 
-- **S1**: `./check.sh`, on the host, passes, and Playwright's part of its output says `2 passed`
-	- the two are the first journey and the contract test. So the first journey also passes against an image that is started the way the node starts it
+- **S1**: `./check.sh`, on the host, passes, and the contract test is among the tests that Playwright shows as passed
+	- the first journey runs against the same container. So it also passes against an image that is started the way the node starts it
 - **S2**: `check.sh` starts the image with the flags and the values of the unit file
 	- check: `git grep -c -F -e '--read-only --user 1000 --cap-drop ALL --security-opt no-new-privileges' -- check.sh` prints `check.sh:1`
 	- check: `git grep -c -F -e '--env NODE_ENV=production --env PORT=3000 --env HOSTNAME=0.0.0.0' -- check.sh` prints `check.sh:1`
@@ -71,9 +71,8 @@ Each one is checked on the branch, from the repo root.
 - **S3**: the wait in `check.sh` ends when the site gives any HTTP answer; it does not decide whether the answer is good
 	- check: `git grep -c -F -e 'wget -q -S -O /dev/null http://127.0.0.1:3000/api/health 2>&1 | grep -q "HTTP/"' -- check.sh` prints `check.sh:1`
 	- shown by the break for H1 under [[#Tests]]: Playwright names the failure, not the wait
-- **S4**: the `checks` run on the last commit of this spec's pull request passes, and its log says `2 passed`
+- **S4**: the `checks` run on the last commit of this spec's pull request passes
 	- check: `gh pr checks <number>` shows `checks` as `pass`
-	- check: `gh run view <run id> --log | grep -c -F '2 passed'` prints `1` or more
 	- this run is the first that starts the image with these flags under Docker; see "the engines" under [[#What is settled]]
 - **S5**: the Factory edits no test
 	- check: `git log --format=%s origin/main..HEAD -- tests/health-and-image.spec.ts` prints one line, `test(contract): add the health and image contract`
@@ -147,7 +146,7 @@ if ! timeout -k 5 30 bash -c 'until "$0" exec "$1" wget -q -S -O /dev/null http:
 
 ### Lines this change owns
 
-Every place is given by the text of a line. The task unit-activity-rules is in Design at the same time: it changes files under `src/lib/` and may change `README.md`.
+Every place is given by the text of a line.
 
 - `check.sh`
 	- owns: the line that starts `"$ENGINE" run -d --name "$SITE"`, and the three comment lines new above it
@@ -225,11 +224,10 @@ The borders are the surfaces that another system depends on. A contract test hol
 	- goes through the public surface: one HTTP request to the published port
 	- depends on no live outside thing: the container starts with no key and no token, and the health route calls nothing
 	- its limits are those of `playwright.config.ts`: 30 seconds for the test
-	- today, on the branch, before the Factory's commit: it passes, since the health route is there and answers 200. Until S2 is built it shows H1 only
 - seen to fail, in Code review: one break for each promise, each on a commit that is never pushed. `./check.sh` must exit non-zero, and Playwright must name the line given
 	- H1: `src/app/api/health/route.ts`, the line `return Response.json({ ok: true });` becomes `return Response.json({ ok: true }, { status: 503 });`
 		- fails at `expect(response.status()).toBe(200);`, with `Received: 503`
-		- the same break, with the wait as it is on main, ends at the wait and never reaches Playwright. That is what S3 changes
+		- the wait takes the 503 as an answer, so the break reaches Playwright (S3)
 	- I1: `Dockerfile`, the line `CMD ["node", "server.js"]` becomes `CMD ["sh", "-c", "HOSTNAME=127.0.0.1 exec node server.js"]`
 		- the site then listens inside the container only. The wait passes, since it asks from inside
 		- fails at `const response = await request.get("/api/health");`. The first journey fails too
@@ -239,14 +237,6 @@ The borders are the surfaces that another system depends on. A contract test hol
 	- I3: `src/app/api/health/route.ts` gets a first line `import { writeFileSync } from "node:fs";`, an empty line after it, and, as the first line in `GET`, `writeFileSync("/home/node/health-seen", "");`
 		- user 1000 owns that folder, so only the read-only root stops the write
 		- fails at `expect(response.status()).toBe(200);`, with `Received: 500`
-- seen by Design, in a trial outside the repo and outside the dev container's volumes, with images that are now removed
-	- the image of main `07f2a7e`, started with the flags of S2, and with `/tmp` read-only as under Docker: `/api/health`, `/` and `/projects` answer 200, and the photo is served
-	- the test, against a container of that image with the flags of S2: passes
-	- the test, against an image with the H1 break: fails at the line given, with `Received: 503`
-	- the new wait, against the image with the H1 break: ends as "up"; the wait of main does not end
-	- a site that listens on `127.0.0.1` in the container: no answer through the published port, under Podman
-	- in the container of S2: a write to `/home/node` is refused as a read-only file system, and `/etc/shadow` cannot be read
-	- not seen: the flags under Docker. S4 is the first run that has them
 - the setup, S1 to S7, gets no test. It is verified as [[conventions]] has it for `ci` and `chore`
 	- the checks accept it: the `checks` run on the pull request, which now starts the image the way the node does
 	- the real run proves it: that same run. Nothing of this change runs on a merge or on the node

@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Bring the unit runner (Vitest) into publicpersona, and make the heatmap grid a piece of logic with unit tests. Reference for the promises of the grid, the exact setup of the runner, how the install keeps a package younger than 24 hours out of the lockfile, the lines this change owns in the shared files, and how each criterion is checked."
-status: review
+status: done
 ---
 ## Need
 
@@ -27,7 +27,7 @@ status: review
 - one function is its public surface
 
 ```ts
-import type { HeatmapDay } from "./forgejo";
+import type { HeatmapDay } from "./activity";
 
 export interface HeatmapCell {
   date: string;
@@ -111,15 +111,13 @@ Month labels:
 Each one is checked on the branch, from the repo root.
 
 - **S1** `vitest.config.mts` is at the repo root, and finds `src/lib/heatmap-grid.test.ts`
-	- check: `pnpm test`, in the dev container, shows `Test Files  1 passed (1)` and `Tests  26 passed (26)`
-	- Vitest colours these lines, in a pipe also, so a `grep` for a whole line finds nothing; a check by `grep` looks for `26 passed`
+	- check: `pnpm test`, in the dev container, names that file among the test files it ran, and passes
 - **S2** `pnpm test` runs Vitest one time and stops; it does not watch
 	- check: the command of S1 returns to the prompt with exit code 0
 - **S3** `./check.sh` runs the unit tests after the typecheck and before the image build
-	- check: `./check.sh`, on the host, exits 0, and the line with `26 passed` comes before the first line of the image build
+	- check: `./check.sh`, on the host, exits 0, and the result of the unit tests comes before the first line of the image build
 - **S4** the `checks` run on the last commit of pull request #15 passes, and ran the unit tests
 	- check: `gh pr checks 15` shows `checks` as `pass`
-	- check: `gh run view <run id> --log | grep -c -F '26 passed'` prints `1`
 - **S5** the test file is the one from Design
 	- check: `git diff <the commit that added it> HEAD -- src/lib/heatmap-grid.test.ts` prints nothing
 - **S6** `README.md` has the parts list, the unit step and `pnpm test`, as "Approach" gives them
@@ -167,7 +165,7 @@ console.log(keys.length + " added, " + young + " younger than 24 hours");
 
 Checked in Code review, by breaking it once on purpose:
 
-- **S8** in `src/lib/heatmap-grid.ts`, the limit of tier 1 is changed from 2 to 3; then `./check.sh` exits with a code that is not 0, a test named `is 2 for a count from 3 to 5` is shown as failed, and the image build does not start
+- **S8** in `src/lib/heatmap-grid.ts`, the limit of tier 1 is changed from 2 to 3; then `./check.sh` exits with a code that is not 0, a test named `is 1 for a count from 1 to 2, 2 from 3 to 5, 3 from 6 to 9, and 4 for 10 or more` is shown as failed, and the image build does not start
 	- the change is thrown away after
 
 ### Approach
@@ -232,7 +230,7 @@ export default defineConfig({
 **The logic**
 
 - new file `src/lib/heatmap-grid.ts`, with the surface given under "The part"
-	- the type of `days` comes from `./forgejo` by `import type`, which is removed at build, so the test loads nothing of the client
+	- the type of `days` comes from `./activity` by `import type`, which is removed at build
 	- the rules move here from `src/components/Heatmap.tsx`: `tier`, `MONTHS`, the fill, the weeks, the labels
 	- `today` is read as a UTC day: `Date.parse(today + "T00:00:00Z")`, never a local time
 - `src/components/Heatmap.tsx`
@@ -306,22 +304,20 @@ Needs Podman and Node on the host. Steps 1 to 4 run in the dev container, which 
 
 - the branch holds main `07f5081`, by a merge
 	- main comes in again only by a merge; never a rebase, never a force push
-- the pull request is #15, open, from this branch; the Factory builds onto it
+- the pull request is #15, from this branch
 - the tests are on the branch before any code
 - then, in this order
 	- `chore(test): set up Vitest and the unit step`: `package.json`, `pnpm-lock.yaml`, `vitest.config.mts`, `check.sh`
 	- `refactor(heatmap): move the grid rules into logic`: `src/lib/heatmap-grid.ts`, `src/components/Heatmap.tsx`
 	- `docs(readme): list the parts and the unit command`: `README.md`
 - the pull request title: `test: add the unit runner and the heatmap grid tests`
-	- #15 has another title today, and the squash commit takes its name from it: `gh pr edit 15 --title 'test: add the unit runner and the heatmap grid tests'`
 - the pull request body, one line: `Spec: _well/spec-unit-heatmap.md`
 
 ### Out of scope
 
 - what the grid shows when `days` has two entries for one date
-	- today the last entry wins, and no promise is made of it here
-	- it is real on live data: Forgejo gives one entry for each 15 minutes, `src/lib/forgejo.ts` turns each into a date, so a day with work in two quarters of an hour has two entries, and its cell shows only the last
-	- the rule that makes one entry for a date is "date from a timestamp", in the task unit-activity-rules
+	- the last entry wins, and no promise is made of it here
+	- the activity rules give one entry for a date (`_well/spec-unit-activity-rules.md`, A2)
 - a count below 0, a count that is not a whole number, and a `today` that is not a date: none can come from the callers
 - the time zone of "today" (C1 keeps UTC), and the words of the `title` text (`1 contributions`)
 - the total in the caption: an activity rule
@@ -348,7 +344,6 @@ All in `src/lib/heatmap-grid.test.ts`, beside the code; found by `vitest.config.
 - how the expected results were made
 	- each date and weekday is read from the calendar, and the reasoning is a comment in the test
 	- none is taken from a run of the code
-- failing today: the file imports `./heatmap-grid` and `vitest`, and neither is there
 
 | Test | Criterion |
 | ---- | --------- |

@@ -1,7 +1,7 @@
 ---
 type: spec
-description: "Give /photos a page of its own for when the album cannot be read, and hold with end to end tests what /code and /photos show when the site has no key for the outside service. Reference for the two promises and the words a visitor reads, the questions the owner has to answer, the one file the build changes, what stays out, and how each test was seen to pass or fail."
-status: review
+description: "Give /photos a page of its own for when the album cannot be read, and hold with end to end tests what /code and /photos show when the site has no key for the outside service. Reference for the two promises and the words a visitor reads, the questions the owner has to answer, the one file the build changes, what stays out, and how each test is seen to fail."
+status: done
 ---
 ## Need
 
@@ -100,7 +100,6 @@ Each one is checked on the branch, from the repo root.
 
 - **S1**: `./check.sh`, on the host, exits 0, and Playwright's part of its output says `4 passed`
 	- the four: the first journey, the contract test, and the two of this spec
-	- when main has more Playwright tests by then: the number is that of main, plus two
 - **S2**: the `checks` run on the last commit of this spec's pull request passes
 	- check: `gh pr checks <number>` shows `checks` as `pass`
 - **S3**: the Factory edits no test
@@ -164,9 +163,8 @@ Nothing here is a choice for the Factory. A question goes back to Design.
 ### Out of scope
 
 - `GET /photos/img/<id>` with no key
-	- today: status 500 with an empty body, since `upstreamThumbnailUrl` throws in the route handler
+	- status 500 with an empty body, since the Immich client throws for a missing key
 	- no visitor gets there from `/photos` in this state: the page of P1 has no picture
-	- the thumbnail fetch and the key move into the client in integration-immich, which says what the route answers for an upstream failure. What it answers with no key belongs there
 - what the Immich client reports, and for which answers of Immich: integration-immich
 - `src/lib/forgejo.ts` and `src/app/code/page.tsx`: no change
 	- the text of `/code` with data says the code is not on GitHub. It waits on `/code` reading GitHub, as the epic has it
@@ -205,20 +203,10 @@ Both in `tests/without-keys.spec.ts`; found by `playwright.config.ts`; run by `.
 - the limits are those of `playwright.config.ts`: 30 seconds for a test, 5 seconds for an expectation
 - the format check, the lint and the typecheck pass with the test file on the branch
 
-Seen by Design. Each run: an image built from the branch, started with the `run` line of `check.sh` under another name, with Playwright in the dev container. The images and the container are removed.
-
-- against the image as it is, main `881cad7`: `1 failed`, `3 passed`
-	- the test of C1: **passes**. `/code` shows the two things, and the log has `FORGEJO_API_TOKEN is not set`
-	- the test of P1: **fails**, at the expectation on the heading `Photos`. The page holds the error heading of Next.js and no `main` area
-- against a trial image, with the edit under [[#Approach]] and one break in `/code`: `1 failed`, `3 passed`
-	- the test of P1: **passes**. `/photos` answers 200, and the log has `immich share fetch failed Error: IMMICH_SHARE_KEY is not set`
-	- the test of C1: **fails**, at the expectation on the sentence. The break: in `src/app/code/page.tsx`, the words `right now` taken out of the sentence
-	- the trial edits were thrown away; the branch holds no change under `src/`
-
-Seen to fail, in Code review: one break, on a commit that is never pushed. `./check.sh` must exit non-zero, and Playwright must name the test.
+Seen to fail, in Code review: one break for each promise, each on a commit that is never pushed. `./check.sh` must exit non-zero, and Playwright must name the test.
 
 - P1: in `src/app/photos/page.tsx`, the `h1` text `Photos` becomes `Gallery`. The test of P1 fails at the expectation on the heading
-- C1 was seen to fail by Design, above; Code review may repeat that break
+- C1: in `src/app/code/page.tsx`, the words `right now` are taken out of the sentence. The test of C1 fails at the expectation on the sentence
 
 How each criterion is verified, by the type of what it changes ([[conventions]], "what verifies a change, by its type"):
 

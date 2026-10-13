@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Bring Playwright into publicpersona with one end to end journey, home to projects to the Stateball write-up, run by check.sh against the image it has just built. Reference for the five promises the journey holds, where the browser runs, where the output goes, which lines of the shared files the change owns, and how it is checked."
-status: review
+status: done
 ---
 ## Need
 
@@ -30,7 +30,7 @@ Promises of the site. Each one is true or false of the built image, as a visitor
 
 The setup. Each one is checked on the branch, from the repo root.
 
-- **S1**: `./check.sh`, on the host, passes, and Playwright's part of its output says `1 passed`
+- **S1**: `./check.sh`, on the host, passes, and the journey is among the tests that Playwright shows as passed
 	- holds in a checkout whose dev container does not exist yet: the script creates it, and no second command is needed
 - **S2**: the journey runs after the image build, against the image that the same run built
 	- check, by reading `check.sh`: the `run` line comes after the `build` line and names the tag that the `build` line writes, `publicpersona:check`
@@ -41,9 +41,8 @@ The setup. Each one is checked on the branch, from the repo root.
 - **S5**: a run of `./check.sh` writes no test output into the repo folder
 	- check: `test ! -e test-results && test ! -e playwright-report` exits 0
 	- check: `git status --porcelain --ignored` prints the same before and after a second run of `./check.sh`
-- **S6**: the `checks` run on the last commit of this spec's pull request passes, and its log says `1 passed`
+- **S6**: the `checks` run on the last commit of this spec's pull request passes
 	- check: `gh pr checks <number>` shows `checks` as `pass`
-	- check: `gh run view <run id> --log | grep -c -F '1 passed'` prints `1` or more
 	- the job's limit stays `timeout-minutes: 10`
 - **S7**: one version of Playwright, written in two places
 	- check: `git grep -c -F '"@playwright/test": "1.64.0"' -- package.json` prints `package.json:1`
@@ -73,7 +72,7 @@ The setup. Each one is checked on the branch, from the repo root.
 	- `check.sh` calls Playwright through `$PNPM`, the value that already says how to call pnpm in each place. No new value from the environment
 - **where the image runs**: on the host, started and removed by `check.sh` with `$ENGINE`
 	- container name `publicpersona-check`, the image's port 3000 published on `127.0.0.1:3210`
-	- started with no value from the environment: no `IMMICH_SHARE_KEY`, no `FORGEJO_API_TOKEN`
+	- started with no secret: no `IMMICH_SHARE_KEY`, no `FORGEJO_API_TOKEN`
 - **how the browser reaches the image**: `http://127.0.0.1:3210`, the same in both places
 	- for this, the dev container uses the host's network (`--network=host`)
 	- the dev container of `que` on this machine does the same, for the same reason
@@ -82,7 +81,7 @@ The setup. Each one is checked on the branch, from the repo root.
 	- the reporter is `list`: it prints to the terminal and writes no file
 	- no trace, no screenshot, no HTML report
 - **where the browsers are kept**: in a Podman volume, `publicpersona-browsers`, mounted on `/home/node/.cache`
-- **the version**: Playwright 1.64.0, exact, the newest release on npm on 2026-10-12
+- **the version**: Playwright 1.64.0, exact
 - **the browser**: Chromium only, at the `Desktop Chrome` size
 - **the write-up**: Stateball, the first one on the projects page
 - **the commit type**: `test`. The change adds a test and what runs it, and no behaviour of the site
@@ -226,7 +225,7 @@ Line numbers are those of main `8a883a6`. The task unit-heatmap edits the same t
 - every file under `src/`: the site does not change
 - `/code` and `/photos`, and what they show with no key: the task photos-without-key
 - `/api/health` and the shape of the image: the task contract-health-and-image
-	- `check.sh` asks `/api/health` only to know that the server is up; no test holds it yet
+	- `check.sh` asks `/api/health` only to know that the server is up
 - the other two write-ups, the link back from a write-up, the footer, the theme switch, the tab title
 - the words of the bio, and the words of a write-up past the start of its heading
 - which nav link is marked as the current page: a rule, so a unit test (the task unit-interface-rules)
@@ -260,7 +259,6 @@ Line numbers are those of main `8a883a6`. The task unit-heatmap edits the same t
 	- depends on no live outside thing
 		- the image starts with no key and no token
 		- the three pages and the layout call no outside service: no `fetch` is in their modules, and the photo is served by the image itself
-	- today, on the branch: `./check.sh` is expected to stop at the typecheck, since the module `@playwright/test` is not in the packages. Not run by Design
 - seen to fail, in Code review: one break for each promise, each on a commit that is never pushed. `./check.sh` must exit non-zero, and Playwright must name the line given
 	- P1: `src/app/page.tsx`, `src="/profile-picture.jpg"` becomes `src="/no-such-picture.jpg"`. Fails at one of the two expectations on the photo
 	- P2: `src/components/Nav.tsx`, `{ href: "/projects", label: "Projects" }` becomes `{ href: "/project", label: "Projects" }`. Fails at `toHaveURL("/projects")`

@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Build publicpersona's image on GitHub on every merge to main and publish it to ghcr.io, check the image build on every pull request, and put the whole check set behind one command. Reference for what the change must do and how it is checked."
-status: review
+status: done
 depends_on:
   - "[[spec-checks]]"
 ---
@@ -60,8 +60,6 @@ Checked in code review, by reading:
 
 - the README's "Check it" section gives `./check.sh` as the one command
 - the README's "Ship it" and "Layout" sections describe the two files under `.github/workflows/` and the image on ghcr.io
-	- "Ship it" says that the node still pulls from the other server until the node switch
-- `tests/e2e/pipeline.sh` waits for a run to start before it watches the run
 
 Checked in code review, by breaking it once on purpose:
 
@@ -108,7 +106,6 @@ Checked in code review, by breaking it once on purpose:
 - `Dockerfile`: `LABEL org.opencontainers.image.source=https://github.com/matta-kelly/publicpersona` in the `run` stage
 	- this is what links the package to the repo
 - `README.md`: "Check it", "Ship it" and "Layout"
-- `tests/e2e/pipeline.sh` and `tests/e2e/ship.sh`: written by Design, on this branch. The builder does not edit them
 
 ### The package is public
 
@@ -118,9 +115,9 @@ Checked in code review, by breaking it once on purpose:
 - how it becomes public
 	- a package that a workflow creates with `GITHUB_TOKEN` takes the visibility of the repo the workflow runs in
 	- the repo is public, so the first `ship` run is expected to publish a public package, with no step by hand
-- GitHub's pages do not fully agree, so the test decides
+- GitHub's pages do not fully agree, so a pull decides
 	- another page says a new package is private by default, and that a linked package takes the repo's access but not its visibility
-	- `tests/e2e/ship.sh` pulls with no login. If that fails while the run passed, the package is private
+	- a pull with no login tells. If that fails while the run passed, the package is private
 	- then the owner makes it public, once, in the package's settings: Danger Zone, Change visibility, Public
 		- no API call does this
 		- it cannot be made private again
@@ -128,11 +125,8 @@ Checked in code review, by breaking it once on purpose:
 
 ### Out of scope
 
-- the node switch: `monkeybusiness` still pulls `forgejo.monk3y.xyz/mkultra/publicpersona:latest`. That is a change in `dazoo`
-	- until then, a merge on GitHub publishes to ghcr.io and the node does not take it
-- removal of `.forgejo/workflows/build.yaml`
-	- it goes in a later change, after the node pulls from ghcr.io and is seen healthy
-	- the same change removes the `forgejo` remote and the `.forgejo` lines in `.dockerignore` and `.prettierignore`
+- the node, `monkeybusiness`: its unit file is in `dazoo`, and it names ghcr.io
+- the removal of the Forgejo pipeline, of the `forgejo` remote and of the `.forgejo` lines in the ignore files: `_well/spec-remove-forgejo-pipeline.md`
 - the `deploy/` folder: Kubernetes manifests for a cluster that no longer runs this site
 - the `/code` page, which reads the other server's API (`src/lib/forgejo.ts`)
 - tests for the site itself
@@ -143,7 +137,6 @@ Checked in code review, by breaking it once on purpose:
 
 - revert the squash commit on main
 	- `ship.yml` and `check.sh` go; `checks.yml` runs the four lines again
-	- nothing that runs changes: the node never pulled from ghcr.io
 - the package stays on ghcr.io
 	- the owner can delete it in the package's settings
 - one image only: pin its `sha-` tag; no image is ever overwritten except `latest`
@@ -160,19 +153,4 @@ Checked in code review, by breaking it once on purpose:
 
 ## Tests
 
-- `tests/e2e/pipeline.sh`: the pull request half
-	- run from the repo root, on the host, on this branch, after the push
-	- every block runs; the script exits non-zero if one fails
-	- fails today, for these reasons
-		- no `./check.sh`
-		- the `checks` job ran on `ubuntu-latest`
-		- no `.github/workflows/ship.yml`
-		- `checks` has no `concurrency`
-	- passes today, and must still pass: the `checks` run, its rights, its time limit, the ruleset, `.forgejo/` unchanged
-	- waits at most 120 seconds for the run to start, and 600 seconds for it to finish
-- `tests/e2e/ship.sh`: the merge half
-	- can pass only after the merge to main: the image is built from main's commit
-	- run from the repo root, on the host, right after the merge, before another merge moves main
-	- waits at most 120 seconds for the `ship` run to start, and 600 seconds for it to finish; each registry read has a limit of 30 seconds
-	- fails today: no `ship` run for main's commit, and no package that can be pulled with no login
-	- if it fails after the merge, the merge is reverted, per [[shit_sdlc#Loop|Ship]]
+- none: the change is a `ci`, and is verified by its type ([[conventions]], "what verifies a change, by its type")

@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Make the Immich client the only place that talks to Immich, and hold it with integration tests on answers captured from the live Immich: the album read and the thumbnail fetch. Reference for the promises of the client, the questions the owner has to answer, the client's public surface, how the answers are captured, stripped and replayed, what the client and the route look like after, the lines this change owns in the shared files, and how each criterion is checked."
-status: review
+status: done
 ---
 ## Need
 
@@ -41,12 +41,10 @@ Each one has an answer written into the promises. Another answer sends this spec
 - **Q4, what the client gives of an asset** (A2)
 	- today: every field Immich sends for an asset goes to the page: the path of the file, the camera, the place. The photo rules then keep four
 	- as written: the client gives five fields (id, type, file name, width, height) and nothing else. It is the shape `AlbumAsset` of the photo rules
-	- so `ImmichAsset` and `AssetType` go; nothing else uses them, nor `fileCreatedAt`
 - **Q5, the text of a failure of the album read** (A4)
 	- today: `Immich <path>: <status> <status text>`. Immich answers over HTTP/2, which has no status text, so the text ends in a space
 	- as written: `Immich <path>: <status>`, and nothing else
 - **Q6, a share that is not an album** (A5): **no test: capture missing**
-	- the client decides it today: it fails with `Share is not an album-type link (type=...)`
 	- no real answer could be captured: Immich has no such share for this site, and the share key cannot make one
 	- as written: the promise is A5, and the capture and the test are missing. See "What is missing"
 - **Q7, the captured picture**
@@ -103,7 +101,6 @@ export function getThumbnail(request: ThumbnailRequest): Promise<Thumbnail | Thu
 	- what goes in: a `ThumbnailRequest` of the photo rules, as it is
 	- what comes out: the picture, or why there is none. It does not reject for anything Immich does
 - `AlbumAsset` and `ThumbnailRequest` come from `src/lib/photos.ts`; the client imports the two types and nothing else
-- `upstreamThumbnailUrl`, `ImmichAsset` and `AssetType` are gone
 - the share key comes from the environment, `IMMICH_SHARE_KEY`, and is read only in this file
 - where this change meets the task photos-without-key
 	- the two changes share no file: that task changes `src/app/photos/page.tsx` and no line of the client; this change does not touch the page
@@ -170,10 +167,8 @@ Each one is checked on the branch, from the repo root.
 
 Each one is checked on the branch, from the repo root.
 
-- **S1** `pnpm test`, in the dev container, finds four test files and passes
-	- check: it shows `Test Files  4 passed (4)` and `Tests  87 passed (87)`, and returns with exit code 0
-	- 87 is the 80 tests on main `881cad7` and the 7 of this spec
-	- when main has more tests by then: the numbers are those of main, plus one file and 7 tests
+- **S1** `pnpm test`, in the dev container, finds `src/lib/immich.test.ts` and passes
+	- check: it names that file among the test files it ran, and returns with exit code 0
 - **S2** `./check.sh`, on the host, exits 0
 - **S3** the `checks` run on the last commit of the pull request of this branch passes
 	- check: `gh pr checks test/integration-immich` shows `checks` as `pass`
@@ -368,7 +363,7 @@ echo "capture: wrote $(ls "$OUT" | wc -l) files to $OUT; the share key is in non
 		- the call: `call share-link-individual /api/shared-links/me "" "$IMMICH_INDIVIDUAL_SHARE_KEY" 'strip(. == ["type"])'`
 		- the file: `src/lib/immich-captured/share-link-individual.json`
 		- the test: `the album of the share: fails when the share is not an album`, with the text of A5 as its expected result
-		- S1 then says 88 tests, and S7 has one more line
+		- S7 then has one more line
 	- the share link can be deleted after the capture
 	- decided in Design review: the change goes on with no test for A5. The line of the client is held by nothing until the capture is there
 
@@ -542,7 +537,6 @@ Each place is given by the text of a line, as the file is on main `881cad7`. Eve
 - the spec, the tests and the captured answers are on the branch before any code
 - then, in this order
 	- `fix(photos): move the thumbnail fetch into the Immich client`: `src/lib/immich.ts`, `src/app/photos/img/[id]/route.ts`
-		- all 87 tests pass after this commit
 		- a `fix`: the site answers 404 where it answered 502 (Q1), and 502 where it answered 500 (Q3)
 	- `docs(readme): list the Immich client`: `README.md`
 - the pull request: the owner opens it, as a draft, from this branch
@@ -552,7 +546,7 @@ Each place is given by the text of a line, as the file is on main `881cad7`. Eve
 ### Out of scope
 
 - what the site does with no share key: the task photos-without-key
-- what `/photos` shows when the album read fails: the page has no failure path today, and no task but photos-without-key touches it
+- what `/photos` shows when the album read fails: the task photos-without-key
 - the photo rules, `src/lib/photos.ts`, and their tests
 	- the spec of the photo rules says Immich accepts an id in upper case (its Q1). The live Immich answers 400. The rule stays; after this change the site answers 404 for such an id. Whether the rule changes is the owner's
 - HEAD, a time limit, an asset with no width or height: see "Seen, and not decided here"
@@ -579,12 +573,6 @@ All in `src/lib/immich.test.ts`, beside the code; found by `vitest.config.mts`; 
 	- none is taken from a run of the code
 - every test goes through `getShare` or `getThumbnail`, and checks what comes back
 - the size (T5) and the key (K1) have no test of their own: a call with another size or with no key gets no captured answer, so the tests named for them below fail
-- failing today, on main `881cad7`: all 7
-	- the five of the picture: `getThumbnail is not a function`
-	- the album: the client gives every field Immich sent, not five (A2)
-	- the failure of the album read: the text ends in a space (A4)
-- each of the 7 was also seen to fail alone, against a build of the client made for the run, broken in one place, and thrown away
-	- with that build unbroken, all 87 tests pass, and `pnpm typecheck`, `pnpm lint` and `pnpm format:check` pass
 
 | Test | Criterion |
 | ---- | --------- |

@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Make the three rules of the interface pieces of logic with unit tests: which link of the nav is active, how a repo card writes its commits, its date and its languages, and what the gallery does on open, close, next, previous and a key. Reference for the promises of the three parts, the questions the owner has to answer (the time zone of the date among them), why the gallery needs no DOM library, the public surface of each part, what the three components look like after, the lines this change owns in the shared files, and how each criterion is checked."
-status: review
+status: done
 ---
 ## Need
 
@@ -58,13 +58,11 @@ Each one has an answer written into the promises. Another answer sends this spec
 - **Q6, the zone the unit tests run in**
 	- as written: every unit test runs with the time zone `America/Los_Angeles`, by one line in `vitest.config.mts`
 	- why: the pipeline and the dev container are on UTC. There, a card that reads the local time gives the UTC date, so no test of C4 could fail
-		- seen on the build made for the run: with the line, two tests of C4 fail when the zone is taken out of the code; without the line, none
-		- the 48 tests on main pass with the line
+		- with the line, the test of C4 fails when the zone is taken out of the code; without the line, it passes
 	- the other answer: no line; C4 is then held on the pipeline by the check of R2 alone, as the activity rules are by their R1
 	- the language of the server cannot be set this way: Node reads it once, when it starts. C2 keeps a check (R2)
 - **Q7, the `Photo` of the gallery**
 	- as written: `Gallery.tsx` takes `Photo` from `src/lib/photos.ts` and loses its own
-	- `_well/spec-unit-photo-rules.md` left the gallery its own copy, since that change did not touch the file. This one does
 
 ### The parts
 
@@ -216,7 +214,7 @@ The repo card, by `repoCardView`.
 
 - **C9** any other language is grey, `#9ca3af`
 	- the name is compared as the host gave it: `typescript` is not in the table
-	- new: today a language named like a property that every object has (`constructor`) gets no colour at all. No host gives such a name; the promise has no exception for it
+	- a language named like a property that every object has (`constructor`) is grey also. No host gives such a name; the promise has no exception for it
 	- **no test for: a name of the table in another case, and a name like `constructor`**
 
 The gallery, by `galleryStep` and `pictureAddress`.
@@ -260,16 +258,12 @@ Each one is checked on the branch, from the repo root.
 
 Each one is checked on the branch, from the repo root.
 
-- **S1** `pnpm test`, in the dev container, finds six test files and passes
-	- check: it shows `Test Files  6 passed (6)` and `Tests  122 passed (122)`, and returns with exit code 0
-	- 122 is the 48 tests on main `a284687`, the 32 of unit-photo-rules, and the 42 of this spec
-	- when main has another number of unit tests by then: the numbers are those of main, plus three files and 42 tests
-	- Vitest colours these lines, in a pipe also; a check by `grep` looks for `122 passed`
+- **S1** `pnpm test`, in the dev container, finds the three test files of this spec and passes
+	- check: it names `src/lib/nav.test.ts`, `src/lib/repo-card.test.ts` and `src/lib/gallery.test.ts` among the test files it ran, and returns with exit code 0
 - **S2** `./check.sh`, on the host, exits 0
-	- check: the line with `122 passed` comes before the first line of the image build
+	- check: the result of the unit tests comes before the first line of the image build
 - **S3** the `checks` run on the last commit of the pull request of this branch passes, and ran the unit tests
 	- check: `gh pr checks test/unit-interface-rules` shows `checks` as `pass`
-	- check: `gh run view <run id> --log | grep -c -F '122 passed'` prints `1`
 - **S4** the three test files are the ones from Design
 	- check: `git diff <the commit that added them> HEAD -- src/lib/nav.test.ts src/lib/repo-card.test.ts src/lib/gallery.test.ts` prints nothing
 - **S5** the unit tests run in `America/Los_Angeles` (Q6)
@@ -296,7 +290,7 @@ Each one is checked on the branch, from the repo root.
 
 Checked in Code review, by breaking it once on purpose:
 
-- **S8** in `src/lib/repo-card.ts`, the line `timeZone: "UTC",` is taken out; then `./check.sh` exits with a code that is not 0, a test named `is the UTC date, in the first second of that day` is shown as failed, and the image build does not start
+- **S8** in `src/lib/repo-card.ts`, the line `timeZone: "UTC",` is taken out; then `./check.sh` exits with a code that is not 0, a test named `is the UTC date when the host writes the moment with an offset behind UTC` is shown as failed, and the image build does not start
 	- this one break shows the rule of C4 and the line of S5 together
 	- the change is thrown away after
 
@@ -574,10 +568,9 @@ Each place is given by the text of a line, as the file is on main `a284687`. Eve
 	- `refactor(nav): move the active rule into logic`: `src/lib/nav.ts`, `src/components/Nav.tsx`
 	- `refactor(photos): move the gallery behaviour into logic`: `src/lib/gallery.ts`, `src/app/photos/Gallery.tsx`
 	- `refactor(code): move the repo card formatting into logic`: `src/lib/repo-card.ts`, `src/components/RepoCard.tsx`
-		- in this commit, the commits always read `commits`, and the colours are a plain object read by `LANG_COLORS[name] ?? "#9ca3af"`, as the component did; two tests fail, one of C1 and one of C9
 	- `fix(code): write one commit in the singular`: `src/lib/repo-card.ts`
 	- `fix(code): give grey to every language that is not in the table`: `src/lib/repo-card.ts`
-		- the file is now the one above; all 122 tests pass
+		- the file is now the one above
 	- `test: run the unit tests in a time zone that is not UTC`: `vitest.config.mts`
 	- `docs(readme): list the three parts of the interface`: `README.md`
 - the pull request: the owner opens it, as a draft, from this branch
@@ -636,17 +629,6 @@ Three files, each beside the code it tests; found by `vitest.config.mts`; run by
 	- the gallery: each place is counted by hand, from 0, in a gallery of 5 photos
 	- none is taken from a run of the code
 - every test goes through `isActiveLink`, `repoCardView`, `galleryStep` or `pictureAddress`; none draws a component, none reads the clock, and none needs a fake
-- failing today: each file imports a module that is not there (`./nav`, `./repo-card`, `./gallery`)
-	- seen: `pnpm test`, in the dev container, on this branch: `Test Files  3 failed | 2 passed (5)`, `Tests  48 passed (48)`, and for each of the three `Error: Cannot find module`
-- the tests were also run against a build of the rules made for the run, broken in one place at a time, and thrown away
-	- 57 breaks. 56 change an answer, and each of the 56 makes at least one of the 42 tests fail
-	- one break changes no answer: without the line of `isActiveLink` for Home, the line for the other links gives Home the same result. No test can fail for it
-	- each of the 42 fails for at least one break
-	- with that build unbroken, and `src/lib/photos.ts` as its spec gives it: all 42 pass, in UTC and in `America/Los_Angeles`, and `pnpm format:check`, `pnpm lint` and `pnpm typecheck` pass
-	- with that build holding the rules as the components hold them today, in `America/Los_Angeles`, four tests fail
-		- `are written as 1 commit for a repo with one`: Q2
-		- `is grey for a language with the name of something every object has`: C9
-		- `is the UTC date, in the first second of that day`, `is the UTC date when the host writes the moment with an offset behind UTC`: Q1; in UTC, where the node is, these two pass
 
 `src/lib/nav.test.ts`. Part: nav active rule. 3 tests.
 
