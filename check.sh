@@ -37,9 +37,16 @@ SITE=publicpersona-check
 "$ENGINE" rm -f "$SITE" >/dev/null 2>&1 || true
 trap '"$ENGINE" rm -f "$SITE" >/dev/null 2>&1 || true' EXIT
 # The port is the one in playwright.config.ts.
-"$ENGINE" run -d --name "$SITE" -p 127.0.0.1:3210:3000 publicpersona:check >/dev/null
+# The flags and the values are those of the node's unit file, publicpersona.container in dazoo.
+# The image promises to serve when it is started that way, and a test can only show that
+# against a container that is.
+"$ENGINE" run -d --name "$SITE" -p 127.0.0.1:3210:3000 \
+  --read-only --user 1000 --cap-drop ALL --security-opt no-new-privileges \
+  --env NODE_ENV=production --env PORT=3000 --env HOSTNAME=0.0.0.0 \
+  publicpersona:check >/dev/null
 
-if ! timeout -k 5 30 bash -c 'until "$0" exec "$1" wget -q -O /dev/null http://127.0.0.1:3000/api/health 2>/dev/null; do sleep 1; done' "$ENGINE" "$SITE"; then
+# Any answer means the site is up. Whether the answer is good is for the tests to say.
+if ! timeout -k 5 30 bash -c 'until "$0" exec "$1" wget -q -S -O /dev/null http://127.0.0.1:3000/api/health 2>&1 | grep -q "HTTP/"; do sleep 1; done' "$ENGINE" "$SITE"; then
   echo "check.sh: gave up after 30s waiting for: the site to answer in the container $SITE" >&2
   "$ENGINE" logs "$SITE" >&2 || true
   exit 1
