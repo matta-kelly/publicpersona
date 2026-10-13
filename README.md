@@ -9,6 +9,14 @@ My personal site: who I am, what I have built, and how I think. Live at [home.mo
 
 Built with Next.js 16, React 19, TypeScript and Tailwind 4.
 
+## Parts
+
+Each part of the code, the kind of test that holds it, and where it is. A test file sits beside the code it tests.
+
+| Part         | Kind  | Test | Path                      |
+| ------------ | ----- | ---- | ------------------------- |
+| heatmap grid | logic | unit | `src/lib/heatmap-grid.ts` |
+
 ## Run it
 
 Every command runs in the dev container, which holds Node 22 and pnpm. The packages and the build cache stay in Podman volumes, out of the repo folder. Needs Podman and Node on the host.
@@ -37,7 +45,16 @@ On the host, from the repo root:
 ./check.sh
 ```
 
-It runs the whole check set and stops at the first failure: the format check, the lint, the typecheck, and the image build. The image build runs `pnpm build` and pushes nothing. Needs Podman and Node on the host; the three `pnpm` checks run in the dev container, which the script starts.
+It runs the whole check set in this order, and stops at the first failure:
+
+1. the format check
+2. the lint
+3. the typecheck
+4. the unit tests
+5. the image build, which runs `pnpm build` and pushes nothing
+6. the end to end tests, against the image that step 5 built
+
+Needs Podman and Node on the host. Steps 1 to 4 run in the dev container, which the script starts.
 
 After the image build, it starts that image as a container named `publicpersona-check` on `127.0.0.1:3210`, runs the end to end tests against it, and removes the container. The tests are `tests/*.spec.ts`. Playwright runs them in Chromium, in the dev container; `npx playwright test`, in the container, runs them alone while the site answers on that port. Their output goes to `/tmp/publicpersona-playwright` in the container, not to the repo folder. Run one `./check.sh` at a time on a machine: each run first removes the container of that name.
 
@@ -47,6 +64,8 @@ The pipeline runs the same command. Two values from the environment say which to
 | -------- | ------------------------------ | ------------------------- |
 | `PNPM`   | how to call pnpm               | through the dev container |
 | `ENGINE` | the tool that builds the image | `podman`                  |
+
+`pnpm test`, in the container, runs the unit tests alone, once.
 
 `pnpm format`, in the container, applies Prettier to the whole repo.
 
@@ -69,8 +88,9 @@ To roll back, pin the node to the `sha-` tag of an earlier commit.
 | ------------------------------ | ----------------------------------------------------------------------------- |
 | `src/app/`                     | pages and routes (Next.js App Router)                                         |
 | `src/components/`              | shared interface pieces                                                       |
-| `src/lib/`                     | clients for the two outside services                                          |
+| `src/lib/`                     | logic, and the clients for the two outside services                           |
 | `public/`                      | images and other static files                                                 |
+| `vitest.config.mts`            | the runner config: says which files are unit tests                            |
 | `Dockerfile`                   | the image: a multi-stage build ending in Next's standalone server             |
 | `check.sh`                     | the one command that runs the whole check set                                 |
 | `playwright.config.ts`         | the Playwright config: where the end to end tests are, and what they drive    |
