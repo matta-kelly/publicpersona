@@ -32,6 +32,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # The browsers are part of the toolchain: check.sh drives Chromium and installs nothing.
+      - run: pnpm exec playwright install --with-deps chromium
+
       # The runner has pnpm and docker on the PATH; the defaults are for a dev machine.
       - run: ./check.sh
         env:

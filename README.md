@@ -19,7 +19,9 @@ cp .env.example .env.local
 npx @devcontainers/cli exec --workspace-folder . --docker-path podman pnpm dev
 ```
 
-Creating the container installs the packages. In VS Code, **Reopen in Container** does the same, and its terminal is then inside the container.
+Creating the container installs the packages and Chromium, the browser that the end to end tests drive. In VS Code, **Reopen in Container** does the same, and its terminal is then inside the container.
+
+The container uses the host's network, so a port that is open on the host is open in the container, and the other way round. When a file under `.devcontainer/` changes, create the container again: run the `up` command with `--remove-existing-container`.
 
 The site is then at http://localhost:3000.
 
@@ -36,6 +38,8 @@ On the host, from the repo root:
 ```
 
 It runs the whole check set and stops at the first failure: the format check, the lint, the typecheck, and the image build. The image build runs `pnpm build` and pushes nothing. Needs Podman and Node on the host; the three `pnpm` checks run in the dev container, which the script starts.
+
+After the image build, it starts that image as a container named `publicpersona-check` on `127.0.0.1:3210`, runs the end to end tests against it, and removes the container. The tests are `tests/*.spec.ts`. Playwright runs them in Chromium, in the dev container; `npx playwright test`, in the container, runs them alone while the site answers on that port. Their output goes to `/tmp/publicpersona-playwright` in the container, not to the repo folder. Run one `./check.sh` at a time on a machine: each run first removes the container of that name.
 
 The pipeline runs the same command. Two values from the environment say which tools to use:
 
@@ -69,5 +73,7 @@ To roll back, pin the node to the `sha-` tag of an earlier commit.
 | `public/`                      | images and other static files                                                 |
 | `Dockerfile`                   | the image: a multi-stage build ending in Next's standalone server             |
 | `check.sh`                     | the one command that runs the whole check set                                 |
+| `playwright.config.ts`         | the Playwright config: where the end to end tests are, and what they drive    |
+| `tests/`                       | end to end tests (`*.spec.ts`): they drive the built image in a browser       |
 | `.github/workflows/checks.yml` | the pipeline for a pull request: runs `check.sh`                              |
 | `.github/workflows/ship.yml`   | the pipeline for a merge to `main`: builds the image and pushes it to ghcr.io |
