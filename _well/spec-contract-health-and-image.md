@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Hold the two borders of publicpersona that the node depends on, the health route and the image, with a contract test under Playwright against the built image, which check.sh now starts the way the node's unit file starts it. Reference for the four promises and the line of the dependent system each one comes from, how each is checked, what a browser cannot see and is left out, the lines this change owns in the shared files, and how it is verified."
-status: design
+status: review
 ---
 ## Need
 
