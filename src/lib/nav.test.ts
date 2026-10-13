@@ -18,3 +18,4 @@ describe("a link other than Home", () => {
     expect(isActiveLink("/projects/stateball", "/projects")).toBe(true);
   });
 });
+// proof
