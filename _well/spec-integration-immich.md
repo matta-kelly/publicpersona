@@ -45,7 +45,7 @@ Each one has an answer written into the promises. Another answer sends this spec
 - **Q5, the text of a failure of the album read** (A4)
 	- today: `Immich <path>: <status> <status text>`. Immich answers over HTTP/2, which has no status text, so the text ends in a space
 	- as written: `Immich <path>: <status>`, and nothing else
-- **Q6, a share that is not an album** (A5): **blocked, no test**
+- **Q6, a share that is not an album** (A5): **no test: capture missing**
 	- the client decides it today: it fails with `Share is not an album-type link (type=...)`
 	- no real answer could be captured: Immich has no such share for this site, and the share key cannot make one
 	- as written: the promise is A5, and the capture and the test are missing. See "What is missing"
@@ -106,11 +106,15 @@ export function getThumbnail(request: ThumbnailRequest): Promise<Thumbnail | Thu
 - `upstreamThumbnailUrl`, `ImmichAsset` and `AssetType` are gone
 - the share key comes from the environment, `IMMICH_SHARE_KEY`, and is read only in this file
 - where this change meets the task photos-without-key
-	- `getKey` stays exactly as it is on main. With no key, both functions fail with `IMMICH_SHARE_KEY is not set`, as `getShare` does today
-	- in `getThumbnail`, `getKey` is called before the `try`, so a missing key is not read as a failure of Immich
-	- what the site does with no key is that task's. Every test here sets a key
-	- this change does not touch `src/app/photos/page.tsx`
-	- both branches change `src/lib/immich.ts`; the second one to merge takes main in by a merge
+	- the two changes share no file: that task changes `src/app/photos/page.tsx` and no line of the client; this change does not touch the page
+	- that task relies on two things of `getShare`, and both stay as on main
+		- it fails by a rejected promise, for no key and for every failure of the album read; it never gives a value in place of the album
+		- with no key it fails with `IMMICH_SHARE_KEY is not set` before any call to Immich: `getKey` is called while the address is built
+	- `getKey` stays exactly as it is on main
+	- `GET /photos/img/<id>` with no key: as on main, status 500 with an empty body
+		- in `getThumbnail`, `getKey` is called before the `try`, so a missing key is not read as a failure of Immich, and no call is made
+		- no promise and no test here: every test sets a key. No visitor reaches that address from the page of that task when there is no key
+		- another answer for it is a new promise; no task holds it
 
 ### Acceptance criteria: the promises
 
@@ -364,7 +368,7 @@ echo "capture: wrote $(ls "$OUT" | wc -l) files to $OUT; the share key is in non
 		- the test: `the album of the share: fails when the share is not an album`, with the text of A5 as its expected result
 		- S1 then says 88 tests, and S7 has one more line
 	- the share link can be deleted after the capture
-	- who decides: the owner, in Design review. To go on with no test for A5 is also an answer; the line of the client is then held by nothing
+	- decided in Design review: the change goes on with no test for A5. The line of the client is held by nothing until the capture is there
 
 ### Approach
 
