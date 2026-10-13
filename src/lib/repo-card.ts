@@ -46,8 +46,9 @@ const DAY = new Intl.DateTimeFormat("en-US", {
 });
 
 export function repoCardView(repo: RepoSummary): RepoCardView {
+  const commits = repo.commitsLast12mo;
   return {
-    commits: `${WHOLE_NUMBER.format(repo.commitsLast12mo)} commits`,
+    commits: `${WHOLE_NUMBER.format(commits)} ${commits === 1 ? "commit" : "commits"}`,
     created: `Created ${DAY.format(new Date(repo.createdAt))}`,
     languages: repo.languages.map((language) => ({
       name: language.name,
