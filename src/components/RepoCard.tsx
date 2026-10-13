@@ -1,4 +1,4 @@
-import type { RepoSummary } from "@/lib/forgejo";
+import type { RepoSummary } from "@/lib/activity";
 
 const LANG_COLORS: Record<string, string> = {
   TypeScript: "#3178c6",

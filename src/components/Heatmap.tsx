@@ -1,4 +1,4 @@
-import type { HeatmapDay } from "@/lib/forgejo";
+import type { HeatmapDay } from "@/lib/activity";
 import { heatmapGrid } from "@/lib/heatmap-grid";
 
 const TIER_BG = [

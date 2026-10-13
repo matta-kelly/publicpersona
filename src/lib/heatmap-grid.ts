@@ -1,4 +1,4 @@
-import type { HeatmapDay } from "./forgejo";
+import type { HeatmapDay } from "./activity";
 
 export interface HeatmapCell {
   date: string;
