@@ -43,7 +43,6 @@ status: done
 - the pipeline: it stays as it is
 - the `Dockerfile` and the image that ships
 - adding a test tool for the site itself
-- the stale `deploy/` folder
 
 ## Tests
 

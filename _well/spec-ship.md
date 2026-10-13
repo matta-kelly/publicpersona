@@ -127,7 +127,6 @@ Checked in code review, by breaking it once on purpose:
 
 - the node, `monkeybusiness`: its unit file is in `dazoo`, and it names ghcr.io
 - the removal of the Forgejo pipeline, of the `forgejo` remote and of the `.forgejo` lines in the ignore files: `_well/spec-remove-forgejo-pipeline.md`
-- the `deploy/` folder: Kubernetes manifests for a cluster that no longer runs this site
 - the `/code` page, which reads the other server's API (`src/lib/forgejo.ts`)
 - tests for the site itself
 - signed build records (attestations) for the image
