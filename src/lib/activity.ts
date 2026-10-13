@@ -70,15 +70,8 @@ function repoLanguages(languageBytes: Record<string, number>): RepoLanguage[] {
     .sort((a, b) => b.bytes - a.bytes);
 }
 
-function repoSummary(repo: RepoSource): RepoSummary {
-  return {
-    name: repo.name,
-    description: repo.description,
-    htmlUrl: repo.htmlUrl,
-    createdAt: repo.createdAt,
-    languages: repoLanguages(repo.languageBytes),
-    commitsLast12mo: repo.commitsLast12mo,
-  };
+function repoSummary({ languageBytes, ...asTheHostGave }: RepoSource): RepoSummary {
+  return { ...asTheHostGave, languages: repoLanguages(languageBytes) };
 }
 
 export function activitySummary(source: ActivitySource): ActivitySummary {
