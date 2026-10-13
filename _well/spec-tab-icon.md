@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Give the site a tab icon: a cube, served as a PNG that every page links and as /favicon.ico. Reference for what the browser tab shows today, the two promises, the files that keep them, and the tests."
-status: factory
+status: review
 ---
 
 ## Need
@@ -58,3 +58,9 @@ Both in `tests/tab-icon.spec.ts`, a new file; found by `playwright.config.ts`; r
 - T1 does not fix the address of the icon: Next.js adds a hash to it, and the hash is not a promise
 - how each criterion is verified ([[conventions]], "what verifies a change, by its type")
 	- T1, T2: a test, written first and kept
+- failing before the icon files, on the commit of the tests, `6069b39`
+	- seen in the `checks` run 38456287732 of pull request 29
+	- the format check, the lint, the typecheck, the unit tests and the image build pass
+	- Playwright: `5 passed`, `2 failed`, and the two are the tests of this spec
+		- T1: no `link` of that kind in the head
+		- T2: `Expected: 200`, `Received: 404`
