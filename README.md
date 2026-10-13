@@ -17,6 +17,13 @@ Each part of the code, the kind of test that holds it, and where it is. A test f
 | ------------ | ----- | ---- | ------------------------- |
 | heatmap grid | logic | unit | `src/lib/heatmap-grid.ts` |
 
+The borders are the surfaces that another system depends on. A contract test holds each one, against the built image, started the way the node starts it. Both are in `tests/health-and-image.spec.ts`.
+
+| Border       | Depends on it                         | Test     | Path                          |
+| ------------ | ------------------------------------- | -------- | ----------------------------- |
+| health check | the node's health command             | contract | `src/app/api/health/route.ts` |
+| image        | the node's unit file, which starts it | contract | `Dockerfile`                  |
+
 ## Run it
 
 Every command runs in the dev container, which holds Node 22 and pnpm. The packages and the build cache stay in Podman volumes, out of the repo folder. Needs Podman and Node on the host.
@@ -52,11 +59,11 @@ It runs the whole check set in this order, and stops at the first failure:
 3. the typecheck
 4. the unit tests
 5. the image build, which runs `pnpm build` and pushes nothing
-6. the end to end tests, against the image that step 5 built
+6. the end to end and contract tests, against the image that step 5 built
 
 Needs Podman and Node on the host. Steps 1 to 4 run in the dev container, which the script starts.
 
-After the image build, it starts that image as a container named `publicpersona-check` on `127.0.0.1:3210`, runs the end to end tests against it, and removes the container. The tests are `tests/*.spec.ts`. Playwright runs them in Chromium, in the dev container; `npx playwright test`, in the container, runs them alone while the site answers on that port. Their output goes to `/tmp/publicpersona-playwright` in the container, not to the repo folder. Run one `./check.sh` at a time on a machine: each run first removes the container of that name.
+After the image build, it starts that image as a container named `publicpersona-check` on `127.0.0.1:3210`, runs the end to end and contract tests against it, and removes the container. It starts the image the way the node does: a read-only root, user 1000, no capabilities, and the same `PORT` and `HOSTNAME`. The tests are `tests/*.spec.ts`. Playwright runs them in the dev container, the end to end tests in Chromium; `npx playwright test`, in the container, runs them alone while the site answers on that port. Their output goes to `/tmp/publicpersona-playwright` in the container, not to the repo folder. Run one `./check.sh` at a time on a machine: each run first removes the container of that name.
 
 The pipeline runs the same command. Two values from the environment say which tools to use:
 
@@ -94,6 +101,6 @@ To roll back, pin the node to the `sha-` tag of an earlier commit.
 | `Dockerfile`                   | the image: a multi-stage build ending in Next's standalone server             |
 | `check.sh`                     | the one command that runs the whole check set                                 |
 | `playwright.config.ts`         | the Playwright config: where the end to end tests are, and what they drive    |
-| `tests/`                       | end to end tests (`*.spec.ts`): they drive the built image in a browser       |
+| `tests/`                       | end to end and contract tests (`*.spec.ts`): they run against the built image |
 | `.github/workflows/checks.yml` | the pipeline for a pull request: runs `check.sh`                              |
 | `.github/workflows/ship.yml`   | the pipeline for a merge to `main`: builds the image and pushes it to ghcr.io |
