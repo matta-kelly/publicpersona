@@ -95,7 +95,7 @@ Each one is the owner's taste. Each has a default, which the promises below are 
 	- the other answer: a text link `github` in the footer, after `linkedin`, in the form of the two links there. No icon. Then the nav only loses `Code`
 - **Q4, the words of the dazoo write-up** (R1)
 	- default: `GitHub` in the place of `Forgejo`, three times, and git taken out of the list of what the cloud nodes run. The exact lines are under [[#Approach]]
-		- true today: the `dazoo` repo is on GitHub, and the nodes run no git server
+		- the `dazoo` repo is on GitHub, and with Forgejo off the nodes run no git server
 	- the other answer: name no host. The box `dazoo repo` loses its second line, the step `Forgejo` becomes `dazoo repo`, and the caption says `Push to the repo`
 	- not a question here: the write-up is stale in more than this. It describes two Talos clusters and Flux, and dazoo runs on Podman now. That is a task of its own, for the whole write-up
 - **Q5, the folder `deploy/`** (R1)
@@ -452,9 +452,13 @@ Both in `tests/code-on-github.spec.ts`, a new file; found by `playwright.config.
 	- the second asks with `maxRedirects: 0`, so it reads the answer of the site and stops
 - the first test opens `/`. The nav is one component of the layout, so one page shows it
 - failing today, on main `256e9a3`
-	- the first: the nav has no link with the name `GitHub`
-	- the second: `/code` answers 200
-	- seen in the `checks` run on the commit of Design: the pull request has the run
+	- seen in the `checks` run on the commit of Design, `6d19f14` (run 38448712169 of pull request 25)
+	- the format check, the lint, the typecheck and the image build pass; `Test Files  4 passed (4)`, `Tests  22 passed (22)`
+	- Playwright: `3 passed`, `2 failed`, and the two are the tests of this spec
+		- the first: `expect(locator).toHaveAttribute(expected) failed`, `element(s) not found`. The nav has no link with the name `GitHub`
+		- the second: `Expected: 307`, `Received: 200`. `/code` is a page
+	- so the `checks` run is red until the Factory's first commit, and for no other cause
+- not seen to pass: Design did not build the change. S2 and S3 show it
 
 Tests that Design takes away or changes on the branch, since their promises are withdrawn or their words are no longer true:
 
