@@ -13,11 +13,12 @@ Built with Next.js 16, React 19, TypeScript and Tailwind 4.
 
 Each part of the code, the kind of test that holds it, and where it is. A test file sits beside the code it tests.
 
-| Part           | Kind  | Test | Path                      |
-| -------------- | ----- | ---- | ------------------------- |
-| heatmap grid   | logic | unit | `src/lib/heatmap-grid.ts` |
-| activity rules | logic | unit | `src/lib/activity.ts`     |
-| photo rules    | logic | unit | `src/lib/photos.ts`       |
+| Part           | Kind    | Test        | Path                      |
+| -------------- | ------- | ----------- | ------------------------- |
+| heatmap grid   | logic   | unit        | `src/lib/heatmap-grid.ts` |
+| activity rules | logic   | unit        | `src/lib/activity.ts`     |
+| photo rules    | logic   | unit        | `src/lib/photos.ts`       |
+| Immich client  | adapter | integration | `src/lib/immich.ts`       |
 
 The borders are the surfaces that another system depends on. A contract test holds each one, against the built image, started the way the node starts it. Both are in `tests/health-and-image.spec.ts`.
 
@@ -59,7 +60,7 @@ It runs the whole check set in this order, and stops at the first failure:
 1. the format check
 2. the lint
 3. the typecheck
-4. the unit tests
+4. the unit and integration tests
 5. the image build, which runs `pnpm build` and pushes nothing
 6. the end to end and contract tests, against the image that step 5 built
 
@@ -74,7 +75,7 @@ The pipeline runs the same command. Two values from the environment say which to
 | `PNPM`   | how to call pnpm               | through the dev container |
 | `ENGINE` | the tool that builds the image | `podman`                  |
 
-`pnpm test`, in the container, runs the unit tests alone, once.
+`pnpm test`, in the container, runs the unit and integration tests alone, once.
 
 `pnpm format`, in the container, applies Prettier to the whole repo.
 
@@ -98,8 +99,9 @@ To roll back, pin the node to the `sha-` tag of an earlier commit.
 | `src/app/`                     | pages and routes (Next.js App Router)                                         |
 | `src/components/`              | shared interface pieces                                                       |
 | `src/lib/`                     | logic, and the clients for the two outside services                           |
+| `src/lib/immich-captured/`     | answers of the live Immich, captured; the integration tests replay them       |
 | `public/`                      | images and other static files                                                 |
-| `vitest.config.mts`            | the runner config: says which files are unit tests                            |
+| `vitest.config.mts`            | the runner config: says which files are unit and integration tests            |
 | `Dockerfile`                   | the image: a multi-stage build ending in Next's standalone server             |
 | `check.sh`                     | the one command that runs the whole check set                                 |
 | `playwright.config.ts`         | the Playwright config: where the end to end tests are, and what they drive    |
