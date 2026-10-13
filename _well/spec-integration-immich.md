@@ -128,6 +128,7 @@ The album read, by `getShare`:
 
 - **A1** the album has the name Immich gave for the album of the share
 - **A2** an asset has the id, the type, the file name, the width and the height Immich gave, and nothing else of what Immich sent (Q4)
+	- this is the only place where an asset is cut: the photo rules hand on what they get (`_well/spec-unit-photo-rules.md`, G3)
 - **A3** the assets are in the order Immich gave
 - **A4** when Immich answers a call with a failure, the album read fails with the text `Immich <path of the call>: <status>`, and nothing else (Q5)
 	- so the share key is not in the text

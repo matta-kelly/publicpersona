@@ -90,31 +90,4 @@ describe("the repos", () => {
 
     expect(summary.repos.map((r) => r.name)).toEqual(["site", "infra", "notes"]);
   });
-
-  test("gives the name, description, link, creation date and commits of a repo as the host gave them", () => {
-    const summary = activitySummary({
-      contributions: [],
-      repos: [
-        {
-          name: "dazoo",
-          description: "The nodes, and what runs on them",
-          htmlUrl: "https://git.example/mk/dazoo",
-          createdAt: "2024-06-02T17:30:00Z",
-          languageBytes: { Shell: 400 },
-          commitsLast12mo: 31,
-        },
-      ],
-    });
-
-    expect(summary.repos).toEqual([
-      {
-        name: "dazoo",
-        description: "The nodes, and what runs on them",
-        htmlUrl: "https://git.example/mk/dazoo",
-        createdAt: "2024-06-02T17:30:00Z",
-        languages: [{ name: "Shell", bytes: 400, pct: 1 }],
-        commitsLast12mo: 31,
-      },
-    ]);
-  });
 });

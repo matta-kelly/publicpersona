@@ -59,10 +59,7 @@ function heatmapDays(contributions: ContributionEntry[]): HeatmapDay[] {
     const date = utcDate(entry.timestamp);
     countOfDate.set(date, (countOfDate.get(date) ?? 0) + entry.count);
   }
-  // YYYY-MM-DD in order as text is in order of time.
-  return [...countOfDate]
-    .map(([date, count]) => ({ date, count }))
-    .sort((a, b) => (a.date < b.date ? -1 : 1));
+  return [...countOfDate].map(([date, count]) => ({ date, count }));
 }
 
 function repoLanguages(languageBytes: Record<string, number>): RepoLanguage[] {
@@ -73,15 +70,8 @@ function repoLanguages(languageBytes: Record<string, number>): RepoLanguage[] {
     .sort((a, b) => b.bytes - a.bytes);
 }
 
-function repoSummary(repo: RepoSource): RepoSummary {
-  return {
-    name: repo.name,
-    description: repo.description,
-    htmlUrl: repo.htmlUrl,
-    createdAt: repo.createdAt,
-    languages: repoLanguages(repo.languageBytes),
-    commitsLast12mo: repo.commitsLast12mo,
-  };
+function repoSummary({ languageBytes, ...asTheHostGave }: RepoSource): RepoSummary {
+  return { ...asTheHostGave, languages: repoLanguages(languageBytes) };
 }
 
 export function activitySummary(source: ActivitySource): ActivitySummary {

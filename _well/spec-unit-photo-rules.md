@@ -77,7 +77,7 @@ export interface AlbumAsset {
   height: number;
 }
 
-/** What the gallery gets for one photo. It goes to the browser. */
+/** What the gallery reads of one photo. */
 export interface Photo {
   id: string;
   originalFileName: string;
@@ -137,8 +137,9 @@ The photos of an album, by `galleryPhotos`:
 	- Immich's other types are `VIDEO`, `AUDIO` and `OTHER`; a type Immich does not have today is also not a photo
 	- **no test for: a type other than `IMAGE` and `VIDEO`**
 - **G2** the photos are in the order the album gave
-- **G3** a photo has the id, the file name, the width and the height the album gave, and nothing else of the asset
+- **G3** a photo is the asset as it came in: nothing is taken out of it, and nothing is put in
 	- what is in a photo goes to the browser
+	- which fields an asset has is the promise of the client (`_well/spec-integration-immich.md`, A2): the id, the type, the file name, the width and the height
 	- **no test**
 - **G4** an album with no image gives an empty list; an album with no asset also
 	- **no test**
@@ -218,9 +219,9 @@ Nothing here is a choice for the Factory. A question goes back to Design.
 	- `size` is `null`: `{ id, size: "thumbnail" }`
 	- the list does not include `size`: `{ refused: "size" }`
 	- else: `{ id, size }`
-- `galleryPhotos`: the rule moves from `src/app/photos/page.tsx`, as it is
+- `galleryPhotos`: a filter
 	- the assets whose `type` is `"IMAGE"`, by `===`
-	- each one becomes a new object with `id`, `originalFileName`, `width` and `height`, and no other field
+	- each one goes on as it is
 	- the list that came in is not changed
 
 **The route handler**

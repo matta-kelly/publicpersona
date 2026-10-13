@@ -21,7 +21,7 @@ export interface AlbumAsset {
   height: number;
 }
 
-/** What the gallery gets for one photo. It goes to the browser. */
+/** What the gallery reads of one photo. */
 export interface Photo {
   id: string;
   originalFileName: string;
@@ -49,7 +49,5 @@ export function thumbnailRequest(
 }
 
 export function galleryPhotos(assets: AlbumAsset[]): Photo[] {
-  return assets
-    .filter((asset) => asset.type === "IMAGE")
-    .map(({ id, originalFileName, width, height }) => ({ id, originalFileName, width, height }));
+  return assets.filter((asset) => asset.type === "IMAGE");
 }
