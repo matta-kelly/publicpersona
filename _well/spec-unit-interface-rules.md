@@ -61,7 +61,7 @@ Each one has an answer written into the promises. Another answer sends this spec
 - **Q7, the zone the unit tests run in**
 	- as written: every unit test runs with the time zone `America/Los_Angeles`, by one line in `vitest.config.mts`
 	- why: the pipeline and the dev container are on UTC. There, a card that reads the local time gives the UTC date, so no test of C4 could fail
-		- seen on the build made for the run: with the line, three tests of C4 fail when the zone is taken out of the code; without the line, none
+		- seen on the build made for the run: with the line, two tests of C4 fail when the zone is taken out of the code; without the line, none
 		- the 48 tests on main pass with the line
 	- the other answer: no line; C4 is then held on the pipeline by the check of R2 alone, as the activity rules are by their R1
 	- the language of the server cannot be set this way: Node reads it once, when it starts. C2 keeps a check (R2)
@@ -257,15 +257,15 @@ Each one is checked on the branch, from the repo root.
 Each one is checked on the branch, from the repo root.
 
 - **S1** `pnpm test`, in the dev container, finds six test files and passes
-	- check: it shows `Test Files  6 passed (6)` and `Tests  157 passed (157)`, and returns with exit code 0
-	- 157 is the 48 tests on main `a284687`, the 32 of unit-photo-rules, and the 77 of this spec
-	- when main has another number of unit tests by then: the numbers are those of main, plus three files and 77 tests
-	- Vitest colours these lines, in a pipe also; a check by `grep` looks for `157 passed`
+	- check: it shows `Test Files  6 passed (6)` and `Tests  122 passed (122)`, and returns with exit code 0
+	- 122 is the 48 tests on main `a284687`, the 32 of unit-photo-rules, and the 42 of this spec
+	- when main has another number of unit tests by then: the numbers are those of main, plus three files and 42 tests
+	- Vitest colours these lines, in a pipe also; a check by `grep` looks for `122 passed`
 - **S2** `./check.sh`, on the host, exits 0
-	- check: the line with `157 passed` comes before the first line of the image build
+	- check: the line with `122 passed` comes before the first line of the image build
 - **S3** the `checks` run on the last commit of the pull request of this branch passes, and ran the unit tests
 	- check: `gh pr checks test/unit-interface-rules` shows `checks` as `pass`
-	- check: `gh run view <run id> --log | grep -c -F '157 passed'` prints `1`
+	- check: `gh run view <run id> --log | grep -c -F '122 passed'` prints `1`
 - **S4** the three test files are the ones from Design
 	- check: `git diff <the commit that added them> HEAD -- src/lib/nav.test.ts src/lib/repo-card.test.ts src/lib/gallery.test.ts` prints nothing
 - **S5** the unit tests run in `America/Los_Angeles` (Q7)
@@ -573,7 +573,7 @@ Each place is given by the text of a line, as the file is on main `a284687`. Eve
 		- in this commit, the commits always read `commits`, and the colours are a plain object read by `LANG_COLORS[name] ?? "#9ca3af"`, as the component did; two tests fail, one of C1 and one of C9
 	- `fix(code): write one commit in the singular`: `src/lib/repo-card.ts`
 	- `fix(code): give grey to every language that is not in the table`: `src/lib/repo-card.ts`
-		- the file is now the one above; all 157 tests pass
+		- the file is now the one above; all 122 tests pass
 	- `test: run the unit tests in a time zone that is not UTC`: `vitest.config.mts`
 	- `docs(readme): list the three parts of the interface`: `README.md`
 - the pull request: the owner opens it, as a draft, from this branch
@@ -615,114 +615,90 @@ Each place is given by the text of a line, as the file is on main `a284687`. Eve
 
 ## Tests
 
-Three files, each beside the code it tests; found by `vitest.config.mts`; run by `pnpm test`. Kind: unit. 77 tests.
+Three files, each beside the code it tests; found by `vitest.config.mts`; run by `pnpm test`. Kind: unit. 42 tests.
 
+- which tests there are
+	- a test is there only where the code of this repo makes the decision, and one for each edge of a decision
+	- none for what the platform does: the names of the months, the leap day, a day of two digits, the comma after the millions
+	- none that holds an edge another test holds: a key has one test, which shows the key means its action; the wrap is held once, under next and under previous
+	- so three lines of the promises have no test of their own
+		- N5: it follows from N1 to N4, and their tests hold it
+		- G5: with one photo, the wrap of G3 and of G4 gives the same photo; their tests hold it
+		- C6, "a share exactly halfway goes up", and "a share below 0.05% reads `0.0%`": the rounding is the platform's, by `toFixed`; the test of one decimal and the test of the thirds hold the call
 - how the expected results were made
-	- the nav: each path is written out, and the answer is read from N1 to N5
+	- the nav: each path is written out, and the answer is read from N1 to N4
 	- the repo card: each text is written out by hand from C1 to C9
 		- each moment is written with its offset, and the UTC date it stands for is in the name of the test or in a comment
-		- each share is a division written in the test: 1 of 16 is 6.25%
+		- each share is a division written in the test: 750 of 1000 is 75%
 		- the colours are the table of C8
-	- the gallery: each place is counted by hand, from 0, in a gallery of 5, 2 or 1 photos
+	- the gallery: each place is counted by hand, from 0, in a gallery of 5 photos
 	- none is taken from a run of the code
 - every test goes through `isActiveLink`, `repoCardView`, `galleryStep` or `pictureAddress`; none draws a component, none reads the clock, and none needs a fake
 - failing today: each file imports a module that is not there (`./nav`, `./repo-card`, `./gallery`)
 	- seen: `pnpm test`, in the dev container, on this branch: `Test Files  3 failed | 2 passed (5)`, `Tests  48 passed (48)`, and for each of the three `Error: Cannot find module`
-- each of the 77 was also seen to fail alone, against a build of the rules made for the run, broken in one place at a time (56 breaks), and thrown away
-	- with that build unbroken, and `src/lib/photos.ts` as its spec gives it: all 77 pass, in UTC and in `America/Los_Angeles`, and `pnpm format:check`, `pnpm lint` and `pnpm typecheck` pass
-	- with that build holding the rules as the components hold them today, in `America/Los_Angeles`, five tests fail
+- the tests were also run against a build of the rules made for the run, broken in one place at a time, and thrown away
+	- 57 breaks. 56 change an answer, and each of the 56 makes at least one of the 42 tests fail
+	- one break changes no answer: without the line of `isActiveLink` for Home, the line for the other links gives Home the same result. No test can fail for it
+	- each of the 42 fails for at least one break
+	- with that build unbroken, and `src/lib/photos.ts` as its spec gives it: all 42 pass, in UTC and in `America/Los_Angeles`, and `pnpm format:check`, `pnpm lint` and `pnpm typecheck` pass
+	- with that build holding the rules as the components hold them today, in `America/Los_Angeles`, four tests fail
 		- `are written as 1 commit for a repo with one`: Q2
 		- `is grey for a language with the name of something every object has`: C9
-		- `is the UTC date, in the first second of that day`, `is the UTC date when the host writes the moment with an offset behind UTC`, `is in the new year from midnight UTC on 1 January`: Q1; in UTC, where the node is, these three pass
+		- `is the UTC date, in the first second of that day`, `is the UTC date when the host writes the moment with an offset behind UTC`: Q1; in UTC, where the node is, these two pass
 
-`src/lib/nav.test.ts`. Part: nav active rule. 14 tests.
+`src/lib/nav.test.ts`. Part: nav active rule. 8 tests.
 
 | Test | Criterion |
 | ---- | --------- |
 | the Home link: is active on the home page | N1 |
-| the Home link: is not active on the page of another link | N1 |
-| the Home link: is not active on a page below another link | N1 |
+| the Home link: is not active on the page of another link | N1, N5 |
 | a link other than Home: is active on its own page | N2 |
-| a link other than Home: is active on a page directly below its own | N3 |
-| a link other than Home: is active on a page two levels below its own | N3 |
-| a link other than Home: is active on its own page written with a slash at the end | N3 |
-| a link other than Home: is not active on the home page | N2, N3 |
-| a link other than Home: is not active on the page of another link | N2, N3 |
+| a link other than Home: is active on a page directly below its own | N3, N5 |
+| a link other than Home: is not active on the page of another link | N2, N3, N5 |
 | a link other than Home: is not active on a page whose name only starts with the same letters | N4 |
 | a link other than Home: is not active on a page below another link that has its name | N4 |
 | a link other than Home: is not active on its own page written in another case | N4 |
-| a page that no link leads to: has no active link | N5 |
-| a page below a link: has that link as its only active link | N5 |
 
-`src/lib/repo-card.test.ts`. Part: repo card formatting. 31 tests.
+`src/lib/repo-card.test.ts`. Part: repo card formatting. 17 tests.
 
 | Test | Criterion |
 | ---- | --------- |
 | the commits of a repo: are written as 0 commits for a repo with none | C1 |
 | the commits of a repo: are written as 1 commit for a repo with one | C1 |
 | the commits of a repo: are written as 2 commits for a repo with two | C1 |
-| the commits of a repo: have no comma below a thousand | C2 |
 | the commits of a repo: have a comma after the thousands | C2 |
-| the commits of a repo: have a comma after the millions also | C2 |
 | the creation date of a repo: is written as the word Created, the month in three letters, the day and the year | C3 |
-| the creation date of a repo: has a day of two digits written in full | C3 |
-| the creation date of a repo: names May, June, July and September in three letters, with no full stop | C3 |
 | the creation date of a repo: is the UTC date, in the first second of that day | C4 |
 | the creation date of a repo: is the UTC date, in the last second of that day | C4 |
 | the creation date of a repo: is the UTC date when the host writes the moment with an offset behind UTC | C4 |
-| the creation date of a repo: is the UTC date when the host writes the moment with an offset ahead of UTC | C4 |
-| the creation date of a repo: is in the old year in the last second of 31 December UTC | C4, C3 |
-| the creation date of a repo: is in the new year from midnight UTC on 1 January | C4, C3 |
-| the creation date of a repo: is 29 February for a repo made on the leap day | C3 |
 | the languages of a card: are an empty list for a repo with no language | C5 |
 | the languages of a card: are one for each language of the repo, in the order of the repo | C5 |
 | the label of a language: is its name, a space, and its share as a percentage with one decimal | C6 |
-| the label of a language: says 100.0% for the only language of a repo | C6 |
 | the label of a language: rounds a third down and two thirds up | C6 |
-| the label of a language: rounds a share that is exactly halfway up | C6 |
-| the label of a language: says 0.0% for a share below a twentieth of a percent | C6 |
 | the width of a language in the bar: is its share as a percentage with two decimals | C7 |
-| the width of a language in the bar: is 100.00% for the only language of a repo | C7 |
-| the width of a language in the bar: keeps the hundredths of a third and of two thirds | C7 |
-| the width of a language in the bar: is not 0 for a share that the label writes as 0.0% | C7 |
 | the colour of a language: is the one the table gives, for each language of the table | C8 |
 | the colour of a language: is grey for a language that is not in the table | C9 |
 | the colour of a language: is grey for a language of the table written in another case | C9 |
 | the colour of a language: is grey for a language with the name of something every object has | C9 |
 
-`src/lib/gallery.test.ts`. Part: gallery behaviour. 32 tests.
+`src/lib/gallery.test.ts`. Part: gallery behaviour. 17 tests.
 
 | Test | Criterion |
 | ---- | --------- |
-| opening a photo: opens the first photo when it is chosen | G1 |
 | opening a photo: opens a photo in the middle when it is chosen | G1 |
-| opening a photo: opens the last photo when it is chosen | G1 |
 | opening a photo: opens the photo that is chosen when another one is open | G1 |
 | closing: leaves no photo open | G2 |
 | closing: changes nothing when no photo is open | G8 |
 | next: opens the photo after the open one | G3 |
-| next: opens the last photo from the one before it | G3 |
-| next: opens the first photo from the last one | G3 |
-| next: keeps the only photo of a gallery open | G5 |
+| next: opens the first photo from the last one | G3, G5 |
 | next: changes nothing when no photo is open | G8 |
 | previous: opens the photo before the open one | G4 |
-| previous: opens the first photo from the one after it | G4 |
-| previous: opens the last photo from the first one | G4 |
-| previous: keeps the only photo of a gallery open | G5 |
+| previous: opens the last photo from the first one | G4, G5 |
 | previous: changes nothing when no photo is open | G8 |
-| a gallery of two photos: goes from the second photo to the first with next | G3 |
-| a gallery of two photos: goes from the first photo to the second with previous | G4 |
 | the Escape key: closes the open photo | G6 |
-| the Escape key: changes nothing when no photo is open | G8 |
 | the right arrow key: opens the photo after the open one | G6 |
-| the right arrow key: opens the first photo from the last one | G6, G3 |
-| the right arrow key: opens no photo when none is open | G8 |
 | the left arrow key: opens the photo before the open one | G6 |
-| the left arrow key: opens the last photo from the first one | G6, G4 |
-| the left arrow key: opens no photo when none is open | G8 |
-| any other key: leaves the open photo open, for a letter | G7 |
-| any other key: leaves the open photo open, for the up and the down arrow | G7 |
-| any other key: leaves the open photo open, for Enter, the space bar and Tab | G7 |
+| any other key: leaves the open photo open | G7 |
 | any other key: opens no photo when none is open | G8 |
 | the address of a picture: asks for the thumbnail of the photo, in the grid | G9 |
 | the address of a picture: asks for the preview of the photo, when the photo is open | G9 |

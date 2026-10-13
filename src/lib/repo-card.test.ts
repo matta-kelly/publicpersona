@@ -25,16 +25,8 @@ describe("the commits of a repo", () => {
     expect(repoCardView({ ...repo, commitsLast12mo: 2 }).commits).toBe("2 commits");
   });
 
-  test("have no comma below a thousand", () => {
-    expect(repoCardView({ ...repo, commitsLast12mo: 999 }).commits).toBe("999 commits");
-  });
-
   test("have a comma after the thousands", () => {
     expect(repoCardView({ ...repo, commitsLast12mo: 1000 }).commits).toBe("1,000 commits");
-  });
-
-  test("have a comma after the millions also", () => {
-    expect(repoCardView({ ...repo, commitsLast12mo: 1234567 }).commits).toBe("1,234,567 commits");
   });
 });
 
@@ -42,27 +34,6 @@ describe("the creation date of a repo", () => {
   test("is written as the word Created, the month in three letters, the day and the year", () => {
     expect(repoCardView({ ...repo, createdAt: "2025-03-01T08:00:00Z" }).created).toBe(
       "Created Mar 1, 2025",
-    );
-  });
-
-  test("has a day of two digits written in full", () => {
-    expect(repoCardView({ ...repo, createdAt: "2024-11-23T12:00:00Z" }).created).toBe(
-      "Created Nov 23, 2024",
-    );
-  });
-
-  test("names May, June, July and September in three letters, with no full stop", () => {
-    expect(repoCardView({ ...repo, createdAt: "2025-05-15T12:00:00Z" }).created).toBe(
-      "Created May 15, 2025",
-    );
-    expect(repoCardView({ ...repo, createdAt: "2025-06-15T12:00:00Z" }).created).toBe(
-      "Created Jun 15, 2025",
-    );
-    expect(repoCardView({ ...repo, createdAt: "2025-07-15T12:00:00Z" }).created).toBe(
-      "Created Jul 15, 2025",
-    );
-    expect(repoCardView({ ...repo, createdAt: "2025-09-15T12:00:00Z" }).created).toBe(
-      "Created Sep 15, 2025",
     );
   });
 
@@ -84,31 +55,6 @@ describe("the creation date of a repo", () => {
     // 17:00 on 1 March at 8 hours behind UTC is 01:00 on 2 March in UTC.
     expect(repoCardView({ ...repo, createdAt: "2025-03-01T17:00:00-08:00" }).created).toBe(
       "Created Mar 2, 2025",
-    );
-  });
-
-  test("is the UTC date when the host writes the moment with an offset ahead of UTC", () => {
-    // 08:00 on 2 March at 9 hours ahead of UTC is 23:00 on 1 March in UTC.
-    expect(repoCardView({ ...repo, createdAt: "2025-03-02T08:00:00+09:00" }).created).toBe(
-      "Created Mar 1, 2025",
-    );
-  });
-
-  test("is in the old year in the last second of 31 December UTC", () => {
-    expect(repoCardView({ ...repo, createdAt: "2025-12-31T23:59:59Z" }).created).toBe(
-      "Created Dec 31, 2025",
-    );
-  });
-
-  test("is in the new year from midnight UTC on 1 January", () => {
-    expect(repoCardView({ ...repo, createdAt: "2026-01-01T00:00:00Z" }).created).toBe(
-      "Created Jan 1, 2026",
-    );
-  });
-
-  test("is 29 February for a repo made on the leap day", () => {
-    expect(repoCardView({ ...repo, createdAt: "2024-02-29T12:00:00Z" }).created).toBe(
-      "Created Feb 29, 2024",
     );
   });
 });
@@ -143,12 +89,6 @@ describe("the label of a language", () => {
     expect(view.languages[0].label).toBe("TypeScript 75.0%");
   });
 
-  test("says 100.0% for the only language of a repo", () => {
-    const view = repoCardView({ ...repo, languages: [{ name: "Go", bytes: 420, pct: 1 }] });
-
-    expect(view.languages[0].label).toBe("Go 100.0%");
-  });
-
   test("rounds a third down and two thirds up", () => {
     const view = repoCardView({
       ...repo,
@@ -161,23 +101,6 @@ describe("the label of a language", () => {
     expect(view.languages[0].label).toBe("Python 66.7%");
     expect(view.languages[1].label).toBe("Shell 33.3%");
   });
-
-  test("rounds a share that is exactly halfway up", () => {
-    // 1 of 16 bytes is 6.25%.
-    const view = repoCardView({ ...repo, languages: [{ name: "SQL", bytes: 1, pct: 1 / 16 }] });
-
-    expect(view.languages[0].label).toBe("SQL 6.3%");
-  });
-
-  test("says 0.0% for a share below a twentieth of a percent", () => {
-    // 4 of 10000 bytes is 0.04%.
-    const view = repoCardView({
-      ...repo,
-      languages: [{ name: "Dockerfile", bytes: 4, pct: 0.0004 }],
-    });
-
-    expect(view.languages[0].label).toBe("Dockerfile 0.0%");
-  });
 });
 
 describe("the width of a language in the bar", () => {
@@ -188,35 +111,6 @@ describe("the width of a language in the bar", () => {
     });
 
     expect(view.languages[0].width).toBe("75.00%");
-  });
-
-  test("is 100.00% for the only language of a repo", () => {
-    const view = repoCardView({ ...repo, languages: [{ name: "Go", bytes: 420, pct: 1 }] });
-
-    expect(view.languages[0].width).toBe("100.00%");
-  });
-
-  test("keeps the hundredths of a third and of two thirds", () => {
-    const view = repoCardView({
-      ...repo,
-      languages: [
-        { name: "Python", bytes: 200, pct: 2 / 3 },
-        { name: "Shell", bytes: 100, pct: 1 / 3 },
-      ],
-    });
-
-    expect(view.languages[0].width).toBe("66.67%");
-    expect(view.languages[1].width).toBe("33.33%");
-  });
-
-  test("is not 0 for a share that the label writes as 0.0%", () => {
-    // 4 of 10000 bytes is 0.04%.
-    const view = repoCardView({
-      ...repo,
-      languages: [{ name: "Dockerfile", bytes: 4, pct: 0.0004 }],
-    });
-
-    expect(view.languages[0].width).toBe("0.04%");
   });
 });
 
