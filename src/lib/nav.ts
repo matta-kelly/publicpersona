@@ -2,3 +2,4 @@
 export function isActiveLink(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
+const broken: number = "a note went with me";
