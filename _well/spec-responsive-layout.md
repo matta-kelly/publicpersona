@@ -83,7 +83,7 @@ Each one is the owner's taste. Each has a default, which the promises and the co
 	- the other answer: 24 stays. Then W2 and its test go, and `Section` takes the gap as a value
 - **Q6, the smallest text** (W3)
 	- default: 12. The two lines of the Dazoo diagram go from 11 to 12
-	- the other answer: 11 stays. Then W3 and its test go
+	- the other answer: 11 stays. Then W3 and its lint rule go
 - **Q7, the width of the column**
 	- default: no change. 768, which gives about 80 characters to a line on a desktop
 	- the other answer: 672, about 70 characters to a line, which is easier to read and makes every page narrower
@@ -839,7 +839,7 @@ Not touched: any colour, any font, any word, any page, any package, `check.sh`, 
 
 ## Tests
 
-All eight in `tests/layout.spec.ts`, a new file; found by `playwright.config.ts`; run by `./check.sh` against the image it has just built. Part: wiring. Kind: end to end.
+All seven in `tests/layout.spec.ts`, a new file; found by `playwright.config.ts`; run by `./check.sh` against the image it has just built. Part: wiring. Kind: end to end.
 
 | Test | Criterion | Today |
 | ---- | --------- | ---- |
@@ -848,17 +848,18 @@ All eight in `tests/layout.spec.ts`, a new file; found by `playwright.config.ts`
 | gives each link of the nav, the footer and the way back a box that a finger can hit | T1 | fails: `Expected: >= 44`, `Received: 20`, at the first link, the name |
 | leaves the gap of the header between the way back and the title of a write-up | W1 | fails: `Expected: >= 16`, `Received: 4` |
 | spaces the paragraphs of the Sabermetric write-up 16 apart, as the other write-ups do | W2 | fails: `Expected: 16`, `Received: 24` |
-| shows no text under 12 px in the diagram of the Dazoo write-up | W3 | fails: `Expected: "12px"`, `Received: "11px"` |
 | keeps a page title of one long word inside the column on a phone | T2 | fails: `Expected: <= 351`, `Received: 363.546875` |
 | fits every page in the width of a phone, with nothing to scroll sideways | P1 | passes. Seen to fail by S7 |
 
+- W3 has no test. A lint rule in `eslint.config.mjs` holds it: no class list may name a text size under 12 px
+	- lint is the cheapest thing that can see it, and it sees every file; a browser test sees only the pages it opens
 - how the expected results were made
-	- 351, 280 and 1000: the edges of the column, from its width and its padding. 44: Q2. 16: the gap of the header and of the paragraphs. 12: Q6. None is taken from a run of the changed code
+	- 351, 280 and 1000: the edges of the column, from its width and its padding. 44: Q2. 16: the gap of the header and of the paragraphs. None is taken from a run of the changed code
 - each test reads what a visitor sees: a position, a size, a width, at a stated width of the window. None reads a class name
 - the title test writes the word into the title of `/photos`
 	- on the live site Immich gives that word, and an end to end test never depends on a live outside thing
 	- the styles that lay the word out are the site's own, from the built image. The word is the name that the album has
 - the two tests that pass today are there to hold what is right today. Each is seen to fail once, in Code review (S6, S7)
-- seen today, on the image built from main `3bd2a1a` with the tests of this spec: `6 failed`, `7 passed`. The six are the six of the table. The `checks` run on the commit of Design shows the same
+- seen today, on the image built from main `3bd2a1a` with the tests of this spec: `6 failed`, `7 passed`. The six are the five of the table that fail, and a test for W3 that the lint rule has replaced. The `checks` run on the commit of Design shows the same
 	- so the `checks` run is red until the Factory's last commit, and for no other cause
 - seen to pass: on the image built from Design's copy, `13 passed`
