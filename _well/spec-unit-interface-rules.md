@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Make the three rules of the interface pieces of logic with a unit test for each edge: which link of the nav is active, how a repo card writes its commits, its date and its languages, and what the gallery does on open, close, next, previous and a key. Reference for the promises of the three parts, the questions the owner has to answer (the time zone of the date among them), why the gallery needs no DOM library, the public surface of each part, what the three components look like after, the lines this change owns in the shared files, and how each criterion is checked."
-status: design
+status: review
 ---
 ## Need
 
