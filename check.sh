@@ -7,12 +7,9 @@ set -euo pipefail
 ENGINE=${ENGINE:-podman}
 
 if [ -z "${PNPM:-}" ]; then
-  devcontainer="npx --yes @devcontainers/cli"
-  PNPM="$devcontainer exec --workspace-folder . --docker-path podman pnpm"
-
   # exec needs a running container, and the first start installs the packages.
   code=0
-  timeout -k 5 300 $devcontainer up --workspace-folder . --docker-path podman >/dev/null || code=$?
+  up=$(timeout -k 5 300 npx --yes @devcontainers/cli up --workspace-folder . --docker-path podman) || code=$?
   if [ "$code" -eq 124 ] || [ "$code" -eq 137 ]; then
     echo "check.sh: gave up after 300s waiting for: the dev container to start" >&2
     exit 1
@@ -20,6 +17,16 @@ if [ -z "${PNPM:-}" ]; then
     echo "check.sh: the dev container did not start" >&2
     exit 1
   fi
+
+  # The CLI takes about a second to find the container again on each call. It names the
+  # container once, when it starts it, and podman reaches it by that name with no search.
+  # The user and the folder are those of .devcontainer/devcontainer.json.
+  container=$(sed -n 's/.*"containerId":"\([0-9a-f]*\)".*/\1/p' <<<"$up")
+  if [ -z "$container" ]; then
+    echo "check.sh: the dev container started, and its name is not in the answer: $up" >&2
+    exit 1
+  fi
+  PNPM="podman exec --user node --workdir $PWD $container pnpm"
 fi
 
 $PNPM format:check
