@@ -1,8 +1,8 @@
+import type { ThumbnailSize } from "./photos";
+
 const IMMICH_BASE = "https://immich.monk3y.xyz";
 
 export type AssetType = "IMAGE" | "VIDEO" | "AUDIO" | "OTHER";
-
-export type ThumbnailSize = "preview" | "thumbnail";
 
 export interface ImmichAsset {
   id: string;

@@ -17,6 +17,7 @@ Each part of the code, the kind of test that holds it, and where it is. A test f
 | -------------- | ----- | ---- | ------------------------- |
 | heatmap grid   | logic | unit | `src/lib/heatmap-grid.ts` |
 | activity rules | logic | unit | `src/lib/activity.ts`     |
+| photo rules    | logic | unit | `src/lib/photos.ts`       |
 
 The borders are the surfaces that another system depends on. A contract test holds each one, against the built image, started the way the node starts it. Both are in `tests/health-and-image.spec.ts`.
 
