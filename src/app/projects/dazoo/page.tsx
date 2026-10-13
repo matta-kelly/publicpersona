@@ -39,9 +39,9 @@ export default function DazooPage() {
       <Section title="The always-on layer">
         <p>
           A small set of cloud nodes that have to stay up no matter what else is happening. They run
-          the mesh coordinator, self-hosted git, the secrets vault, and the front door (DNS, TLS,
-          tunnels). Everything else in the system depends on them, so they get to be simple and
-          unglamorous: Fedora CoreOS, containers as systemd units, no orchestrator.
+          the mesh coordinator, the secrets vault, and the front door (DNS, TLS, tunnels).
+          Everything else in the system depends on them, so they get to be simple and unglamorous:
+          Fedora CoreOS, containers as systemd units, no orchestrator.
         </p>
         <p>
           Choosing CoreOS here was deliberate. These nodes don&apos;t need a scheduler, they need to
@@ -114,13 +114,13 @@ function Topology() {
       className="rounded-md border border-black/5 p-6 dark:border-white/10"
     >
       <div className="flex flex-col items-center gap-4">
-        <DiagramBox label="dazoo repo" sublabel="Forgejo" emphasis />
+        <DiagramBox label="dazoo repo" sublabel="GitHub" emphasis />
         <div aria-hidden className="h-6 w-px bg-black/20 dark:bg-white/20" />
         <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
           <Pillar
             heading="Always-on layer"
             via="Butane / Ignition"
-            items={["mesh, git, front door", "secrets, observability", "offsite backup"]}
+            items={["mesh, front door", "secrets, observability", "offsite backup"]}
           />
           <Pillar
             heading="Talos clusters"
@@ -152,7 +152,7 @@ function Pillar({ heading, via, items }: { heading: string; via: string; items: 
 }
 
 function GitOpsFlow() {
-  const steps = ["git push", "Forgejo", "Flux", "Talos cluster", "running pod"];
+  const steps = ["git push", "GitHub", "Flux", "Talos cluster", "running pod"];
   return (
     <figure
       aria-label="GitOps flow"
@@ -173,7 +173,7 @@ function GitOpsFlow() {
         ))}
       </ol>
       <figcaption className="text-muted mt-4 text-center text-xs">
-        I don&apos;t touch prod. Push to Forgejo, Flux pulls, the cluster converges.
+        I don&apos;t touch prod. Push to GitHub, Flux pulls, the cluster converges.
       </figcaption>
     </figure>
   );
