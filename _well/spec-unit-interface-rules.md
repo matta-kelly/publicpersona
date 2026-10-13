@@ -17,7 +17,7 @@ status: design
 - no spec says what the nav, the repo card or the gallery must do
 	- the promises below are read from the code at main `a284687`
 	- two of them say something else than the code does today: C1 and C9
-	- eight choices are listed under "The questions"; each one is the owner's to accept or refuse in Design review
+	- seven choices are listed under "The questions"; each one is the owner's to accept or refuse in Design review
 
 ## Done looks like
 
@@ -45,27 +45,24 @@ Each one has an answer written into the promises. Another answer sends this spec
 	- as written: the table of 13 languages that is in the code today, and grey for any other
 	- 11 of the 13 are the colour GitHub gives the language today; `CSS` is the one GitHub gave before (`#563d7c`, now `#663399`); `Butane` is not a language at GitHub, and its colour is the owner's
 	- the table is the promise. A colour changes by a change to this table, in a spec
-- **Q4, a share too small to write** (C6)
-	- as written: a share below 0.05% reads `0.0%`, as today
-	- the other answer: `<0.1%`
-- **Q5, a page below a link** (N3)
+- **Q4, a page below a link** (N3)
 	- as written: `/projects/stateball` keeps Projects active, as today
 	- so the address of a picture, `/photos/img/<id>`, is below Photos; no page is drawn there
-- **Q6, whether the gallery test needs a DOM library**: the epic gives this to Design
+- **Q5, whether the gallery test needs a DOM library**: the epic gives this to Design
 	- as written: no. No package comes in; `package.json` and `pnpm-lock.yaml` do not change
 	- why
 		- every rule the epic names is a rule about one number: which photo is open after something happens. It needs the open photo, what happened, and how many photos there are. It needs no document
 		- a DOM library (jsdom or happy-dom, with a library that draws React into it) would test that the buttons and the key listener are connected to the rule. That is wiring, and wiring is held end to end ([[testing]], "which kind")
 		- a fake browser is a fake: a unit test that needs one has a subject that is not logic ([[testing]], "a good test")
 	- cost of the answer as written: no test holds the wiring of the gallery until `/photos` has an end to end journey. See "Out of scope"
-- **Q7, the zone the unit tests run in**
+- **Q6, the zone the unit tests run in**
 	- as written: every unit test runs with the time zone `America/Los_Angeles`, by one line in `vitest.config.mts`
 	- why: the pipeline and the dev container are on UTC. There, a card that reads the local time gives the UTC date, so no test of C4 could fail
 		- seen on the build made for the run: with the line, two tests of C4 fail when the zone is taken out of the code; without the line, none
 		- the 48 tests on main pass with the line
 	- the other answer: no line; C4 is then held on the pipeline by the check of R2 alone, as the activity rules are by their R1
 	- the language of the server cannot be set this way: Node reads it once, when it starts. C2 keeps a check (R2)
-- **Q8, the `Photo` of the gallery**
+- **Q7, the `Photo` of the gallery**
 	- as written: `Gallery.tsx` takes `Photo` from `src/lib/photos.ts` and loses its own
 	- `_well/spec-unit-photo-rules.md` left the gallery its own copy, since that change did not touch the file. This one does
 
@@ -173,14 +170,15 @@ The nav, by `isActiveLink`. The links of the site are Home at `/`, Projects at `
 
 - **N1** the Home link is active on the home page, and on no other page
 - **N2** any other link is active on its own page
-- **N3** any other link is active on every page below its own, however deep (Q5)
+- **N3** any other link is active on every page below its own, however deep (Q4)
 	- its own page written with a slash at the end counts as below it
 - **N4** a link is not active on a page that only looks like its own
 	- a page whose name starts with the same letters: `/codex` is not Code
 	- a page below another link that has its name: `/projects/code` is not Code
 	- its own page in another case: `/Projects` is not Projects
-- **N5** on a page below a link, that link is the only active one; on a page that no link leads to, no link is active
-	- true for the four links of the site: none of them is below another
+- so, for the four links of the site, none of which is below another
+	- on a page below a link, that link is the only active one
+	- on a page that no link leads to, no link is active
 
 The repo card, by `repoCardView`.
 
@@ -192,8 +190,7 @@ The repo card, by `repoCardView`.
 	- the same whatever offset the host writes the moment with, and wherever the server runs
 - **C5** the card has one language for each language of the repo, in the order of the repo; a repo with no language has none
 - **C6** the label of a language is its name, a space, and its share as a percentage with one decimal: `TypeScript 75.0%`
-	- rounded to the nearest tenth; a share exactly halfway goes up
-	- so a share below 0.05% reads `0.0%` (Q4)
+	- rounded to the nearest tenth
 - **C7** the width of a language in the bar is its share as a percentage with two decimals: `75.00%`
 - **C8** a language of the table has the colour of the table (Q3)
 
@@ -223,11 +220,11 @@ The gallery, by `galleryStep` and `pictureAddress`.
 - **G2** closing leaves no photo open
 - **G3** next opens the photo after the open one; from the last photo, the first
 - **G4** previous opens the photo before the open one; from the first photo, the last
-- **G5** in a gallery of one photo, next and previous keep that photo open
-- **G6** three keys do something: Escape closes, the right arrow is next, the left arrow is previous
-- **G7** any other key changes nothing
-- **G8** with no photo open, closing, next, previous and every key change nothing: only opening a photo opens one
-- **G9** the picture of a photo in the grid is asked for at `/photos/img/<id>?size=thumbnail`, and the picture of the open photo at `/photos/img/<id>?size=preview`
+- so, in a gallery of one photo, next and previous keep that photo open
+- **G5** three keys do something: Escape closes, the right arrow is next, the left arrow is previous
+- **G6** any other key changes nothing
+- **G7** with no photo open, closing, next, previous and every key change nothing: only opening a photo opens one
+- **G8** the picture of a photo in the grid is asked for at `/photos/img/<id>?size=thumbnail`, and the picture of the open photo at `/photos/img/<id>?size=preview`
 
 ### Acceptance criteria: the code around the rules
 
@@ -242,7 +239,7 @@ Each one is checked on the branch, from the repo root.
 	- why a check and not a test: no test can change the language of a server that has started
 - **R3** the three components hold no rule
 	- check: `git grep -nE 'toFixed|toLocale|startsWith|#[0-9a-fA-F]{6}|size=|"Escape"|"Arrow|% photos\.length' -- src/components/Nav.tsx src/components/RepoCard.tsx src/app/photos/Gallery.tsx` prints nothing and exits 1
-- **R4** `Photo` is declared in one place (Q8)
+- **R4** `Photo` is declared in one place (Q7)
 	- check: `git grep -n 'interface Photo' -- src` prints one line, and it is in `src/lib/photos.ts`
 - **R5** the three components draw the same as before, but for C1 and C9
 	- check: each file is the one under "Approach"; `git diff origin/main...HEAD --numstat -- src/components src/app` prints these three lines
@@ -268,7 +265,7 @@ Each one is checked on the branch, from the repo root.
 	- check: `gh run view <run id> --log | grep -c -F '122 passed'` prints `1`
 - **S4** the three test files are the ones from Design
 	- check: `git diff <the commit that added them> HEAD -- src/lib/nav.test.ts src/lib/repo-card.test.ts src/lib/gallery.test.ts` prints nothing
-- **S5** the unit tests run in `America/Los_Angeles` (Q7)
+- **S5** the unit tests run in `America/Los_Angeles` (Q6)
 	- check: `vitest.config.mts` is the one under "Approach"
 	- check: S7
 - **S6** `README.md` lists the three parts, as "Approach" gives them
@@ -593,7 +590,7 @@ Each place is given by the text of a line, as the file is on main `a284687`. Eve
 - an `open` event for a place that is not in the list, a `count` that does not match the list, and a list that changes while a photo is open: none comes from the component
 - an id in `pictureAddress` that is not an asset id: `galleryPhotos` gives the ids, and the route refuses any other (`_well/spec-unit-photo-rules.md`, I5)
 - the list of the four links, their order and their labels
-- a link of the nav that is below another link of the nav: there is none; with one, N5 is written again
+- a link of the nav that is below another link of the nav: there is none; with one, the "so" line under N4 is written again
 - a `pathname` with a query, a fragment, or two slashes in a row: `usePathname` gives none
 - a creation date that is not a moment in ISO 8601 form, a number of commits below 0 or not whole, a share outside 0 to 1: none comes from the activity rules
 - the shares of a card that do not add up to 100.0% after rounding
@@ -621,10 +618,7 @@ Three files, each beside the code it tests; found by `vitest.config.mts`; run by
 	- a test is there only where the code of this repo makes the decision, and one for each edge of a decision
 	- none for what the platform does: the names of the months, the leap day, a day of two digits, the comma after the millions
 	- none that holds an edge another test holds: a key has one test, which shows the key means its action; the wrap is held once, under next and under previous
-	- so three lines of the promises have no test of their own
-		- N5: it follows from N1 to N4, and their tests hold it
-		- G5: with one photo, the wrap of G3 and of G4 gives the same photo; their tests hold it
-		- C6, "a share exactly halfway goes up", and "a share below 0.05% reads `0.0%`": the rounding is the platform's, by `toFixed`; the test of one decimal and the test of the thirds hold the call
+	- the two "so" lines of the promises, under N4 and under G4, have no test of their own: each follows from the promises above it, and their tests hold it
 - how the expected results were made
 	- the nav: each path is written out, and the answer is read from N1 to N4
 	- the repo card: each text is written out by hand from C1 to C9
@@ -651,10 +645,10 @@ Three files, each beside the code it tests; found by `vitest.config.mts`; run by
 | Test | Criterion |
 | ---- | --------- |
 | the Home link: is active on the home page | N1 |
-| the Home link: is not active on the page of another link | N1, N5 |
+| the Home link: is not active on the page of another link | N1 |
 | a link other than Home: is active on its own page | N2 |
-| a link other than Home: is active on a page directly below its own | N3, N5 |
-| a link other than Home: is not active on the page of another link | N2, N3, N5 |
+| a link other than Home: is active on a page directly below its own | N3 |
+| a link other than Home: is not active on the page of another link | N2, N3 |
 | a link other than Home: is not active on a page whose name only starts with the same letters | N4 |
 | a link other than Home: is not active on a page below another link that has its name | N4 |
 | a link other than Home: is not active on its own page written in another case | N4 |
@@ -688,25 +682,25 @@ Three files, each beside the code it tests; found by `vitest.config.mts`; run by
 | opening a photo: opens a photo in the middle when it is chosen | G1 |
 | opening a photo: opens the photo that is chosen when another one is open | G1 |
 | closing: leaves no photo open | G2 |
-| closing: changes nothing when no photo is open | G8 |
+| closing: changes nothing when no photo is open | G7 |
 | next: opens the photo after the open one | G3 |
-| next: opens the first photo from the last one | G3, G5 |
-| next: changes nothing when no photo is open | G8 |
+| next: opens the first photo from the last one | G3 |
+| next: changes nothing when no photo is open | G7 |
 | previous: opens the photo before the open one | G4 |
-| previous: opens the last photo from the first one | G4, G5 |
-| previous: changes nothing when no photo is open | G8 |
-| the Escape key: closes the open photo | G6 |
-| the right arrow key: opens the photo after the open one | G6 |
-| the left arrow key: opens the photo before the open one | G6 |
-| any other key: leaves the open photo open | G7 |
-| any other key: opens no photo when none is open | G8 |
-| the address of a picture: asks for the thumbnail of the photo, in the grid | G9 |
-| the address of a picture: asks for the preview of the photo, when the photo is open | G9 |
+| previous: opens the last photo from the first one | G4 |
+| previous: changes nothing when no photo is open | G7 |
+| the Escape key: closes the open photo | G5 |
+| the right arrow key: opens the photo after the open one | G5 |
+| the left arrow key: opens the photo before the open one | G5 |
+| any other key: leaves the open photo open | G6 |
+| any other key: opens no photo when none is open | G7 |
+| the address of a picture: asks for the thumbnail of the photo, in the grid | G8 |
+| the address of a picture: asks for the preview of the photo, when the photo is open | G8 |
 
 How each criterion is verified, by the type of what it changes ([[conventions]], "what verifies a change, by its type"):
 
 - C1 and C9, each a `fix`: a test, written first and kept
-- N1 to N5, C2 to C8, G1 to G9, behaviour that had no test: a test, written first and kept
+- N1 to N4, C2 to C8, G1 to G8, behaviour that had no test: a test, written first and kept
 	- the branch type is `test`; the conventions give no line for it, so each piece is verified as its own type
 - R1 to R5, a `refactor`: the tests that exist still pass, and the checks given with each one
 	- no test holds the three components; until the later tasks, the typecheck and the lint hold them, Code review reads R5, and the owner looks at the nav, `/code` and `/photos` after the deploy
