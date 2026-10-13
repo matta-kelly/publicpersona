@@ -4,7 +4,6 @@ My personal site: who I am, what I have built, and how I think. Live at [home.mo
 
 - `/` bio
 - `/projects` write-ups of things I have built
-- `/code` my repositories, read live from the git host's API
 - `/photos` a gallery, read live from a shared Immich album
 
 Built with Next.js 16, React 19, TypeScript and Tailwind 4.
@@ -13,15 +12,12 @@ Built with Next.js 16, React 19, TypeScript and Tailwind 4.
 
 Each part of the code, the kind of test that holds it, and where it is. A test file sits beside the code it tests.
 
-| Part                 | Kind    | Test        | Path                      |
-| -------------------- | ------- | ----------- | ------------------------- |
-| heatmap grid         | logic   | unit        | `src/lib/heatmap-grid.ts` |
-| activity rules       | logic   | unit        | `src/lib/activity.ts`     |
-| photo rules          | logic   | unit        | `src/lib/photos.ts`       |
-| Immich client        | adapter | integration | `src/lib/immich.ts`       |
-| nav active rule      | logic   | unit        | `src/lib/nav.ts`          |
-| repo card formatting | logic   | unit        | `src/lib/repo-card.ts`    |
-| gallery behaviour    | logic   | unit        | `src/lib/gallery.ts`      |
+| Part              | Kind    | Test        | Path                 |
+| ----------------- | ------- | ----------- | -------------------- |
+| photo rules       | logic   | unit        | `src/lib/photos.ts`  |
+| Immich client     | adapter | integration | `src/lib/immich.ts`  |
+| nav active rule   | logic   | unit        | `src/lib/nav.ts`     |
+| gallery behaviour | logic   | unit        | `src/lib/gallery.ts` |
 
 The borders are the surfaces that another system depends on. A contract test holds each one, against the built image, started the way the node starts it. Both are in `tests/health-and-image.spec.ts`.
 
@@ -46,7 +42,7 @@ The container uses the host's network, so a port that is open on the host is ope
 
 The site is then at http://localhost:3000.
 
-`.env.local` holds two values, both described in `.env.example`. Without them the site still runs; `/photos` and `/code` have nothing to show.
+`.env.local` holds one value, described in `.env.example`. Without it the site still runs; `/photos` has nothing to show.
 
 The install also turns on the pre-commit hook in `.githooks/`, which runs the lint and the typecheck on staged TypeScript. A commit made on the host skips them, since the packages are only in the container.
 
@@ -101,7 +97,7 @@ To roll back, pin the node to the `sha-` tag of an earlier commit.
 | ------------------------------ | ----------------------------------------------------------------------------- |
 | `src/app/`                     | pages and routes (Next.js App Router)                                         |
 | `src/components/`              | shared interface pieces                                                       |
-| `src/lib/`                     | logic, and the clients for the two outside services                           |
+| `src/lib/`                     | logic, and the client for the one outside service, Immich                     |
 | `src/lib/immich-captured/`     | answers of the live Immich, captured; the integration tests replay them       |
 | `public/`                      | images and other static files                                                 |
 | `vitest.config.mts`            | the runner config: says which files are unit and integration tests            |
