@@ -13,9 +13,10 @@ Built with Next.js 16, React 19, TypeScript and Tailwind 4.
 
 Each part of the code, the kind of test that holds it, and where it is. A test file sits beside the code it tests.
 
-| Part         | Kind  | Test | Path                      |
-| ------------ | ----- | ---- | ------------------------- |
-| heatmap grid | logic | unit | `src/lib/heatmap-grid.ts` |
+| Part           | Kind  | Test | Path                      |
+| -------------- | ----- | ---- | ------------------------- |
+| heatmap grid   | logic | unit | `src/lib/heatmap-grid.ts` |
+| activity rules | logic | unit | `src/lib/activity.ts`     |
 
 ## Run it
 
