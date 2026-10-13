@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Section, WriteUp } from "@/components/WriteUp";
 
 export const metadata = {
   title: "Dazoo · Matthew Kelly",
@@ -8,18 +8,10 @@ export const metadata = {
 
 export default function DazooPage() {
   return (
-    <article className="space-y-10">
-      <header className="space-y-4">
-        <Link href="/projects" className="text-muted hover:text-foreground text-sm">
-          &larr; Projects
-        </Link>
-        <h1 className="text-3xl font-semibold tracking-tight">Dazoo</h1>
-        <p className="text-muted leading-relaxed">
-          A tour of the self-hosted platform that runs my photos, my media, some work pipelines, and
-          (increasingly) the laptop I&apos;m typing this on.
-        </p>
-      </header>
-
+    <WriteUp
+      title="Dazoo"
+      lede="A tour of the self-hosted platform that runs my photos, my media, some work pipelines, and (increasingly) the laptop I'm typing this on."
+    >
       <Topology />
 
       <Section title="Why I built this">
@@ -94,16 +86,7 @@ export default function DazooPage() {
           else is just what runs on top of it.
         </p>
       </Section>
-    </article>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-4">
-      <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-      <div className="text-muted space-y-4 leading-relaxed">{children}</div>
-    </section>
+    </WriteUp>
   );
 }
 
@@ -140,7 +123,7 @@ function Topology() {
 function Pillar({ heading, via, items }: { heading: string; via: string; items: string[] }) {
   return (
     <div className="flex flex-col items-center gap-2">
-      <span className="text-muted font-mono text-[11px] tracking-wide uppercase">via {via}</span>
+      <span className="text-muted font-mono text-xs tracking-wide uppercase">via {via}</span>
       <DiagramBox label={heading} />
       <ul className="text-muted mt-1 space-y-1 text-center text-xs">
         {items.map((item) => (
@@ -198,7 +181,7 @@ function DiagramBox({
       }
     >
       <div className="text-sm font-medium">{label}</div>
-      {sublabel && <div className="text-muted font-mono text-[11px]">{sublabel}</div>}
+      {sublabel && <div className="text-muted font-mono text-xs">{sublabel}</div>}
     </div>
   );
 }

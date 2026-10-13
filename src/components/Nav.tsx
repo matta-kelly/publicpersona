@@ -17,11 +17,11 @@ export default function Nav() {
 
   return (
     <header className="border-b border-black/5 dark:border-white/10">
-      <nav className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-6 gap-y-3 px-6 py-4 text-sm">
-        <Link href="/" className="font-medium">
+      <nav className="column flex flex-wrap items-center gap-x-6 py-3 text-sm">
+        <Link href="/" className="tap mr-auto font-medium">
           Matthew Kelly
         </Link>
-        <ul className="text-muted order-3 flex w-full gap-4 sm:order-none sm:ml-auto sm:w-auto sm:gap-6">
+        <ul className="text-muted order-last -mx-3 flex w-full sm:order-none sm:w-auto">
           {links.map((l) => {
             const active = isActiveLink(pathname, l.href);
             return (
@@ -30,7 +30,7 @@ export default function Nav() {
                   href={l.href}
                   aria-current={active ? "page" : undefined}
                   className={twMerge(
-                    "hover:text-foreground",
+                    "tap hover:text-foreground px-3",
                     active && "text-foreground underline underline-offset-4",
                   )}
                 >
@@ -40,13 +40,13 @@ export default function Nav() {
             );
           })}
         </ul>
-        <div className="flex items-center">
+        <div className="flex">
           <a
             href="https://github.com/matta-kelly"
             target="_blank"
             rel="noreferrer"
             aria-label="GitHub"
-            className="text-muted hover:text-foreground block rounded-md p-2.5 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+            className="tap text-muted hover:text-foreground justify-center rounded-md transition-colors hover:bg-black/5 dark:hover:bg-white/10"
           >
             <GitHubIcon />
           </a>

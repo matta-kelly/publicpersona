@@ -29,6 +29,23 @@
   --color-link-hover: var(--link-hover);
 }
 
+/* The one column of the site: the nav, the page body and the footer all sit in it. */
+@utility column {
+  @apply mx-auto w-full max-w-3xl px-6;
+}
+
+/* A link or a button that stands alone gets a box a finger can hit: 44 px each way. */
+@utility tap {
+  @apply flex min-h-11 w-fit min-w-11 items-center;
+}
+
+@layer base {
+  /* The title of a page. A title of one long word breaks before it leaves the column. */
+  h1 {
+    @apply text-2xl font-semibold tracking-tight wrap-anywhere sm:text-3xl;
+  }
+}
+
 .link {
   color: var(--link);
   text-decoration-line: underline;

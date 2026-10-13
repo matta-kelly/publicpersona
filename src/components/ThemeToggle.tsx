@@ -19,7 +19,7 @@ export default function ThemeToggle() {
       type="button"
       aria-label="Toggle theme"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="text-muted hover:text-foreground rounded-md p-2.5 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+      className="tap text-muted hover:text-foreground justify-center rounded-md transition-colors hover:bg-black/5 dark:hover:bg-white/10"
     >
       <span suppressHydrationWarning>
         {mounted ? isDark ? <SunIcon /> : <MoonIcon /> : <MoonIcon />}

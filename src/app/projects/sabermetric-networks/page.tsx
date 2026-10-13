@@ -1,5 +1,4 @@
-import Image from "next/image";
-import Link from "next/link";
+import { Figure, Section, WriteUp } from "@/components/WriteUp";
 
 export const metadata = {
   title: "Sabermetric Networks · Matthew Kelly",
@@ -9,25 +8,8 @@ export const metadata = {
 
 export default function SabermetricNetworksPage() {
   return (
-    <article className="space-y-10">
-      <header className="space-y-4">
-        <Link href="/projects" className="text-muted hover:text-foreground text-sm">
-          &larr; Projects
-        </Link>
-        <h1 className="text-3xl font-semibold tracking-tight">Sabermetric Networks</h1>
-        <p className="text-sm">
-          <a
-            href="https://github.com/matta-kelly/Sabermetric_Networks"
-            target="_blank"
-            rel="noreferrer"
-            className="link"
-          >
-            github.com/matta-kelly/Sabermetric_Networks
-          </a>
-        </p>
-      </header>
-
-      <div className="text-muted space-y-6 leading-relaxed">
+    <WriteUp title="Sabermetric Networks" repo="github.com/matta-kelly/Sabermetric_Networks">
+      <Section>
         <p>
           Traditional baseball stats are agnostic to game impact. They count what happened but not
           when, against whom, or whether it actually moved the team toward a win.
@@ -43,22 +25,14 @@ export default function SabermetricNetworksPage() {
           between them in each graph, one per matchup.
         </p>
 
-        <figure className="space-y-2">
-          <div className="overflow-hidden rounded-md border border-black/5 bg-white dark:border-white/10">
-            <Image
-              src="/projects/sabermetric-networks/network-re.png"
-              alt="Bipartite network of MLB pitchers (red) and batters (blue) for the 2023 season, node size scaled by BiRank-RE, edge opacity scaled by Run Expectancy"
-              width={1920}
-              height={975}
-              className="h-auto w-full"
-            />
-          </div>
-          <figcaption className="text-muted text-center text-xs">
-            The 2023 MLB season as a single graph. Pitchers in red, batters in blue, one edge per
-            matchup that produced an outcome. Node size scales with BiRank on RE; edge opacity with
-            the RE weight.
-          </figcaption>
-        </figure>
+        <Figure
+          src="/projects/sabermetric-networks/network-re.png"
+          alt="Bipartite network of MLB pitchers (red) and batters (blue) for the 2023 season, node size scaled by BiRank-RE, edge opacity scaled by Run Expectancy"
+          width={1920}
+          height={975}
+          caption="The 2023 MLB season as a single graph. Pitchers in red, batters in blue, one edge per matchup that produced an outcome. Node size scales with BiRank on RE; edge opacity with the RE weight."
+          onWhite
+        />
 
         <p>
           The RE graph and the WPA graph encode different things. RE traces the flow of run
@@ -89,7 +63,7 @@ export default function SabermetricNetworksPage() {
           already accounts for who you faced; run on the WPA graph it does the same for wins, with
           leverage carried through from the weights.
         </p>
-      </div>
-    </article>
+      </Section>
+    </WriteUp>
   );
 }
