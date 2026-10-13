@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Give /photos a page of its own for when the album cannot be read, and hold with end to end tests what /code and /photos show when the site has no key for the outside service. Reference for the two promises and the words a visitor reads, the questions the owner has to answer, the one file the build changes, what stays out, and how each test was seen to pass or fail."
-status: design
+status: review
 ---
 ## Need
 
