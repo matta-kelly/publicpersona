@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Make the photo rules of /photos a piece of logic with a unit test for each edge: which asset id a thumbnail request may carry, which sizes it may ask for, and which assets of the album are photos. Reference for the promises of the rules, the questions the owner has to answer, the public surface of the part, what the route, the page and the Immich client look like after, the lines this change owns in the shared files, and how each criterion is checked."
-status: design
+status: review
 ---
 ## Need
 
