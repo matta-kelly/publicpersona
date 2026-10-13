@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Take every read of Forgejo and every word about Forgejo out of the site, and point to GitHub for code: the /code page and all that it used go, the nav gets a GitHub icon that links to the profile, and the address /code leads to the profile. Reference for what the site reads and says today, every place that names Forgejo, the owner's questions with a default and one other answer each, the exact words and files after the change, the tests, and what changes in dazoo afterwards."
-status: review
+status: done
 ---
 ## Need
 

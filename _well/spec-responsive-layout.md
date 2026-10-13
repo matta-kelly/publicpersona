@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Put every page of the site right on a phone and on a desktop, and write each layout rule once: the two nav icons go to the right edge of the column on a phone, every link that stands alone gets a box that a finger can hit, the three write-ups get one frame, and the page column, the page title and the write-up frame each live in one place. Reference for the faults seen on the rendered pages with their numbers, the cause of each in the code, the owner's questions with a default and one other answer each, the exact code after the change, and the tests."
-status: review
+status: done
 ---
 ## Need
 
