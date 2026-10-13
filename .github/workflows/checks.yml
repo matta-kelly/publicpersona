@@ -2,7 +2,7 @@ name: checks
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, proof/check-base]
 
 permissions:
   contents: read

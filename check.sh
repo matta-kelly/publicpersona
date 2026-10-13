@@ -16,7 +16,7 @@ notes='_well/|README\.md$'
 unit_tests='src/.*\.test\.tsx?$|src/lib/[^/]+-captured/'
 needs=all
 # A rename counts as the two files it is, so a source file moved into the notes is still seen.
-if base=$(git merge-base origin/main HEAD 2>/dev/null) &&
+if base=$(git merge-base origin/proof/check-base HEAD 2>/dev/null) &&
   changed=$(git diff --name-only --no-renames "$base" 2>/dev/null &&
     git ls-files --others --exclude-standard 2>/dev/null) &&
   [ -n "$changed" ]; then
