@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Bring Playwright into publicpersona with one end to end journey, home to projects to the Stateball write-up, run by check.sh against the image it has just built. Reference for the five promises the journey holds, where the browser runs, where the output goes, which lines of the shared files the change owns, and how it is checked."
-status: design
+status: review
 ---
 ## Need
 
