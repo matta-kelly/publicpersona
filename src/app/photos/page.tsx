@@ -1,18 +1,12 @@
 import Gallery from "./Gallery";
 import { getShare } from "@/lib/immich";
+import { galleryPhotos } from "@/lib/photos";
 
 export const dynamic = "force-dynamic";
 
 export default async function PhotosPage() {
   const share = await getShare();
-  const photos = share.assets
-    .filter((a) => a.type === "IMAGE")
-    .map(({ id, originalFileName, width, height }) => ({
-      id,
-      originalFileName,
-      width,
-      height,
-    }));
+  const photos = galleryPhotos(share.assets);
 
   return (
     <article>

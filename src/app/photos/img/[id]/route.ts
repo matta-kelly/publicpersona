@@ -1,22 +1,16 @@
 import { NextRequest } from "next/server";
-import { ThumbnailSize, upstreamThumbnailUrl } from "@/lib/immich";
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const ALLOWED_SIZES: ThumbnailSize[] = ["preview", "thumbnail"];
+import { upstreamThumbnailUrl } from "@/lib/immich";
+import { thumbnailRequest } from "@/lib/photos";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  if (!UUID_RE.test(id)) {
-    return new Response("Bad asset id", { status: 400 });
+  const request = thumbnailRequest(id, req.nextUrl.searchParams.get("size"));
+  if ("refused" in request) {
+    const text = request.refused === "id" ? "Bad asset id" : "Bad size";
+    return new Response(text, { status: 400 });
   }
 
-  const sizeParam = req.nextUrl.searchParams.get("size") ?? "thumbnail";
-  if (!ALLOWED_SIZES.includes(sizeParam as ThumbnailSize)) {
-    return new Response("Bad size", { status: 400 });
-  }
-  const size = sizeParam as ThumbnailSize;
-
-  const upstream = await fetch(upstreamThumbnailUrl(id, size), {
+  const upstream = await fetch(upstreamThumbnailUrl(request.id, request.size), {
     cache: "no-store",
     redirect: "manual",
   });
