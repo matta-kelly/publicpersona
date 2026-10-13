@@ -8,11 +8,12 @@ ENGINE=${ENGINE:-podman}
 
 # The steps this change needs, read from the files it changed since it left main: committed,
 # not yet committed, and not yet tracked.
-# Notes: no step after the lint reads them.
+# Notes, which are Markdown files: no step after the lint reads them. Any other file under
+# _well/ is not a note: the typecheck reads a TypeScript file wherever it is.
 # Unit tests and the captured answers they replay: the image does not hold them
 # (.dockerignore), so the image build and the end to end tests cannot see them.
 # Any other file, no file, or no answer from git: the whole set.
-notes='_well/|README\.md$'
+notes='_well/.*\.md$|README\.md$'
 unit_tests='src/.*\.test\.tsx?$|src/lib/[^/]+-captured/'
 needs=all
 # A rename counts as the two files it is, so a source file moved into the notes is still seen.
@@ -60,7 +61,7 @@ fi
 $PNPM format:check
 $PNPM lint
 if [ "$needs" = notes ]; then
-  echo "check.sh: every changed file is a note. Left out: the typecheck, the unit and integration tests, the image build, the end to end and contract tests"
+  echo "check.sh: every changed file is a Markdown note. Left out: the typecheck, the unit and integration tests, the image build, the end to end and contract tests"
   exit 0
 fi
 $PNPM typecheck

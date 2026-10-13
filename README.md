@@ -69,7 +69,7 @@ It runs only the steps that the change needs. The change is every file that diff
 
 | Every changed file is                                                                                | It runs      | It leaves out |
 | ---------------------------------------------------------------------------------------------------- | ------------ | ------------- |
-| a note: under `_well/`, or `README.md`                                                               | steps 1, 2   | steps 3 to 6  |
+| a note: a Markdown file under `_well/`, or `README.md`                                               | steps 1, 2   | steps 3 to 6  |
 | a note, a unit or integration test (`src/**/*.test.ts`, `.test.tsx`), or under `src/lib/*-captured/` | steps 1 to 4 | steps 5, 6    |
 | anything else                                                                                        | all six      | nothing       |
 

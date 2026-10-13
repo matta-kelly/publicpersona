@@ -7,7 +7,7 @@ status: review
 
 - `./check.sh` runs every step for every change: 85 s in the pipeline, 33 s on a machine
 - some kinds of change have steps with nothing to catch
-	- notes (`_well/`, `README.md`): no step after format can find a fault in them
+	- notes (a Markdown file under `_well/`, `README.md`): no step after format can find a fault in them
 	- unit tests and captured answers: the browser install (20 s), the image build (36 s), the start and the browser tests are idle
 - the rule: the command runs only the steps that the change needs, and a skip is the same on a machine and in the pipeline ([[ci-cd#Checks]])
 - how often: of 38 checks runs, 2 were notes only and 3 were notes and unit tests only
@@ -17,7 +17,7 @@ status: review
 ### Acceptance criteria
 
 - 1: `./check.sh` reads the files the change touched: against the merge base with `origin/main`, with files not yet committed and files not yet tracked counted
-- 2: every changed file is under `_well/` or is `README.md`: the command ends after lint, exit 0, and says which steps it left out
+- 2: every changed file is a Markdown file under `_well/` or is `README.md`: the command ends after lint, exit 0, and says which steps it left out
 - 3: every changed file is one of those, or `src/**/*.test.ts`, `src/**/*.test.tsx` or under `src/lib/*-captured/`: the command ends after the unit step, exit 0, and says which steps it left out
 - 4: any other changed file, no changed file, or no answer from git: the whole set runs
 - 5: the files of criteria 2 and 3 are in `.dockerignore`, so the image cannot hold them; the image holds the same files as before
