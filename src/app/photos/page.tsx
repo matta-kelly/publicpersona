@@ -12,7 +12,7 @@ export default async function PhotosPage() {
     console.error("immich share fetch failed", err);
     return (
       <article>
-        <h1 className="text-3xl font-semibold tracking-tight">Photos</h1>
+        <h1>Photos</h1>
         <p className="text-muted mt-4">Photos unavailable right now. Try again later.</p>
       </article>
     );
@@ -21,8 +21,8 @@ export default async function PhotosPage() {
 
   return (
     <article>
-      <header className="prose prose-neutral dark:prose-invert">
-        <h1 className="text-3xl font-semibold tracking-tight">{share.albumName}</h1>
+      <header>
+        <h1>{share.albumName}</h1>
         <p className="text-muted mt-2">{photos.length} photos</p>
       </header>
       <Gallery photos={photos} />

@@ -1,18 +1,18 @@
 export default function Footer() {
   return (
     <footer className="mt-12 border-t border-black/5 dark:border-white/10">
-      <div className="text-muted mx-auto flex max-w-3xl items-center justify-between px-6 py-6 text-sm">
+      <div className="column text-muted flex items-center justify-between py-3 text-sm">
         <span>© Matthew Kelly</span>
-        <ul className="flex gap-4">
+        <ul className="-mr-2 flex">
           <li>
-            <a href="mailto:mattakellyy@gmail.com" className="hover:text-foreground">
+            <a href="mailto:mattakellyy@gmail.com" className="tap hover:text-foreground px-2">
               email
             </a>
           </li>
           <li>
             <a
               href="https://www.linkedin.com/in/matthew-kelly-profile/"
-              className="hover:text-foreground"
+              className="tap hover:text-foreground px-2"
               rel="noreferrer"
               target="_blank"
             >

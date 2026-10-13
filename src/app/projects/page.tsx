@@ -21,7 +21,7 @@ const PROJECTS = [
 export default function ProjectsPage() {
   return (
     <article>
-      <h1 className="text-3xl font-semibold tracking-tight">Projects</h1>
+      <h1>Projects</h1>
       <ul className="mt-8 grid gap-4 sm:grid-cols-2">
         {PROJECTS.map((p) => (
           <li key={p.slug}>
