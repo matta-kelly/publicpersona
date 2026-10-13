@@ -1,11 +1,11 @@
 ---
 type: spec
-description: "Bring the unit runner (Vitest) into publicpersona, and make the heatmap grid a piece of logic with a unit test for each edge of its rules. Reference for the promises of the grid, the exact setup of the runner, the lines this change owns in the shared files, and how each criterion is checked."
+description: "Bring the unit runner (Vitest) into publicpersona, and make the heatmap grid a piece of logic with a unit test for each edge of its rules. Reference for the promises of the grid, the exact setup of the runner, how the install keeps a package younger than 24 hours out of the lockfile, the lines this change owns in the shared files, and how each criterion is checked."
 status: design
 ---
 ## Need
 
-- the site has no test, and no runner
+- the site has no unit test, and no unit runner
 	- [[testing]] names a chain: test files, runner config, commands, one command, pipeline, main
 	- the last three links are there: `./check.sh`, `checks.yml`, the ruleset on main
 	- the first three are missing for unit tests: no `*.test.ts`, no `vitest.config.mts`, no `pnpm test`
@@ -14,7 +14,7 @@ status: design
 	- `tier` is private
 	- the function reads the clock, so the same input gives a different grid each day
 - no spec says what the heatmap must do
-	- the promises below are read from the code at main `8a883a6`
+	- the promises below are read from the code at main `07f5081`
 	- they say what the code does today; each one is the owner's to accept or refuse in Design review
 
 ## Done looks like
@@ -108,14 +108,15 @@ Month labels:
 Each one is checked on the branch, from the repo root.
 
 - **S1** `vitest.config.mts` is at the repo root, and finds `src/lib/heatmap-grid.test.ts`
-	- check: `pnpm test`, in the dev container, prints `Test Files  1 passed (1)` and `Tests  26 passed (26)`
+	- check: `pnpm test`, in the dev container, shows `Test Files  1 passed (1)` and `Tests  26 passed (26)`
+	- Vitest colours these lines, in a pipe also, so a `grep` for a whole line finds nothing; a check by `grep` looks for `26 passed`
 - **S2** `pnpm test` runs Vitest one time and stops; it does not watch
 	- check: the command of S1 returns to the prompt with exit code 0
 - **S3** `./check.sh` runs the unit tests after the typecheck and before the image build
-	- check: `./check.sh`, on the host, exits 0, and the line `Tests  26 passed (26)` comes before the first line of the image build
-- **S4** the `checks` run on the last commit of this spec's pull request passes, and ran the unit tests
-	- check: `gh pr checks <number>` shows `checks` as `pass`
-	- check: `gh run view <run id> --log | grep -c 'Tests  26 passed (26)'` prints `1`
+	- check: `./check.sh`, on the host, exits 0, and the line with `26 passed` comes before the first line of the image build
+- **S4** the `checks` run on the last commit of pull request #15 passes, and ran the unit tests
+	- check: `gh pr checks 15` shows `checks` as `pass`
+	- check: `gh run view <run id> --log | grep -c -F '26 passed'` prints `1`
 - **S5** the test file is the one from Design
 	- check: `git diff <the commit that added it> HEAD -- src/lib/heatmap-grid.test.ts` prints nothing
 - **S6** `README.md` has the parts list, the unit step and `pnpm test`, as "Approach" gives them
@@ -131,6 +132,35 @@ Each one is checked on the branch, from the repo root.
 		- `A	src/lib/heatmap-grid.test.ts`
 		- `A	src/lib/heatmap-grid.ts`
 		- `A	vitest.config.mts`
+- **S9** `package.json` pins Vitest exactly, and nothing of the override under "Approach" is left
+	- check: `git grep -c -F '"vitest": "5.0.3"' -- package.json` prints `package.json:1`
+	- check: `git grep -n -E '"pnpm"|^overrides:' -- package.json pnpm-lock.yaml` prints nothing and exits 1
+- **S10** no package that the branch adds to `pnpm-lock.yaml` was published less than 24 hours before the install
+	- check: the command below, on the host, from the repo root, directly after the install and before the commit; it prints one line, `55 added, 0 younger than 24 hours`
+	- it reads the publish time of each added package from the npm registry; a young package gets a line of its own, with its name, version and time
+	- any other output: back to Design. The registry has moved, and which version to take is not the Factory's choice
+	- a publish time does not change, so the check gives the same answer in Code review
+
+```sh
+git diff origin/main -- pnpm-lock.yaml | node --input-type=module -e '
+let diff = "";
+for await (const chunk of process.stdin) diff += chunk;
+const added = [...diff.matchAll(/^\+  \x27?((?:@[^\/]+\/)?[^@ ]+)@(\d[^(:\x27]*)/gm)];
+const keys = [...new Set(added.map((m) => m[1] + " " + m[2]))];
+const limit = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+let young = 0;
+for (const key of keys) {
+  const [name, version] = key.split(" ");
+  const res = await fetch("https://registry.npmjs.org/" + name.replace("/", "%2F"));
+  const published = (await res.json()).time[version];
+  if (!(published <= limit)) {
+    young += 1;
+    console.log(name + "@" + version, published);
+  }
+}
+console.log(keys.length + " added, " + young + " younger than 24 hours");
+'
+```
 
 Checked in Code review, by breaking it once on purpose:
 
@@ -143,11 +173,42 @@ Nothing here is a choice for the Factory. A question goes back to Design.
 
 **The runner**
 
-- in the dev container: `pnpm add -D vitest@5.0.3`
-	- this is the pnpm command of the Vitest guide; pnpm 9 installs the `vite` that Vitest needs
-	- 5.0.3, not 5.0.4: 5.0.4 is some hours old
-	- Vitest 5 needs Node 22.12 or later; the dev container and the pipeline both run Node 22
-	- no other package: no DOM library, no React plugin, no path plugin. The grid needs none. A later test that needs one brings it.
+- the rule: no package published less than 24 hours before the install may be in `pnpm-lock.yaml`
+	- pnpm 9.15.0, the version this repo pins, has no setting for the age of a package
+	- `pnpm add -D vitest@5.0.3` alone breaks the rule: Vitest needs `vite`, `vite@8.3.4` asks for `postcss@^8.5.29`, and pnpm takes the newest, `postcss@8.5.30`, published 2026-10-12T20:38Z
+	- so an override gives `vite` the version before it, `postcss@8.5.29`, published 2026-10-05T09:28Z
+	- the override is in `package.json` only while the install runs; no commit holds it
+- the install, in the dev container, from the repo root, in this order
+	- step 1: in `package.json`, the five lines below go in directly before the line `  "scripts": {`
+	- step 2: `pnpm add -D vitest@5.0.3`
+	- step 3: the five lines of step 1 come out again
+	- step 4: `pnpm install --no-frozen-lockfile`
+		- it takes the `overrides` block out of `pnpm-lock.yaml`, and keeps `postcss@8.5.29`: a version that is in the lockfile and fits the range stays
+		- the flag is written out, since pnpm takes a plain install as frozen where `CI` is set
+	- step 5: the check of S10
+
+```json
+  "pnpm": {
+    "overrides": {
+      "vite>postcss": "8.5.29"
+    }
+  },
+```
+
+- what the install leaves
+	- `package.json`: one new line, `"vitest": "5.0.3"`, the last of `devDependencies`, and a comma on the line before it. pnpm writes both
+		- the version is exact, with no `^`, as pnpm writes it for `vitest@5.0.3`
+	- `pnpm-lock.yaml`: 570 new lines, and no line removed or changed
+		- 55 packages, with `vitest@5.0.3`, `vite@8.3.4` and `postcss@8.5.29` among them
+		- the youngest is `tinybench@6.2.2`, published 2026-10-10T19:50Z
+- the peer warning: steps 2 and 4 print `unmet peer @types/node@"^22.0.0 || >=24.0.0": found 20.19.39`, and exit 0
+	- accepted as it is; `@types/node` stays `^20`
+	- it does not fail `pnpm typecheck`: until the logic is there, the errors left are the missing module `./heatmap-grid` and what follows from it; with the logic, none
+	- a typecheck error that names `vitest`, `vite` or a type of Node: back to Design
+- 5.0.3 is the version, also when a newer one is out
+- Vitest 5 needs Node 22.12 or later; the dev container and the pipeline both run Node 22
+- pnpm 9 installs the `vite` that Vitest needs; this is the pnpm command of the Vitest guide
+- no other package: no DOM library, no React plugin, no path plugin. The grid needs none. A later test that needs one brings it.
 - `vitest.config.mts`, at the repo root, with exactly this content
 
 ```ts
@@ -180,19 +241,19 @@ export default defineConfig({
 
 **The shared files: the lines this change owns**
 
-Line numbers are those of main `8a883a6`. The task e2e-first-journey changes the same three files; every line not named here is not this change's.
+Each place is given by the text of a line, as the file is on main `07f5081`. Every line not named here is not this change's.
 
 - `check.sh`
-	- one new line after line 27 (`$PNPM typecheck`): `$PNPM test`
-	- lines 28 to 30 (the empty line, the comment and the image build) are not touched; what comes after the image build is not this change's
+	- one new line, `$PNPM test`, directly after the line `$PNPM typecheck`
+	- the empty line after it, the image build and the end to end step are not touched
 - `package.json`
-	- one new line after line 14 (`"typecheck": "tsc --noEmit",`): `"test": "vitest run",`
-	- line 34 (`"typescript": "^5"`) gets a comma, and one new line follows it: `"vitest": "^5.0.3"`
-	- no other script, and no other package
-- `pnpm-lock.yaml`: what `pnpm add -D vitest@5.0.3` writes
-	- the second of the two tasks to merge will have a conflict here; it is solved by `pnpm install` after the rebase, never by hand
+	- one new line, `"test": "vitest run",`, directly after the line `"typecheck": "tsc --noEmit",`
+	- the `vitest` line, and the comma on the line before it: written by the install, under "The runner"
+	- no other script, no other package, and no `pnpm` block
+- `pnpm-lock.yaml`: what the install under "The runner" writes; never a hand edit
+	- when main changes `package.json` or `pnpm-lock.yaml` before this merges: back to Design
 - `README.md`, four places
-	- new section `## Parts`, put directly before line 12 (`## Run it`)
+	- new section `## Parts`, put directly before the line `## Run it`, with an empty line between them
 
 ```md
 ## Parts
@@ -205,7 +266,8 @@ Each part of the code, the kind of test that holds it, and where it is. A test f
 ```
 
 - `README.md`, continued
-	- line 38 (the paragraph that starts `It runs the whole check set`) becomes
+	- under `## Check it`, the paragraph that starts `It runs the whole check set` becomes the block below
+	- the paragraph after it, which starts `After the image build`, is not touched
 
 ```md
 It runs the whole check set in this order, and stops at the first failure:
@@ -215,20 +277,21 @@ It runs the whole check set in this order, and stops at the first failure:
 3. the typecheck
 4. the unit tests
 5. the image build, which runs `pnpm build` and pushes nothing
+6. the end to end tests, against the image that step 5 built
 
 Needs Podman and Node on the host. Steps 1 to 4 run in the dev container, which the script starts.
 ```
 
 - `README.md`, continued
-	- this change owns that whole block; a later step is a new item after item 5, added by the task that brings it
-	- two new lines directly before line 47 (the `pnpm format` line): the line below, and an empty line
+	- two new lines directly before the line that starts `` `pnpm format`, in the container ``: the line below, and an empty line
 
 ```md
 `pnpm test`, in the container, runs the unit tests alone, once.
 ```
 
 - `README.md`, continued
-	- in the table of `## Layout`: line 68 (`src/lib/`) says `logic, and the clients for the two outside services`, and one new row follows line 69 (`public/`)
+	- in the table of `## Layout`: the row of `src/lib/` says `logic, and the clients for the two outside services`, and one new row follows the row of `public/`
+	- the three rows then read
 
 ```md
 | `src/lib/`                     | logic, and the clients for the two outside services                           |
@@ -238,12 +301,17 @@ Needs Podman and Node on the host. Steps 1 to 4 run in the dev container, which 
 
 **Commits and the pull request**
 
+- the branch holds main `07f5081`, by a merge
+	- main comes in again only by a merge; never a rebase, never a force push
+- the pull request is #15, open, from this branch; the Factory builds onto it
 - the tests are on the branch before any code
 - then, in this order
 	- `chore(test): set up Vitest and the unit step`: `package.json`, `pnpm-lock.yaml`, `vitest.config.mts`, `check.sh`
 	- `refactor(heatmap): move the grid rules into logic`: `src/lib/heatmap-grid.ts`, `src/components/Heatmap.tsx`
 	- `docs(readme): list the parts and the unit command`: `README.md`
 - the pull request title: `test: add the unit runner and the heatmap grid tests`
+	- #15 has another title today, and the squash commit takes its name from it: `gh pr edit 15 --title 'test: add the unit runner and the heatmap grid tests'`
+- the pull request body, one line: `Spec: _well/spec-unit-heatmap.md`
 
 ### Out of scope
 
@@ -258,6 +326,8 @@ Needs Podman and Node on the host. Steps 1 to 4 run in the dev container, which 
 - `src/lib/forgejo.ts`, `src/app/code/page.tsx`, and every other rule, part or page
 - any row in the parts list but the heatmap grid: each later task adds the row of its part
 - a DOM library, a coverage tool, a path plugin for `@/`
+- `@types/node`: it stays `^20`
+- a rule in the repo for the age of a package, and a newer pnpm: `packageManager` stays `pnpm@9.15.0`
 - Playwright, `tests/`, and any step after the image build
 - `.github/workflows/checks.yml`, the dev container, the `Dockerfile`, the pre-commit hook: none needs a change
 - the stale things the epic lists
@@ -313,6 +383,6 @@ How each criterion is verified, by the type of what it changes ([[conventions]],
 - C1 to C3, a `refactor`: the tests still pass, and the checks given with each one
 	- no test holds what the component draws; `/code` is an `async` Server Component that needs live data, so its hold is end to end and a smoke check, in later tasks
 	- until then: Code review reads the component, and the owner looks at `/code` after the deploy
-- S1 to S5, S7, S8, setup, as a `chore`: the checks accept it (S3, S4), and the real run proves it (S4, on the pull request)
+- S1 to S5, S7 to S10, setup, as a `chore`: the checks accept it (S3, S4), and the real run proves it (S4, on the pull request)
 	- a smoke check watches it after: none applies; the change calls no outside thing
 - S6, `docs`: the format check, and review
