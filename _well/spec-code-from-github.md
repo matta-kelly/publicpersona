@@ -136,7 +136,7 @@ Each one has an answer written into the promises: the default this spec builds. 
 	- recommended: a task of its own, `docs`, for the whole write-up
 - **Q8, the folder `deploy/`**
 	- five Kubernetes manifests for a cluster that no longer runs the site. Two name Forgejo
-	- as written: no change. Nothing reads the folder: no file of this repo or of `dazoo` names it
+	- as written: no change. Nothing reads the folder: no pipeline and no script of this repo, and no file of `dazoo`. The write-up of dazoo names it in its text (Q7)
 	- recommended: a `chore` of its own that removes the folder, as [[spec-remove-forgejo-pipeline]] says
 
 Seen, and decided here:
