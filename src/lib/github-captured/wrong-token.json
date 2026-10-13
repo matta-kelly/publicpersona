@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://api.github.com/graphql",
+    "query": "query Activity($login: String!, $since: GitTimestamp!) {\n  user(login: $login) {\n    contributionsCollection {\n      contributionCalendar {\n        weeks {\n          contributionDays {\n            date\n            contributionCount\n          }\n        }\n      }\n    }\n    repositories(\n      first: 100\n      ownerAffiliations: OWNER\n      privacy: PUBLIC\n      isFork: false\n      isArchived: false\n      orderBy: { field: PUSHED_AT, direction: DESC }\n    ) {\n      nodes {\n        name\n        description\n        url\n        createdAt\n        languages(first: 100) {\n          edges {\n            size\n            node {\n              name\n            }\n          }\n        }\n        defaultBranchRef {\n          target {\n            ... on Commit {\n              history(since: $since) {\n                totalCount\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}",
+    "variables": {
+      "login": "matta-kelly",
+      "since": "2025-10-13T00:00:00.000Z"
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "message": "Bad credentials",
+      "documentation_url": "https://docs.github.com/rest",
+      "status": "401"
+    }
+  }
+}

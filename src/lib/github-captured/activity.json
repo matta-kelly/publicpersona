@@ -1,0 +1,212 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://api.github.com/graphql",
+    "query": "query Activity($login: String!, $since: GitTimestamp!) {\n  user(login: $login) {\n    contributionsCollection {\n      contributionCalendar {\n        weeks {\n          contributionDays {\n            date\n            contributionCount\n          }\n        }\n      }\n    }\n    repositories(\n      first: 100\n      ownerAffiliations: OWNER\n      privacy: PUBLIC\n      isFork: false\n      isArchived: false\n      orderBy: { field: PUSHED_AT, direction: DESC }\n    ) {\n      nodes {\n        name\n        description\n        url\n        createdAt\n        languages(first: 100) {\n          edges {\n            size\n            node {\n              name\n            }\n          }\n        }\n        defaultBranchRef {\n          target {\n            ... on Commit {\n              history(since: $since) {\n                totalCount\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}",
+    "variables": {
+      "login": "matta-kelly",
+      "since": "2025-10-13T00:00:00.000Z"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "data": {
+        "user": {
+          "contributionsCollection": {
+            "contributionCalendar": {
+              "weeks": [
+                {
+                  "contributionDays": [
+                    {
+                      "date": "2026-10-04",
+                      "contributionCount": 0
+                    },
+                    {
+                      "date": "2026-10-05",
+                      "contributionCount": 0
+                    },
+                    {
+                      "date": "2026-10-06",
+                      "contributionCount": 0
+                    },
+                    {
+                      "date": "2026-10-07",
+                      "contributionCount": 0
+                    },
+                    {
+                      "date": "2026-10-08",
+                      "contributionCount": 0
+                    },
+                    {
+                      "date": "2026-10-09",
+                      "contributionCount": 27
+                    },
+                    {
+                      "date": "2026-10-10",
+                      "contributionCount": 22
+                    }
+                  ]
+                },
+                {
+                  "contributionDays": [
+                    {
+                      "date": "2026-10-11",
+                      "contributionCount": 6
+                    },
+                    {
+                      "date": "2026-10-12",
+                      "contributionCount": 60
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "repositories": {
+            "nodes": [
+              {
+                "name": "que",
+                "description": "A generic agent harness: capabilities are drop-in packages, mounted per user. LangChain, LangGraph, Next.js, Odoo.",
+                "url": "https://github.com/matta-kelly/que",
+                "createdAt": "2026-10-10T17:14:18Z",
+                "languages": {
+                  "edges": [
+                    {
+                      "size": 252,
+                      "node": {
+                        "name": "Dockerfile"
+                      }
+                    },
+                    {
+                      "size": 303438,
+                      "node": {
+                        "name": "TypeScript"
+                      }
+                    },
+                    {
+                      "size": 5264,
+                      "node": {
+                        "name": "Just"
+                      }
+                    },
+                    {
+                      "size": 7739,
+                      "node": {
+                        "name": "Shell"
+                      }
+                    },
+                    {
+                      "size": 5386,
+                      "node": {
+                        "name": "CSS"
+                      }
+                    },
+                    {
+                      "size": 133,
+                      "node": {
+                        "name": "JavaScript"
+                      }
+                    }
+                  ]
+                },
+                "defaultBranchRef": {
+                  "target": {
+                    "history": {
+                      "totalCount": 26
+                    }
+                  }
+                }
+              },
+              {
+                "name": "publicpersona",
+                "description": "My personal site: who I am, what I have built, and how I think.",
+                "url": "https://github.com/matta-kelly/publicpersona",
+                "createdAt": "2026-10-09T23:41:28Z",
+                "languages": {
+                  "edges": [
+                    {
+                      "size": 2946,
+                      "node": {
+                        "name": "Shell"
+                      }
+                    },
+                    {
+                      "size": 1950,
+                      "node": {
+                        "name": "Dockerfile"
+                      }
+                    },
+                    {
+                      "size": 439,
+                      "node": {
+                        "name": "JavaScript"
+                      }
+                    },
+                    {
+                      "size": 115788,
+                      "node": {
+                        "name": "TypeScript"
+                      }
+                    },
+                    {
+                      "size": 1040,
+                      "node": {
+                        "name": "CSS"
+                      }
+                    }
+                  ]
+                },
+                "defaultBranchRef": {
+                  "target": {
+                    "history": {
+                      "totalCount": 44
+                    }
+                  }
+                }
+              },
+              {
+                "name": "stateball",
+                "description": "Public Non Maintained verison of the stateball repo I maintain on my own infrastructure. This repo is for public documentation purposes only  ",
+                "url": "https://github.com/matta-kelly/stateball",
+                "createdAt": "2026-05-01T19:45:31Z",
+                "languages": {
+                  "edges": [
+                    {
+                      "size": 20249,
+                      "node": {
+                        "name": "Python"
+                      }
+                    },
+                    {
+                      "size": 776,
+                      "node": {
+                        "name": "Just"
+                      }
+                    },
+                    {
+                      "size": 3976,
+                      "node": {
+                        "name": "Shell"
+                      }
+                    }
+                  ]
+                },
+                "defaultBranchRef": {
+                  "target": {
+                    "history": {
+                      "totalCount": 6
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
