@@ -7,5 +7,8 @@ export default defineConfig({
     // The pipeline's clock is on UTC, where a rule that reads the local time gives the UTC answer.
     // San Diego is never on UTC, so there it gives a different one, and a test fails.
     env: { TZ: "America/Los_Angeles" },
+    // A test left on .only would pass the checks while the others never ran.
+    // Vitest's default refuses it only in the pipeline.
+    allowOnly: false,
   },
 });

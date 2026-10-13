@@ -23,7 +23,7 @@ jobs:
     env:
       IMAGE: ghcr.io/matta-kelly/publicpersona
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       # The run's own short-lived token; no password is stored for the registry.
       - run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin

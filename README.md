@@ -65,6 +65,18 @@ It runs the whole check set in this order, and stops at the first failure:
 
 Needs Podman and Node on the host. Steps 1 to 4 run in the dev container, which the script starts.
 
+It runs only the steps that the change needs. The change is every file that differs from the merge base with `origin/main`, with files not yet committed and files not yet tracked. The command says which steps it left out.
+
+| Every changed file is                                                                                | It runs      | It leaves out |
+| ---------------------------------------------------------------------------------------------------- | ------------ | ------------- |
+| a note: a Markdown file under `_well/`, or `README.md`                                               | steps 1, 2   | steps 3 to 6  |
+| a note, a unit or integration test (`src/**/*.test.ts`, `.test.tsx`), or under `src/lib/*-captured/` | steps 1 to 4 | steps 5, 6    |
+| anything else                                                                                        | all six      | nothing       |
+
+It also runs all six when no file changed, and when git cannot name the merge base. `.dockerignore` keeps the files of the first two rows out of the image, so steps 5 and 6 cannot read them. A file kind joins a row only together with its line in `.dockerignore`.
+
+`./check.sh --plan` runs no step. It prints which of the three it would run: `notes`, `unit` or `all`.
+
 After the image build, it starts that image as a container named `publicpersona-check` on `127.0.0.1:3210`, runs the end to end and contract tests against it, and removes the container. It starts the image the way the node does: a read-only root, user 1000, no capabilities, and the same `PORT` and `HOSTNAME`. The tests are `tests/*.spec.ts`. Playwright runs them in the dev container, the end to end tests in Chromium; `npx playwright test`, in the container, runs them alone while the site answers on that port. Their output goes to `/tmp/publicpersona-playwright` in the container, not to the repo folder. Run one `./check.sh` at a time on a machine: each run first removes the container of that name.
 
 The pipeline runs the same command. Two values from the environment say which tools to use:
@@ -82,7 +94,7 @@ The pipeline runs the same command. Two values from the environment say which to
 
 Merging to `main` builds and publishes the image. Two files under `.github/workflows/` do the work, on GitHub's runners.
 
-1. `checks.yml` runs `./check.sh` on every pull request into `main`. The ruleset on `main` refuses a merge until it passes.
+1. `checks.yml` runs `./check.sh` on every pull request into `main`. The ruleset on `main` refuses a merge until it passes. It installs the browser only when `./check.sh --plan` says `all`.
 2. `ship.yml` runs on every push to `main`. It builds the image and pushes it to `ghcr.io/matta-kelly/publicpersona` twice: as `sha-<first 7 characters of the commit>`, and as `latest`.
 
 The image is public: anyone can pull it with no login.

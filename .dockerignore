@@ -6,6 +6,10 @@ Dockerfile
 .dockerignore
 .gitignore
 README.md
+_well
+src/**/*.test.ts
+src/**/*.test.tsx
+src/lib/*-captured
 .env
 .env.*
 .vscode

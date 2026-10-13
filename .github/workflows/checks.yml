@@ -19,21 +19,28 @@ jobs:
     # A hung step has to fail the run; the ruleset on main waits on this job.
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          # check.sh reads the files of the change from the merge base with main.
+          fetch-depth: 0
 
-      # Before setup-node: its pnpm cache needs pnpm on the PATH to find the store.
-      # corepack reads the version from packageManager in package.json.
-      - run: corepack enable
-
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
-          cache: pnpm
+
+      # corepack reads the version of pnpm from packageManager in package.json.
+      - run: corepack enable
 
       - run: pnpm install --frozen-lockfile
 
-      # The browsers are part of the toolchain: check.sh drives Chromium and installs nothing.
-      - run: pnpm exec playwright install --with-deps chromium
+      # check.sh says which steps this change needs: notes, unit or all.
+      - id: plan
+        run: echo "needs=$(./check.sh --plan)" >> "$GITHUB_OUTPUT"
+
+      # The browser is part of the toolchain: check.sh drives it and installs nothing.
+      # The tests run with no window, so the headless shell is the only build they start.
+      - if: steps.plan.outputs.needs == 'all'
+        run: pnpm exec playwright install --with-deps --only-shell chromium
 
       # The runner has pnpm and docker on the PATH; the defaults are for a dev machine.
       - run: ./check.sh
