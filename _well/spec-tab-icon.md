@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Give the site a tab icon: a cube, served as a PNG that every page links and as /favicon.ico. Reference for what the browser tab shows today, the two promises, the files that keep them, and the tests."
-status: review
+status: done
 ---
 
 ## Need
