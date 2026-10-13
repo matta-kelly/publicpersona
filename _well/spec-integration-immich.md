@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Make the Immich client the only place that talks to Immich, and hold it with integration tests on answers captured from the live Immich: the album read and the thumbnail fetch. Reference for the promises of the client, the questions the owner has to answer, the client's public surface, how the answers are captured, stripped and replayed, what the client and the route look like after, the lines this change owns in the shared files, and how each criterion is checked."
-status: design
+status: review
 ---
 ## Need
 
