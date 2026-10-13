@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
+import { isActiveLink } from "@/lib/nav";
 import { twMerge } from "tailwind-merge";
 
 const links = [
@@ -11,11 +12,6 @@ const links = [
   { href: "/code", label: "Code" },
   { href: "/photos", label: "Photos" },
 ];
-
-function isActive(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
 
 export default function Nav() {
   const pathname = usePathname();
@@ -28,7 +24,7 @@ export default function Nav() {
         </Link>
         <ul className="text-muted order-3 flex w-full gap-4 sm:order-none sm:ml-auto sm:w-auto sm:gap-6">
           {links.map((l) => {
-            const active = isActive(pathname, l.href);
+            const active = isActiveLink(pathname, l.href);
             return (
               <li key={l.href}>
                 <Link

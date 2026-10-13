@@ -1,34 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-
-interface Photo {
-  id: string;
-  originalFileName: string;
-  width: number;
-  height: number;
-}
+import { galleryStep, pictureAddress, type GalleryEvent } from "@/lib/gallery";
+import type { Photo } from "@/lib/photos";
 
 export default function Gallery({ photos }: { photos: Photo[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const close = useCallback(() => setOpenIndex(null), []);
-  const next = useCallback(
-    () => setOpenIndex((i) => (i === null ? null : (i + 1) % photos.length)),
-    [photos.length],
-  );
-  const prev = useCallback(
-    () => setOpenIndex((i) => (i === null ? null : (i - 1 + photos.length) % photos.length)),
-    [photos.length],
+  const count = photos.length;
+  const send = useCallback(
+    (event: GalleryEvent) => setOpenIndex((open) => galleryStep(open, event, count)),
+    [count],
   );
 
   useEffect(() => {
     if (openIndex === null) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-      else if (e.key === "ArrowRight") next();
-      else if (e.key === "ArrowLeft") prev();
-    };
+    const onKey = (e: KeyboardEvent) => send({ type: "key", key: e.key });
     document.addEventListener("keydown", onKey);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -36,7 +23,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [openIndex, close, next, prev]);
+  }, [openIndex, send]);
 
   const current = openIndex === null ? null : photos[openIndex];
 
@@ -50,13 +37,13 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
           >
             <button
               type="button"
-              onClick={() => setOpenIndex(i)}
+              onClick={() => send({ type: "open", index: i })}
               className="block h-full w-full cursor-zoom-in"
               aria-label={`Open ${p.originalFileName}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`/photos/img/${p.id}?size=thumbnail`}
+                src={pictureAddress(p.id, "grid")}
                 alt={p.originalFileName}
                 width={p.width}
                 height={p.height}
@@ -75,13 +62,13 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
           aria-modal="true"
           aria-label={`Photo ${openIndex + 1} of ${photos.length}`}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
-          onClick={close}
+          onClick={() => send({ type: "close" })}
         >
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              prev();
+              send({ type: "previous" });
             }}
             aria-label="Previous photo"
             className="absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 sm:left-4"
@@ -101,7 +88,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              next();
+              send({ type: "next" });
             }}
             aria-label="Next photo"
             className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 sm:right-4"
@@ -121,7 +108,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              close();
+              send({ type: "close" });
             }}
             aria-label="Close"
             className="absolute top-2 right-2 rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 sm:top-4 sm:right-4"
@@ -147,7 +134,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             key={current.id}
-            src={`/photos/img/${current.id}?size=preview`}
+            src={pictureAddress(current.id, "open")}
             alt={current.originalFileName}
             width={current.width}
             height={current.height}
