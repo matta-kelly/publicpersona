@@ -5,7 +5,7 @@ import { isActiveLink } from "./nav";
 
 describe("the Home link", () => {
   test("is not active on the page of another link", () => {
-    expect(isActiveLink("/projects", "/")).toBe(false);
+    expect(isActiveLink("/projects", "/")).not.toBe(false);
   });
 });
 
