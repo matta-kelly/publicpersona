@@ -28,3 +28,20 @@ $PNPM typecheck
 
 # Runs pnpm build inside the image, so a broken Dockerfile and a broken build both fail here.
 "$ENGINE" build -t publicpersona:check .
+
+# The end to end tests drive the image that was just built. It starts here, on the host:
+# the dev container has no tool that runs an image.
+SITE=publicpersona-check
+# A run that was killed leaves its container behind, and the name and the port stay taken.
+"$ENGINE" rm -f "$SITE" >/dev/null 2>&1 || true
+trap '"$ENGINE" rm -f "$SITE" >/dev/null 2>&1 || true' EXIT
+# The port is the one in playwright.config.ts.
+"$ENGINE" run -d --name "$SITE" -p 127.0.0.1:3210:3000 publicpersona:check >/dev/null
+
+if ! timeout -k 5 30 bash -c 'until "$0" exec "$1" wget -q -O /dev/null http://127.0.0.1:3000/api/health 2>/dev/null; do sleep 1; done' "$ENGINE" "$SITE"; then
+  echo "check.sh: gave up after 30s waiting for: the site to answer in the container $SITE" >&2
+  "$ENGINE" logs "$SITE" >&2 || true
+  exit 1
+fi
+
+$PNPM exec playwright test
