@@ -1,0 +1,20 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "https://immich.monk3y.xyz/api/shared-links/me",
+    "query": {}
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "\"62-uyQspIZ0ZjBYH7dsnJmDkeTHB9Y\""
+    },
+    "body": {
+      "message": "Invalid share key",
+      "error": "Unauthorized",
+      "statusCode": 401,
+      "correlationId": "6m96sw8y"
+    }
+  }
+}

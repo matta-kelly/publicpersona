@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "https://immich.monk3y.xyz/api/assets/fbe63138-5d28-4273-a650-8fca7f097640/thumbnail",
+    "query": {
+      "size": "thumbnail"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "image/webp",
+      "etag": "W/\"37f4-19c54d20d0d\""
+    },
+    "bodyFile": "thumbnail.webp"
+  }
+}

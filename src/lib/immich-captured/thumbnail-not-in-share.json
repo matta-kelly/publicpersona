@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "https://immich.monk3y.xyz/api/assets/00000000-0000-4000-8000-000000000000/thumbnail",
+    "query": {
+      "size": "preview"
+    }
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "\"71-OyWeBi+dzeLERKvwFzP8yoUvGzk\""
+    },
+    "body": {
+      "message": "Not found or no asset.view access",
+      "error": "Bad Request",
+      "statusCode": 400,
+      "correlationId": "bx7h6pe9"
+    }
+  }
+}
