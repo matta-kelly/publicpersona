@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Make the activity rules of /code a piece of logic with a unit test for each edge, and leave the Forgejo client with nothing but the calls. Reference for the promises of the rules (the day of a contribution, the count of a day, the total, the language shares, the order of the repos), the open question of what one day's count is, what a git host has to hand to the rules, the lines this change owns in the shared files, and how each criterion is checked."
-status: design
+status: review
 ---
 ## Need
 
