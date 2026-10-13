@@ -13,11 +13,14 @@ Built with Next.js 16, React 19, TypeScript and Tailwind 4.
 
 Each part of the code, the kind of test that holds it, and where it is. A test file sits beside the code it tests.
 
-| Part           | Kind  | Test | Path                      |
-| -------------- | ----- | ---- | ------------------------- |
-| heatmap grid   | logic | unit | `src/lib/heatmap-grid.ts` |
-| activity rules | logic | unit | `src/lib/activity.ts`     |
-| photo rules    | logic | unit | `src/lib/photos.ts`       |
+| Part                 | Kind  | Test | Path                      |
+| -------------------- | ----- | ---- | ------------------------- |
+| heatmap grid         | logic | unit | `src/lib/heatmap-grid.ts` |
+| activity rules       | logic | unit | `src/lib/activity.ts`     |
+| photo rules          | logic | unit | `src/lib/photos.ts`       |
+| nav active rule      | logic | unit | `src/lib/nav.ts`          |
+| repo card formatting | logic | unit | `src/lib/repo-card.ts`    |
+| gallery behaviour    | logic | unit | `src/lib/gallery.ts`      |
 
 The borders are the surfaces that another system depends on. A contract test holds each one, against the built image, started the way the node starts it. Both are in `tests/health-and-image.spec.ts`.
 
