@@ -1,6 +1,6 @@
 ---
 type: spec
-description: "Make the photo rules of /photos a piece of logic with a unit test for each edge: which asset id a thumbnail request may carry, which sizes it may ask for, and which assets of the album are photos. Reference for the promises of the rules, the questions the owner has to answer, the public surface of the part, what the route, the page and the Immich client look like after, the lines this change owns in the shared files, and how each criterion is checked."
+description: "Make the photo rules of /photos a piece of logic with unit tests: which asset id a thumbnail request may carry, which sizes it may ask for, and which assets of the album are photos. Reference for the promises of the rules, the questions the owner has to answer, the public surface of the part, what the route, the page and the Immich client look like after, the lines this change owns in the shared files, and how each criterion is checked."
 status: review
 ---
 ## Need
@@ -112,7 +112,9 @@ The asset id of a request, by `thumbnailRequest`:
 - **I1** an asset id is 36 characters: five groups of 8, 4, 4, 4 and 12 hexadecimal digits, with one hyphen between two groups
 	- a hexadecimal digit is `0` to `9` or `a` to `f`
 - **I2** the letters of an asset id can be in upper case or lower case (Q1)
+	- **no test for: upper case**
 - **I3** the version of the UUID is not checked (Q2)
+	- **no test**
 - **I4** an asset id that is accepted goes on exactly as it was given (Q1)
 - **I5** a request with any other text as its id is refused, and the refusal names the id
 	- so no text but an asset id can be put into an address at Immich
@@ -122,18 +124,24 @@ The size of a request, by `thumbnailRequest`:
 
 - **Z1** two sizes are allowed: `thumbnail` and `preview` (Q3)
 - **Z2** a request that gives no size gets `thumbnail`
+	- **no test**
 - **Z3** a request with any other text as its size is refused, and the refusal names the size
 	- "other text" includes `fullsize` and `original` (Q3), the empty text (Q4), an allowed size in another case, and an allowed size with a space
+	- **no test for: any text but `original`**
 - **Z4** when the id and the size are both outside the rules, the refusal names the id
+	- **no test**
 
 The photos of an album, by `galleryPhotos`:
 
 - **G1** an asset is a photo when its type is exactly `IMAGE`; an asset of any other type is not in the list (Q5)
 	- Immich's other types are `VIDEO`, `AUDIO` and `OTHER`; a type Immich does not have today is also not a photo
+	- **no test for: a type other than `IMAGE` and `VIDEO`**
 - **G2** the photos are in the order the album gave
 - **G3** a photo has the id, the file name, the width and the height the album gave, and nothing else of the asset
 	- what is in a photo goes to the browser
+	- **no test**
 - **G4** an album with no image gives an empty list; an album with no asset also
+	- **no test**
 
 ### Acceptance criteria: the code around the rules
 
@@ -331,7 +339,7 @@ Each place is given by the text of a line, as the file is on main `cff4c61`. Eve
 
 ## Tests
 
-All in `src/lib/photos.test.ts`, beside the code; found by `vitest.config.mts`; run by `pnpm test`. Part: photo rules. Kind: unit. 32 tests.
+All in `src/lib/photos.test.ts`, beside the code; found by `vitest.config.mts`; run by `pnpm test`. Part: photo rules. Kind: unit. 5 tests.
 
 - how the expected results were made
 	- each id is written out by hand, and what is wrong with it is in the name of the test or in a comment
@@ -344,43 +352,18 @@ All in `src/lib/photos.test.ts`, beside the code; found by `vitest.config.mts`; 
 
 | Test | Criterion |
 | ---- | --------- |
-| the asset id of a request: is accepted as 8, 4, 4, 4 and 12 hexadecimal digits with a hyphen between | I1 |
-| the asset id of a request: is accepted with its letters in upper case, and goes on as it was given | I2, I4 |
-| the asset id of a request: is accepted whatever the version of the UUID | I3 |
-| the asset id of a request: is refused when it is empty | I5 |
-| the asset id of a request: is refused when it is one digit short | I5, I1 |
-| the asset id of a request: is refused when it is one digit long | I5, I1 |
-| the asset id of a request: is refused when it has no hyphens | I5, I1 |
-| the asset id of a request: is refused when a hyphen is in another place | I5, I1 |
-| the asset id of a request: is refused when it holds a letter after f | I5, I1 |
-| the asset id of a request: is refused when text comes before it | I5 |
-| the asset id of a request: is refused when text comes after it | I5 |
-| the asset id of a request: is refused when a space comes before it | I5 |
-| the asset id of a request: is refused when a line end comes after it | I5 |
-| the asset id of a request: is refused when it is in braces | I5 |
-| the size of a request: is thumbnail when the request gives thumbnail | Z1 |
+| the asset id of a request: is accepted as 8, 4, 4, 4 and 12 hexadecimal digits with a hyphen between | I1, I2, I4, Z1 |
+| the asset id of a request: is refused when it is any other text | I5, I1 |
 | the size of a request: is preview when the request gives preview | Z1 |
-| the size of a request: is thumbnail when the request gives no size | Z2 |
-| the size of a request: is refused when it is fullsize | Z3 |
 | the size of a request: is refused when it is original | Z3 |
-| the size of a request: is refused when it is empty | Z3 |
-| the size of a request: is refused when it is an allowed size in another case | Z3 |
-| the size of a request: is refused when a space comes before an allowed size | Z3 |
-| the size of a request: is refused when it is the name of something every object has | Z3 |
-| a request with a bad id and a bad size: is refused for its id | Z4 |
-| the photos of an album: hold an asset of the type IMAGE | G1 |
-| the photos of an album: leave out a video | G1 |
-| the photos of an album: leave out an asset of the type AUDIO, and one of the type OTHER | G1 |
-| the photos of an album: leave out an asset of a type that is not one of Immich's four | G1 |
-| the photos of an album: keep the order the album gave, with the other assets taken out | G2 |
-| the photos of an album: give the id, file name, width and height of an image as the album gave them, and nothing else | G3 |
-| the photos of an album: are an empty list for an album with no asset | G4 |
-| the photos of an album: are an empty list for an album with no image | G4 |
+| the photos of an album: keep the order the album gave, with the other assets taken out | G2, G1 |
+| none | I3, Z2, Z4, G3, G4 |
 
 How each criterion is verified, by the type of what it changes ([[conventions]], "what verifies a change, by its type"):
 
-- I1 to I5, Z1 to Z4, G1 to G4, behaviour that had no test: a test, written first and kept
+- I1, I2, I4, I5, Z1, Z3, G1, G2, behaviour that had no test: a test, written first and kept
 	- the branch type is `test`; the conventions give no line for it, so each piece is verified as its own type
+- I3, Z2, Z4, G3, G4: nothing
 - R1 to R7, a `refactor`: the tests that exist still pass, and the checks given with each one
 	- no test holds the route handler or the page: the route calls Immich, and `/photos` is an `async` Server Component that needs live data
 	- until the later tasks: the typecheck holds the shapes; Code review reads R5 and R6; the owner looks at `/photos` after the deploy

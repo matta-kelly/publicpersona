@@ -1,6 +1,6 @@
 ---
 type: spec
-description: "Bring the unit runner (Vitest) into publicpersona, and make the heatmap grid a piece of logic with a unit test for each edge of its rules. Reference for the promises of the grid, the exact setup of the runner, how the install keeps a package younger than 24 hours out of the lockfile, the lines this change owns in the shared files, and how each criterion is checked."
+description: "Bring the unit runner (Vitest) into publicpersona, and make the heatmap grid a piece of logic with unit tests. Reference for the promises of the grid, the exact setup of the runner, how the install keeps a package younger than 24 hours out of the lockfile, the lines this change owns in the shared files, and how each criterion is checked."
 status: review
 ---
 ## Need
@@ -70,7 +70,9 @@ Count:
 
 - **P4** a day with no entry has a count of 0
 - **P5** a day with an entry has the count of that entry; the order of the entries does not matter
+	- **no test for: the order of the entries**
 - **P6** an entry for a day before the first day, or after `today`, is not in the grid
+	- **no test**
 
 Tier:
 
@@ -92,6 +94,7 @@ Month labels:
 - **P10** two things follow from P8 and P9, and are accepted
 	- the same month can be named twice: on the first week, and again near the end, when the grid starts and ends in that month
 	- the first two weeks can both have a label, when the first week is the last of its month
+		- **no test**
 - **P11** a label is the English name of the month in three letters: `Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`
 
 ### Acceptance criteria: the component
@@ -340,7 +343,7 @@ Needs Podman and Node on the host. Steps 1 to 4 run in the dev container, which 
 
 ## Tests
 
-All in `src/lib/heatmap-grid.test.ts`, beside the code; found by `vitest.config.mts`; run by `pnpm test`. Part: heatmap grid. Kind: unit. 26 tests.
+All in `src/lib/heatmap-grid.test.ts`, beside the code; found by `vitest.config.mts`; run by `pnpm test`. Part: heatmap grid. Kind: unit. 3 tests.
 
 - how the expected results were made
 	- each date and weekday is read from the calendar, and the reasoning is a comment in the test
@@ -349,37 +352,16 @@ All in `src/lib/heatmap-grid.test.ts`, beside the code; found by `vitest.config.
 
 | Test | Criterion |
 | ---- | --------- |
-| the range of the grid: ends on today | P1 |
-| the range of the grid: starts on the Sunday before the day 364 days before today | P2 |
-| the range of the grid: starts on the day 364 days before today when that day is a Sunday | P2 |
-| the range of the grid: holds 29 February when the range crosses one | P2 |
-| the range of the grid: has 53 weeks | P3 |
-| the range of the grid: still has 53 weeks when today is a Sunday | P3 |
-| the range of the grid: gives a week its seven days in order, Sunday first | P3 |
-| the range of the grid: leaves the places after today empty in the last week | P3 |
-| the range of the grid: has only today in the last week when today is a Sunday | P3 |
-| the count of a day: is 0 for a day with no entry | P4 |
-| the count of a day: is the count of the entry for that day | P5 |
-| the count of a day: does not depend on the order of the entries | P5 |
-| the count of a day: leaves out an entry from before the first day | P6 |
-| the count of a day: leaves out an entry from after today | P6 |
-| the tier of a day: is 0 for a count of 0 | P7 |
-| the tier of a day: is 1 for a count from 1 to 2 | P7 |
-| the tier of a day: is 2 for a count from 3 to 5 | P7 |
-| the tier of a day: is 3 for a count from 6 to 9 | P7 |
-| the tier of a day: is 4 for a count of 10 or more | P7 |
-| the month label of a week: is the month of its Sunday, for the first week | P8 |
-| the month label of a week: is empty when its Sunday is in the same month as the Sunday before | P9 |
-| the month label of a week: names a month that starts midweek on the first week whose Sunday is in it | P9 |
-| the month label of a week: names a month that starts on a Sunday on the week of that Sunday | P9 |
-| the month label of a week: names the same month twice when the grid starts and ends in it | P10 |
-| the month label of a week: names two weeks in a row when the first week is the last of its month | P10 |
-| the month label of a week: names each month of a year in three letters, in calendar order | P11, P9 |
+| the range of the grid: has only today in the last week when today is a Sunday | P1, P2, P3, P4 |
+| the tier of a day: is 1 for a count from 1 to 2, 2 from 3 to 5, 3 from 6 to 9, and 4 for 10 or more | P7, P5 |
+| the month label of a week: names each month of a year in three letters, in calendar order | P11, P8, P9, P10 |
+| none | P6 |
 
 How each criterion is verified, by the type of what it changes ([[conventions]], "what verifies a change, by its type"):
 
-- P1 to P11, behaviour: a test, written first and kept
+- P1 to P5, P7 to P11, behaviour: a test, written first and kept
 	- the branch type is `test`; the conventions give no line for it, so each piece is verified as its own type
+- P6: nothing
 - C1 to C3, a `refactor`: the tests still pass, and the checks given with each one
 	- no test holds what the component draws; `/code` is an `async` Server Component that needs live data, so its hold is end to end and a smoke check, in later tasks
 	- until then: Code review reads the component, and the owner looks at `/code` after the deploy

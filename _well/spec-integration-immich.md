@@ -140,6 +140,7 @@ The thumbnail fetch, by `getThumbnail`:
 - **T2** when Immich answers 400, there is no picture, and the reason is "not found" (Q1)
 - **T3** when Immich answers with any other failure, there is no picture, and the reason is "upstream" (Q2)
 - **T4** when Immich cannot be reached, there is no picture, and the reason is "upstream" (Q3)
+	- **no test**
 - **T5** the call asks Immich for the size the request gives
 - **T6** the id of the request is one part of the path of the call, whatever text it is
 	- the photo rules let only an asset id through. The type of a `ThumbnailRequest` is text, so a caller that skips the rules can hand over any text
@@ -568,7 +569,7 @@ Each place is given by the text of a line, as the file is on main `881cad7`. Eve
 
 ## Tests
 
-All in `src/lib/immich.test.ts`, beside the code; found by `vitest.config.mts`; run by `pnpm test`. Part: Immich client. Kind: integration. 7 tests.
+All in `src/lib/immich.test.ts`, beside the code; found by `vitest.config.mts`; run by `pnpm test`. Part: Immich client. Kind: integration. 6 tests.
 
 - how the expected results were made
 	- the name of the album, the ids, the file names, the widths, the heights, the content type and the etag: read from the captured files, which hold what the live Immich sent
@@ -576,7 +577,7 @@ All in `src/lib/immich.test.ts`, beside the code; found by `vitest.config.mts`; 
 	- the two reasons and the text of a failure: from the promises
 	- none is taken from a run of the code
 - every test goes through `getShare` or `getThumbnail`, and checks what comes back
-- one test per edge that the client decides. The size (T5) and the key (K1) have no test of their own: a call with another size or with no key gets no captured answer, so the tests named for them below fail
+- the size (T5) and the key (K1) have no test of their own: a call with another size or with no key gets no captured answer, so the tests named for them below fail
 - failing today, on main `881cad7`: all 7
 	- the five of the picture: `getThumbnail is not a function`
 	- the album: the client gives every field Immich sent, not five (A2)
@@ -591,14 +592,15 @@ All in `src/lib/immich.test.ts`, beside the code; found by `vitest.config.mts`; 
 | the picture of a request: is the bytes, the content type and the etag that Immich sent | T1, K1 |
 | the picture of a request: is not found when Immich answers 400: the share does not hold the asset | T2, T5 |
 | the picture of a request: is an upstream failure when Immich answers with any other failure | T3 |
-| the picture of a request: is an upstream failure when Immich cannot be reached | T4 |
 | the picture of a request: stays in the place of the id in the address, whatever text the id is | T6 |
 | none: the capture is missing | A5 |
+| none | T4 |
 
 How each criterion is verified, by the type of what it changes ([[conventions]], "what verifies a change, by its type"):
 
-- K1, A1 to A4, T1 to T6: a test, written first and kept
+- K1, A1 to A4, T1 to T3, T5, T6: a test, written first and kept
 - A5: nothing, until its capture is there
+- T4: nothing
 - R1 to R5: the checks given with each one; R4 by review, since the route is wiring
 - S1 to S4, S6 to S8, the chain: the checks accept it (S2, S3), and the real run proves it (S3, on the pull request)
 - S5, `docs`: the format check, and review
