@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { isActiveLink } from "./nav";
 
-// The links of the site are Home at /, Projects at /projects, Code at /code and Photos at /photos.
+// The links of the site are Home at /, Projects at /projects and Photos at /photos.
 
 describe("the Home link", () => {
   test("is not active on the page of another link", () => {
