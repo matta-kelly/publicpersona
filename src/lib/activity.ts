@@ -59,10 +59,7 @@ function heatmapDays(contributions: ContributionEntry[]): HeatmapDay[] {
     const date = utcDate(entry.timestamp);
     countOfDate.set(date, (countOfDate.get(date) ?? 0) + entry.count);
   }
-  // YYYY-MM-DD in order as text is in order of time.
-  return [...countOfDate]
-    .map(([date, count]) => ({ date, count }))
-    .sort((a, b) => (a.date < b.date ? -1 : 1));
+  return [...countOfDate].map(([date, count]) => ({ date, count }));
 }
 
 function repoLanguages(languageBytes: Record<string, number>): RepoLanguage[] {
