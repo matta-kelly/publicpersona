@@ -123,8 +123,6 @@ Each one stays as it is. This change edits none of them but this spec.
 	- they go when `/code` reads GitHub, which is a `feat` with its own spec
 - `src/app/projects/dazoo/page.tsx`
 	- the text of a write-up about another project. It is content of the site
-- `deploy/deployment.yaml` and `deploy/externalsecret.yaml`
-	- Kubernetes manifests for a cluster that no longer runs the site
 	- the whole folder is stale, not only these lines. Its removal is a separate change
 - the specs in `_well/`: `spec-checks.md`, `spec-format.md`, `spec-remove-shell-tests.md`, `spec-ship.md`, and this one
 	- each one defines a change. The four others define changes that are agreed
@@ -139,7 +137,6 @@ Each one stays as it is. This change edits none of them but this spec.
 	- the images in the registry at `forgejo.monk3y.xyz`
 - the node: its unit file is in `dazoo`, and it already names ghcr.io
 - the `/code` page and the Forgejo client
-- the `deploy/` folder
 - every other part of `README.md`
 - `check.sh`, `Dockerfile` and the two files under `.github/workflows/`
 - any test runner, runner config, test file or test command
