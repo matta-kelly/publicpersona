@@ -54,7 +54,15 @@ function utcDate(timestamp: number): string {
 }
 
 function heatmapDays(contributions: ContributionEntry[]): HeatmapDay[] {
-  return contributions.map((entry) => ({ date: utcDate(entry.timestamp), count: entry.count }));
+  const countOfDate = new Map<string, number>();
+  for (const entry of contributions) {
+    const date = utcDate(entry.timestamp);
+    countOfDate.set(date, (countOfDate.get(date) ?? 0) + entry.count);
+  }
+  // YYYY-MM-DD in order as text is in order of time.
+  return [...countOfDate]
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => (a.date < b.date ? -1 : 1));
 }
 
 function repoLanguages(languageBytes: Record<string, number>): RepoLanguage[] {
