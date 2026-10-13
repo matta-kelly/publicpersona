@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "https://immich.monk3y.xyz/api/assets/fbe63138-5d28-4273-a650-8fca7f097640/thumbnail",
+    "query": {
+      "size": "thumbnail"
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "\"62-dH0QlO9UjbTM97xiduKZBmTZu3k\""
+    },
+    "body": {
+      "message": "Invalid share key",
+      "error": "Unauthorized",
+      "statusCode": 401,
+      "correlationId": "2f5xfagb"
+    }
+  }
+}

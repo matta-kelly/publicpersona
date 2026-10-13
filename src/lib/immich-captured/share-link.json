@@ -1,0 +1,55 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "https://immich.monk3y.xyz/api/shared-links/me",
+    "query": {}
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"42a-bC+Wz3hxRE2D5XtqFD78awJiFRA\""
+    },
+    "body": {
+      "id": "stripped",
+      "description": null,
+      "password": null,
+      "userId": "stripped",
+      "key": "stripped",
+      "type": "ALBUM",
+      "createdAt": "stripped",
+      "expiresAt": null,
+      "assets": [],
+      "album": {
+        "albumName": "stripped",
+        "description": "stripped",
+        "albumThumbnailAssetId": "stripped",
+        "createdAt": "stripped",
+        "updatedAt": "stripped",
+        "id": "4cca3b77-fccf-446d-a818-55fcfb2c7313",
+        "ownerId": "stripped",
+        "owner": {
+          "id": "stripped",
+          "email": "stripped",
+          "name": "stripped",
+          "profileImagePath": "stripped",
+          "avatarColor": "stripped",
+          "profileChangedAt": "stripped"
+        },
+        "albumUsers": [],
+        "shared": true,
+        "hasSharedLink": true,
+        "startDate": "stripped",
+        "endDate": "stripped",
+        "assets": [],
+        "assetCount": 0,
+        "isActivityEnabled": true,
+        "order": "stripped"
+      },
+      "allowUpload": false,
+      "allowDownload": false,
+      "showMetadata": true,
+      "slug": null
+    }
+  }
+}

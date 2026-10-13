@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "https://immich.monk3y.xyz/api/assets/..%2F..%2Fshared-links%2Fme/thumbnail",
+    "query": {
+      "size": "thumbnail"
+    }
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "\"63-LJrp45Y2hIZ6r9/VPqmzpSHbaeI\""
+    },
+    "body": {
+      "message": ["id must be a UUID"],
+      "error": "Bad Request",
+      "statusCode": 400,
+      "correlationId": "vv68yoes"
+    }
+  }
+}
