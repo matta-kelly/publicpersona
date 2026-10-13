@@ -1,14 +1,15 @@
 import Link from "next/link";
 import Heatmap from "@/components/Heatmap";
 import RepoCard from "@/components/RepoCard";
-import { getActivity } from "@/lib/forgejo";
+import { activitySummary } from "@/lib/activity";
+import { fetchActivity } from "@/lib/forgejo";
 
 export const dynamic = "force-dynamic";
 
 export default async function CodePage() {
   let activity;
   try {
-    activity = await getActivity();
+    activity = activitySummary(await fetchActivity());
   } catch (err) {
     console.error("forgejo activity fetch failed", err);
     return (

@@ -1,32 +1,8 @@
+import type { ActivitySource, ContributionEntry, RepoSource } from "./activity";
+
 const FORGEJO_BASE = "https://forgejo.monk3y.xyz/api/v1";
 const USER = "mkultra";
 const REVALIDATE_SECONDS = 600;
-
-export interface HeatmapDay {
-  date: string;
-  count: number;
-}
-
-export interface RepoLanguage {
-  name: string;
-  bytes: number;
-  pct: number;
-}
-
-export interface RepoSummary {
-  name: string;
-  description: string;
-  htmlUrl: string;
-  createdAt: string;
-  languages: RepoLanguage[];
-  commitsLast12mo: number;
-}
-
-export interface ActivitySummary {
-  totalContributionsLast12mo: number;
-  heatmap: HeatmapDay[];
-  repos: RepoSummary[];
-}
 
 function getToken(): string {
   const t = process.env.FORGEJO_API_TOKEN;
@@ -70,21 +46,9 @@ interface ForgejoRepo {
   created_at: string;
 }
 
-async function fetchHeatmap(): Promise<HeatmapDay[]> {
+async function fetchContributions(): Promise<ContributionEntry[]> {
   const raw = await api<ForgejoHeatmapEntry[]>(`/users/${USER}/heatmap`);
-  return raw.map((d) => ({
-    date: new Date(d.timestamp * 1000).toISOString().slice(0, 10),
-    count: d.contributions,
-  }));
-}
-
-async function fetchRepoLanguages(repo: string): Promise<RepoLanguage[]> {
-  const obj = await api<Record<string, number>>(`/repos/${USER}/${repo}/languages`);
-  const total = Object.values(obj).reduce((a, b) => a + b, 0);
-  if (total === 0) return [];
-  return Object.entries(obj)
-    .map(([name, bytes]) => ({ name, bytes, pct: bytes / total }))
-    .sort((a, b) => b.bytes - a.bytes);
+  return raw.map((d) => ({ timestamp: d.timestamp, count: d.contributions }));
 }
 
 async function fetchCommitCountSince(repo: string, sinceISO: string): Promise<number> {
@@ -95,13 +59,13 @@ async function fetchCommitCountSince(repo: string, sinceISO: string): Promise<nu
   return total ? parseInt(total, 10) : 0;
 }
 
-async function fetchRepos(): Promise<RepoSummary[]> {
+async function fetchRepos(): Promise<RepoSource[]> {
   const repos = await api<ForgejoRepo[]>(`/users/${USER}/repos?limit=50`);
   const since = new Date(Date.now() - 365 * 86400 * 1000).toISOString();
-  const enhanced = await Promise.all(
+  return Promise.all(
     repos.map(async (r) => {
-      const [languages, commitsLast12mo] = await Promise.all([
-        fetchRepoLanguages(r.name),
+      const [languageBytes, commitsLast12mo] = await Promise.all([
+        api<Record<string, number>>(`/repos/${USER}/${r.name}/languages`),
         fetchCommitCountSince(r.name, since),
       ]);
       return {
@@ -109,16 +73,14 @@ async function fetchRepos(): Promise<RepoSummary[]> {
         description: r.description ?? "",
         htmlUrl: r.html_url,
         createdAt: r.created_at,
-        languages,
+        languageBytes,
         commitsLast12mo,
       };
     }),
   );
-  return enhanced.sort((a, b) => b.commitsLast12mo - a.commitsLast12mo);
 }
 
-export async function getActivity(): Promise<ActivitySummary> {
-  const [heatmap, repos] = await Promise.all([fetchHeatmap(), fetchRepos()]);
-  const totalContributionsLast12mo = heatmap.reduce((sum, d) => sum + d.count, 0);
-  return { totalContributionsLast12mo, heatmap, repos };
+export async function fetchActivity(): Promise<ActivitySource> {
+  const [contributions, repos] = await Promise.all([fetchContributions(), fetchRepos()]);
+  return { contributions, repos };
 }
