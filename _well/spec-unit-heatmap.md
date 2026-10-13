@@ -1,7 +1,7 @@
 ---
 type: spec
 description: "Bring the unit runner (Vitest) into publicpersona, and make the heatmap grid a piece of logic with a unit test for each edge of its rules. Reference for the promises of the grid, the exact setup of the runner, how the install keeps a package younger than 24 hours out of the lockfile, the lines this change owns in the shared files, and how each criterion is checked."
-status: design
+status: review
 ---
 ## Need
 
