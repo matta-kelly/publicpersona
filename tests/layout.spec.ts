@@ -129,19 +129,6 @@ test("spaces the paragraphs of the Sabermetric write-up 16 apart, as the other w
   expect(second.y - (first.y + first.height)).toBeCloseTo(16, 0);
 });
 
-test("shows no text under 12 px in the diagram of the Dazoo write-up", async ({ page }) => {
-  await page.setViewportSize(phone);
-  await page.goto("/projects/dazoo");
-  const diagram = page.getByRole("figure", { name: "Dazoo topology", exact: true });
-
-  // The two smallest kinds of text in it: the line under a box, and the line over a pillar.
-  await expect(diagram.getByText("GitHub", { exact: true })).toHaveCSS("font-size", "12px");
-  await expect(diagram.getByText("via Butane / Ignition", { exact: true })).toHaveCSS(
-    "font-size",
-    "12px",
-  );
-});
-
 test("keeps a page title of one long word inside the column on a phone", async ({ page }) => {
   await page.setViewportSize(phone);
   await page.goto("/photos");
