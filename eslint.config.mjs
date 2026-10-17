@@ -38,10 +38,22 @@ const layoutRules = [
   },
 ];
 
+// A folder named for a kind of code gathers modules that have different users. A module is
+// beside the one thing that uses it.
+const inAKindFolder = {
+  selector: "Program",
+  message:
+    "No folder under src/ is named lib, utils or components. Put the module beside the one thing that uses it.",
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   { rules: { "no-restricted-syntax": ["error", ...layoutRules] } },
+  {
+    files: ["src/**/{lib,utils,components}/**"],
+    rules: { "no-restricted-syntax": ["error", ...layoutRules, inAKindFolder] },
+  },
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
 ]);
 

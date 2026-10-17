@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import ThemeToggle from "@/components/ThemeToggle";
-import { isActiveLink } from "@/lib/nav";
+import ThemeToggle from "./ThemeToggle";
+import { isActiveLink } from "./active-link";
 import { twMerge } from "tailwind-merge";
 
 const links = [

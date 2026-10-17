@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { isActiveLink } from "./nav";
+import { isActiveLink } from "./active-link";
 
 // The links of the site are Home at /, Projects at /projects and Photos at /photos.
 

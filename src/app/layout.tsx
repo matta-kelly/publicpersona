@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import Providers from "@/components/Providers";
+import Nav from "./Nav";
+import Footer from "./Footer";
+import Providers from "./Providers";
 
 export const metadata: Metadata = {
   title: "Matthew Kelly",
