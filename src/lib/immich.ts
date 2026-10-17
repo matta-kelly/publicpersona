@@ -2,6 +2,9 @@ import type { AlbumAsset, ThumbnailRequest } from "./photos";
 
 const IMMICH_BASE = "https://immich.monk3y.xyz";
 
+// How long a call to Immich may take, from the request to the last byte of the answer.
+const TIME_LIMIT_MS = 10_000;
+
 /** The album of the share, as far as the site reads it. */
 export interface Share {
   albumName: string;
@@ -28,6 +31,17 @@ function getKey(): string {
   return key;
 }
 
+// A signal that aborts when the time limit has passed. A fetch that carries it then fails with
+// an error that names the call it waited for.
+function timeLimit(call: string): AbortSignal {
+  const controller = new AbortController();
+  setTimeout(
+    () => controller.abort(new Error(`${call}: no answer in ${TIME_LIMIT_MS / 1000} seconds`)),
+    TIME_LIMIT_MS,
+  );
+  return controller.signal;
+}
+
 interface SharedLinkMeResponse {
   album: { id: string } | null;
   type: "ALBUM" | "INDIVIDUAL";
@@ -43,6 +57,7 @@ async function fetchJson<T>(path: string): Promise<T> {
   const res = await fetch(url, {
     headers: { Accept: "application/json" },
     next: { revalidate: 3600, tags: ["immich-share"] },
+    signal: timeLimit(`Immich ${path}`),
   });
   if (!res.ok) {
     throw new Error(`Immich ${path}: ${res.status}`);
@@ -75,7 +90,11 @@ export async function getThumbnail(
   try {
     const params = new URLSearchParams({ key: getKey(), size: request.size });
     const url = `${IMMICH_BASE}/api/assets/${encodeURIComponent(request.id)}/thumbnail?${params.toString()}`;
-    res = await fetch(url, { cache: "no-store", redirect: "manual" });
+    res = await fetch(url, {
+      cache: "no-store",
+      redirect: "manual",
+      signal: timeLimit("Immich /api/assets/thumbnail"),
+    });
   } catch {
     return { failed: "upstream" };
   }
