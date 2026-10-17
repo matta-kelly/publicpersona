@@ -16,7 +16,7 @@ Each part of the code, the kind of test that holds it, and where it is. A test f
 | ----------------- | ------- | ----------- | --------------------------------- |
 | photo rules       | logic   | unit        | `src/app/photos/photos.ts`        |
 | Immich client     | adapter | integration | `src/app/photos/immich.ts`        |
-| nav active rule   | logic   | unit        | `src/lib/nav.ts`                  |
+| nav active rule   | logic   | unit        | `src/app/active-link.ts`          |
 | gallery behaviour | logic   | unit        | `src/app/photos/gallery-state.ts` |
 
 The borders are the surfaces that another system depends on. A contract test holds each one, against the built image, started the way the node starts it. Both are in `tests/health-and-image.spec.ts`.
@@ -107,11 +107,10 @@ To roll back, pin the node to the `sha-` tag of an earlier commit.
 
 | Path                              | Holds                                                                                         |
 | --------------------------------- | --------------------------------------------------------------------------------------------- |
-| `src/app/`                        | pages and routes (Next.js App Router)                                                         |
+| `src/app/`                        | pages and routes (Next.js App Router), and the site frame beside `layout.tsx`                 |
 | `src/app/photos/`                 | the gallery: its page and route, its rules, and the client of Immich, the one outside service |
 | `src/app/photos/immich-captured/` | answers of the live Immich, captured; the integration tests replay them                       |
-| `src/components/`                 | shared interface pieces                                                                       |
-| `src/lib/`                        | the nav active rule                                                                           |
+| `src/app/projects/`               | the write-ups: a page each, and `WriteUp.tsx`, the frame they share                           |
 | `public/`                         | images and other static files                                                                 |
 | `vitest.config.mts`               | the runner config: says which files are unit and integration tests                            |
 | `Dockerfile`                      | the image: a multi-stage build ending in Next's standalone server                             |
