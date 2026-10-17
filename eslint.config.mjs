@@ -13,6 +13,8 @@ const inAClassList = (pattern) => [
 const textUnder12Px = String.raw`/\btext-\[(?:(?:\d|1[01])(?:\.\d+)?px|0?\.(?:[0-6]\d*|7(?:[0-4]\d*)?)rem)\]/`;
 // The column is its width and its place in the middle. Each alone is correct on other things.
 const thePageColumn = String.raw`/\bmx-auto\b[^]*\bmax-w-3xl\b|\bmax-w-3xl\b[^]*\bmx-auto\b/`;
+// A colour under dark:, after any other variants such as hover:.
+const aDarkColour = String.raw`/\bdark:(?:[\w-]+:)*(?:bg|text|border(?:-[xytrblse])?|divide|outline|ring|decoration|fill|stroke|shadow|from|via|to|caret|accent|placeholder)-/`;
 
 // Each of these was written more than once before it had one place, and lint is the cheapest
 // thing that can see it: the browser tests see only the pages they open.
@@ -24,6 +26,11 @@ const layoutRules = [
   ...inAClassList(thePageColumn).map((selector) => ({
     selector,
     message: "The page column is written once, as `column` in src/app/globals.css. Use `column`.",
+  })),
+  ...inAClassList(aDarkColour).map((selector) => ({
+    selector,
+    message:
+      "A colour that changes with the theme is a token in src/app/globals.css, with its light and its dark value. Use the token.",
   })),
   {
     selector: "JSXOpeningElement[name.name='h1'] > JSXAttribute[name.name='className']",
