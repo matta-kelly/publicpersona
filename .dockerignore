@@ -9,7 +9,7 @@ README.md
 _well
 src/**/*.test.ts
 src/**/*.test.tsx
-src/lib/*-captured
+src/**/*-captured
 .env
 .env.*
 .vscode

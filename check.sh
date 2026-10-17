@@ -14,7 +14,7 @@ ENGINE=${ENGINE:-podman}
 # (.dockerignore), so the image build and the end to end tests cannot see them.
 # Any other file, no file, or no answer from git: the whole set.
 notes='_well/.*\.md$|README\.md$'
-unit_tests='src/.*\.test\.tsx?$|src/lib/[^/]+-captured/'
+unit_tests='src/.*\.test\.tsx?$|src/(.*/)?[^/]+-captured/'
 needs=all
 # A rename counts as the two files it is, so a source file moved into the notes is still seen.
 if base=$(git merge-base origin/main HEAD 2>/dev/null) &&
