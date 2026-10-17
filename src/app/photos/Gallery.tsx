@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { galleryStep, pictureAddress, type GalleryEvent } from "@/lib/gallery";
-import type { Photo } from "@/lib/photos";
+import { galleryStep, pictureAddress, type GalleryEvent } from "./gallery-state";
+import type { Photo } from "./photos";
 
 export default function Gallery({ photos }: { photos: Photo[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { galleryStep, pictureAddress } from "./gallery";
+import { galleryStep, pictureAddress } from "./gallery-state";
 
 // The open photo is its place in the list, from 0; null is the gallery with no photo open.
 // The last argument is the number of photos in the gallery.

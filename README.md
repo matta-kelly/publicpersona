@@ -12,12 +12,12 @@ Built with Next.js 16, React 19, TypeScript and Tailwind 4.
 
 Each part of the code, the kind of test that holds it, and where it is. A test file sits beside the code it tests.
 
-| Part              | Kind    | Test        | Path                 |
-| ----------------- | ------- | ----------- | -------------------- |
-| photo rules       | logic   | unit        | `src/lib/photos.ts`  |
-| Immich client     | adapter | integration | `src/lib/immich.ts`  |
-| nav active rule   | logic   | unit        | `src/lib/nav.ts`     |
-| gallery behaviour | logic   | unit        | `src/lib/gallery.ts` |
+| Part              | Kind    | Test        | Path                              |
+| ----------------- | ------- | ----------- | --------------------------------- |
+| photo rules       | logic   | unit        | `src/app/photos/photos.ts`        |
+| Immich client     | adapter | integration | `src/app/photos/immich.ts`        |
+| nav active rule   | logic   | unit        | `src/lib/nav.ts`                  |
+| gallery behaviour | logic   | unit        | `src/app/photos/gallery-state.ts` |
 
 The borders are the surfaces that another system depends on. A contract test holds each one, against the built image, started the way the node starts it. Both are in `tests/health-and-image.spec.ts`.
 
@@ -67,11 +67,11 @@ Needs Podman and Node on the host. Steps 1 to 4 run in the dev container, which 
 
 It runs only the steps that the change needs. The change is every file that differs from the merge base with `origin/main`, with files not yet committed and files not yet tracked. The command says which steps it left out.
 
-| Every changed file is                                                                                | It runs      | It leaves out |
-| ---------------------------------------------------------------------------------------------------- | ------------ | ------------- |
-| a note: a Markdown file under `_well/`, or `README.md`                                               | steps 1, 2   | steps 3 to 6  |
-| a note, a unit or integration test (`src/**/*.test.ts`, `.test.tsx`), or under `src/lib/*-captured/` | steps 1 to 4 | steps 5, 6    |
-| anything else                                                                                        | all six      | nothing       |
+| Every changed file is                                                                                           | It runs      | It leaves out |
+| --------------------------------------------------------------------------------------------------------------- | ------------ | ------------- |
+| a note: a Markdown file under `_well/`, or `README.md`                                                          | steps 1, 2   | steps 3 to 6  |
+| a note, a unit or integration test (`src/**/*.test.ts`, `.test.tsx`), or under a `*-captured/` folder in `src/` | steps 1 to 4 | steps 5, 6    |
+| anything else                                                                                                   | all six      | nothing       |
 
 It also runs all six when no file changed, and when git cannot name the merge base. `.dockerignore` keeps the files of the first two rows out of the image, so steps 5 and 6 cannot read them. A file kind joins a row only together with its line in `.dockerignore`.
 
@@ -105,17 +105,18 @@ To roll back, pin the node to the `sha-` tag of an earlier commit.
 
 ## Layout
 
-| Path                           | Holds                                                                         |
-| ------------------------------ | ----------------------------------------------------------------------------- |
-| `src/app/`                     | pages and routes (Next.js App Router)                                         |
-| `src/components/`              | shared interface pieces                                                       |
-| `src/lib/`                     | logic, and the client for the one outside service, Immich                     |
-| `src/lib/immich-captured/`     | answers of the live Immich, captured; the integration tests replay them       |
-| `public/`                      | images and other static files                                                 |
-| `vitest.config.mts`            | the runner config: says which files are unit and integration tests            |
-| `Dockerfile`                   | the image: a multi-stage build ending in Next's standalone server             |
-| `check.sh`                     | the one command that runs the whole check set                                 |
-| `playwright.config.ts`         | the Playwright config: where the end to end tests are, and what they drive    |
-| `tests/`                       | end to end and contract tests (`*.spec.ts`): they run against the built image |
-| `.github/workflows/checks.yml` | the pipeline for a pull request: runs `check.sh`                              |
-| `.github/workflows/ship.yml`   | the pipeline for a merge to `main`: builds the image and pushes it to ghcr.io |
+| Path                              | Holds                                                                                         |
+| --------------------------------- | --------------------------------------------------------------------------------------------- |
+| `src/app/`                        | pages and routes (Next.js App Router)                                                         |
+| `src/app/photos/`                 | the gallery: its page and route, its rules, and the client of Immich, the one outside service |
+| `src/app/photos/immich-captured/` | answers of the live Immich, captured; the integration tests replay them                       |
+| `src/components/`                 | shared interface pieces                                                                       |
+| `src/lib/`                        | the nav active rule                                                                           |
+| `public/`                         | images and other static files                                                                 |
+| `vitest.config.mts`               | the runner config: says which files are unit and integration tests                            |
+| `Dockerfile`                      | the image: a multi-stage build ending in Next's standalone server                             |
+| `check.sh`                        | the one command that runs the whole check set                                                 |
+| `playwright.config.ts`            | the Playwright config: where the end to end tests are, and what they drive                    |
+| `tests/`                          | end to end and contract tests (`*.spec.ts`): they run against the built image                 |
+| `.github/workflows/checks.yml`    | the pipeline for a pull request: runs `check.sh`                                              |
+| `.github/workflows/ship.yml`      | the pipeline for a merge to `main`: builds the image and pushes it to ghcr.io                 |
