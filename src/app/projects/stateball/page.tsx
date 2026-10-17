@@ -1,4 +1,4 @@
-import { Figure, Section, WriteUp } from "@/components/WriteUp";
+import { Figure, Section, WriteUp } from "@/app/projects/WriteUp";
 
 export const metadata = {
   title: "Stateball · Matthew Kelly",

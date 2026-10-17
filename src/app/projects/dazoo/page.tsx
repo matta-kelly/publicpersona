@@ -1,4 +1,4 @@
-import { Section, WriteUp } from "@/components/WriteUp";
+import { Section, WriteUp } from "@/app/projects/WriteUp";
 
 export const metadata = {
   title: "Dazoo · Matthew Kelly",
