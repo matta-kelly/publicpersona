@@ -54,12 +54,25 @@ function immichAnswers(...captured: Captured[]) {
   });
 }
 
+// Puts in the place of Immich one that takes every call and never answers. As fetch does,
+// a call fails with the reason of its signal when the signal aborts.
+function immichNeverAnswers() {
+  vi.stubGlobal(
+    "fetch",
+    (_input: string, init?: RequestInit) =>
+      new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener("abort", () => reject(init.signal?.reason));
+      }),
+  );
+}
+
 beforeEach(() => {
   unanswered = [];
   vi.stubEnv("IMMICH_SHARE_KEY", KEY);
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
   // The client hides a call that fails, so a call Immich was never seen to answer is caught here.
@@ -109,6 +122,16 @@ describe("the album of the share", () => {
     const failure = await getShare().catch((error: Error) => error.message);
 
     expect(failure).toBe("Immich /api/shared-links/me: 401");
+  });
+
+  test("fails with the call it waited for when Immich gives no answer in 10 seconds", async () => {
+    vi.useFakeTimers();
+    immichNeverAnswers();
+
+    const failure = getShare().catch((error: Error) => error.message);
+    await vi.advanceTimersByTimeAsync(10_000);
+
+    expect(await failure).toBe("Immich /api/shared-links/me: no answer in 10 seconds");
   });
 });
 
@@ -180,5 +203,18 @@ describe("the picture of a request", () => {
     });
 
     expect(picture).toEqual({ failed: "upstream" });
+  });
+
+  test("is an upstream failure when Immich gives no answer in 10 seconds", async () => {
+    vi.useFakeTimers();
+    immichNeverAnswers();
+
+    const picture = getThumbnail({
+      id: "fbe63138-5d28-4273-a650-8fca7f097640",
+      size: "thumbnail",
+    });
+    await vi.advanceTimersByTimeAsync(10_000);
+
+    expect(await picture).toEqual({ failed: "upstream" });
   });
 });
