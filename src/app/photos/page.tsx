@@ -1,6 +1,6 @@
 import Gallery from "./Gallery";
-import { getShare } from "@/lib/immich";
-import { galleryPhotos } from "@/lib/photos";
+import { getShare } from "./immich";
+import { galleryPhotos } from "./photos";
 
 export const dynamic = "force-dynamic";
 

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
-import { getThumbnail } from "@/lib/immich";
-import { thumbnailRequest } from "@/lib/photos";
+import { getThumbnail } from "@/app/photos/immich";
+import { thumbnailRequest } from "@/app/photos/photos";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
