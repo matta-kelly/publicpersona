@@ -168,4 +168,17 @@ describe("the picture of a request", () => {
 
     expect(picture).toEqual({ failed: "not-found" });
   });
+
+  test("is an upstream failure, and Immich gets no call, when the share key is not set", async () => {
+    // No answer is captured, so a call to Immich is caught after the test.
+    immichAnswers();
+    vi.stubEnv("IMMICH_SHARE_KEY", undefined);
+
+    const picture = await getThumbnail({
+      id: "fbe63138-5d28-4273-a650-8fca7f097640",
+      size: "thumbnail",
+    });
+
+    expect(picture).toEqual({ failed: "upstream" });
+  });
 });
