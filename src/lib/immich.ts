@@ -71,10 +71,10 @@ export async function getShare(): Promise<Share> {
 export async function getThumbnail(
   request: ThumbnailRequest,
 ): Promise<Thumbnail | ThumbnailFailure> {
-  const params = new URLSearchParams({ key: getKey(), size: request.size });
-  const url = `${IMMICH_BASE}/api/assets/${encodeURIComponent(request.id)}/thumbnail?${params.toString()}`;
   let res: Response;
   try {
+    const params = new URLSearchParams({ key: getKey(), size: request.size });
+    const url = `${IMMICH_BASE}/api/assets/${encodeURIComponent(request.id)}/thumbnail?${params.toString()}`;
     res = await fetch(url, { cache: "no-store", redirect: "manual" });
   } catch {
     return { failed: "upstream" };
