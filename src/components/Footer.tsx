@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="mt-12 border-t border-black/5 dark:border-white/10">
+    <footer className="border-hairline mt-12 border-t">
       <div className="column text-muted flex items-center justify-between py-3 text-sm">
         <span>© Matthew Kelly</span>
         <ul className="-mr-2 flex">

@@ -27,7 +27,7 @@ export default function ProjectsPage() {
           <li key={p.slug}>
             <Link
               href={`/projects/${p.slug}`}
-              className="block rounded-md border border-black/5 p-5 transition-colors hover:border-black/20 dark:border-white/10 dark:hover:border-white/30"
+              className="border-hairline hover:border-edge-strong block rounded-md border p-5 transition-colors"
             >
               <h2 className="text-lg font-semibold tracking-tight">{p.name}</h2>
               <p className="text-muted mt-2 text-sm">{p.description}</p>

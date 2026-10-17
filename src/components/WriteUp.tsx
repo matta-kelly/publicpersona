@@ -67,8 +67,7 @@ export function Figure({
     <figure className="space-y-2">
       <div
         className={
-          "overflow-hidden rounded-md border border-black/5 dark:border-white/10" +
-          (onWhite ? " bg-white" : "")
+          "border-hairline overflow-hidden rounded-md border" + (onWhite ? " bg-white" : "")
         }
       >
         <Image src={src} alt={alt} width={width} height={height} className="h-auto w-full" />

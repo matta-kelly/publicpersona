@@ -92,13 +92,10 @@ export default function DazooPage() {
 
 function Topology() {
   return (
-    <figure
-      aria-label="Dazoo topology"
-      className="rounded-md border border-black/5 p-6 dark:border-white/10"
-    >
+    <figure aria-label="Dazoo topology" className="border-hairline rounded-md border p-6">
       <div className="flex flex-col items-center gap-4">
         <DiagramBox label="dazoo repo" sublabel="GitHub" emphasis />
-        <div aria-hidden className="h-6 w-px bg-black/20 dark:bg-white/20" />
+        <div aria-hidden className="bg-connector h-6 w-px" />
         <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
           <Pillar
             heading="Always-on layer"
@@ -137,14 +134,11 @@ function Pillar({ heading, via, items }: { heading: string; via: string; items: 
 function GitOpsFlow() {
   const steps = ["git push", "GitHub", "Flux", "Talos cluster", "running pod"];
   return (
-    <figure
-      aria-label="GitOps flow"
-      className="mt-2 rounded-md border border-black/5 p-5 dark:border-white/10"
-    >
+    <figure aria-label="GitOps flow" className="border-hairline mt-2 rounded-md border p-5">
       <ol className="flex flex-wrap items-center justify-center gap-2 text-sm">
         {steps.map((step, i) => (
           <li key={step} className="flex items-center gap-2">
-            <span className="rounded-md border border-black/10 px-3 py-1.5 font-mono text-xs dark:border-white/15">
+            <span className="border-edge rounded-md border px-3 py-1.5 font-mono text-xs">
               {step}
             </span>
             {i < steps.length - 1 && (
@@ -175,9 +169,7 @@ function DiagramBox({
     <div
       className={
         "rounded-md border px-4 py-2 text-center " +
-        (emphasis
-          ? "border-black/20 bg-black/[0.03] dark:border-white/30 dark:bg-white/[0.04]"
-          : "border-black/10 dark:border-white/15")
+        (emphasis ? "border-edge-strong bg-emphasis" : "border-edge")
       }
     >
       <div className="text-sm font-medium">{label}</div>
