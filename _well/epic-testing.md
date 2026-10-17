@@ -61,7 +61,7 @@ Reset how [[publicpersona]] is tested, so that it matches [[testing]]. A refacto
 	- the unit, integration, end to end and contract steps in `check.sh`
 	- the parts list in the README
 	- captured responses for Forgejo and Immich
-	- any written promise for the site: no spec says what a page must do
+	- any written behavior for the site: no spec says what a page must do
 - **wrong**
 	- no rule can be reached through a public surface: `tier`, `isActive`, `langColor` and `formatDate` are private; the heatmap rules sit in a render function and read the clock
 	- `src/lib/forgejo.ts` mixes the client with the rules
@@ -74,7 +74,7 @@ Reset how [[publicpersona]] is tested, so that it matches [[testing]]. A refacto
 
 ## Tasks
 
-Each one merges alone and leaves main releasable. The promises are Design's to write and get agreed.
+Each one merges alone and leaves main releasable. The behaviors are Design's to write and get agreed.
 
 - [ ] **remove-shell-tests**: the three scripts, the folder `tests/e2e/` and the README line are gone
 	- a `chore`: verified by the checks and the real run, with no new test
