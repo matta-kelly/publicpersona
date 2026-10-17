@@ -6,27 +6,45 @@
   --background: #fafaf9;
   --foreground: #18181b;
   --muted: #71717a;
-  --accent: #0f172a;
   --link: #1d4ed8;
   --link-hover: #1e3a8a;
+  --hairline: --alpha(var(--color-black) / 5%);
+  --edge: --alpha(var(--color-black) / 10%);
+  --edge-strong: --alpha(var(--color-black) / 20%);
+  --hover-tint: --alpha(var(--color-black) / 5%);
+  --emphasis: --alpha(var(--color-black) / 3%);
+  --connector: --alpha(var(--color-black) / 20%);
+  --tile: var(--color-neutral-100);
 }
 
 .dark {
   --background: #0a0a0a;
   --foreground: #f4f4f5;
   --muted: #a1a1aa;
-  --accent: #f4f4f5;
   --link: #93c5fd;
   --link-hover: #bfdbfe;
+  --hairline: --alpha(var(--color-white) / 10%);
+  --edge: --alpha(var(--color-white) / 15%);
+  --edge-strong: --alpha(var(--color-white) / 30%);
+  --hover-tint: --alpha(var(--color-white) / 10%);
+  --emphasis: --alpha(var(--color-white) / 4%);
+  --connector: --alpha(var(--color-white) / 20%);
+  --tile: var(--color-neutral-900);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
-  --color-accent: var(--accent);
   --color-link: var(--link);
   --color-link-hover: var(--link-hover);
+  --color-hairline: var(--hairline);
+  --color-edge: var(--edge);
+  --color-edge-strong: var(--edge-strong);
+  --color-hover-tint: var(--hover-tint);
+  --color-emphasis: var(--emphasis);
+  --color-connector: var(--connector);
+  --color-tile: var(--tile);
 }
 
 /* The one column of the site: the nav, the page body and the footer all sit in it. */

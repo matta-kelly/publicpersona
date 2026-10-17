@@ -16,7 +16,7 @@ export default function Nav() {
   const pathname = usePathname();
 
   return (
-    <header className="border-b border-black/5 dark:border-white/10">
+    <header className="border-hairline border-b">
       <nav className="column flex flex-wrap items-center gap-x-6 py-3 text-sm">
         <Link href="/" className="tap mr-auto font-medium">
           Matthew Kelly
@@ -46,7 +46,7 @@ export default function Nav() {
             target="_blank"
             rel="noreferrer"
             aria-label="GitHub"
-            className="tap text-muted hover:text-foreground justify-center rounded-md transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+            className="tap text-muted hover:text-foreground hover:bg-hover-tint justify-center rounded-md transition-colors"
           >
             <GitHubIcon />
           </a>

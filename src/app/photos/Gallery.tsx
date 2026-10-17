@@ -31,10 +31,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
     <>
       <ul className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
         {photos.map((p, i) => (
-          <li
-            key={p.id}
-            className="aspect-square overflow-hidden rounded-md bg-neutral-100 dark:bg-neutral-900"
-          >
+          <li key={p.id} className="bg-tile aspect-square overflow-hidden rounded-md">
             <button
               type="button"
               onClick={() => send({ type: "open", index: i })}
